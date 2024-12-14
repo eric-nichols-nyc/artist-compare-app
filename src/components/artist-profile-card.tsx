@@ -55,7 +55,7 @@ export function ArtistProfileCard({
           </div>
 
           {/* Right Side - Artist Info */}
-          <div className="flex flex-col gap-4">
+          <div className={`flex flex-col gap-4 ${reversed ? 'items-start' : 'items-end'}`}>
             <div className="space-y-2">
               <h2 className="text-2xl font-bold">{name}</h2>
               <div className="flex items-center gap-2">
