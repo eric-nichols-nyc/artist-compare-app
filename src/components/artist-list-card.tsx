@@ -26,13 +26,9 @@ export function ArtistListCard({
   return (
     <Card className="flex-1">
       <CardHeader>
-        <CardTitle>Compare Artists</CardTitle>
+        <CardTitle> Compare the social media and streaming stats of any two Artists out there.</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-center text-gray-600 mb-6">
-          Compare the social media and streaming stats of any two Artists out there.
-        </p>
-        
         <div className="mb-6">
           <input
             type="text"
@@ -46,9 +42,8 @@ export function ArtistListCard({
         <h3 className="font-semibold mb-4">Recommended Artists to compare</h3>
         <div className="space-y-3">
           {recommendedArtists.map((artist) => (
-            <motion.button
+            <div
               key={artist.name}
-              whileHover={{ scale: 1.02 }}
               className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg"
               onClick={() => onArtistSelect?.(artist)}
             >
@@ -69,7 +64,7 @@ export function ArtistListCard({
                 />
                 <span className="text-sm text-gray-500">{artist.genre}</span>
               </div>
-            </motion.button>
+            </div>
           ))}
         </div>
       </CardContent>

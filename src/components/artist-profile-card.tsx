@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 
 interface ArtistProfileProps {
@@ -32,7 +33,7 @@ export function ArtistProfileCard({
       <CardContent className="pt-6">
         <div className={`flex justify-between gap-8 ${reversed ? 'flex-row-reverse' : ''}`}>
           {/* Left Side - Profile Image */}
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col justify-between gap-4">
             <div className="relative w-32 h-32 rounded-full overflow-hidden">
               <Image
                 src={imageUrl || "https://github.com/shadcn.png"}
@@ -43,7 +44,8 @@ export function ArtistProfileCard({
             </div>
             
             {/* Change Button */}
-            <button 
+            <Button 
+              variant="outline"
               onClick={onChangeArtist}
               className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
             >
@@ -51,20 +53,21 @@ export function ArtistProfileCard({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               Change
-            </button>
+            </Button>
           </div>
 
           {/* Right Side - Artist Info */}
           <div className={`flex flex-col gap-4 ${reversed ? 'items-start' : 'items-end'}`}>
             <div className="space-y-2">
               <h2 className="text-2xl font-bold">{name}</h2>
-              <div className="flex items-center gap-2">
+              <div className={`flex flex-row items-center gap-2 justify-end ${reversed ? 'flex-row-reverse' : ''}`}>
+              <span className="text-gray-600">{country}</span>
+
                 <img 
                   src={`/flags/${countryCode.toLowerCase()}.svg`}
                   alt={country}
                   className="w-5 h-3"
                 />
-                <span className="text-gray-600">{country}</span>
               </div>
             </div>
 
@@ -72,9 +75,9 @@ export function ArtistProfileCard({
             <div className="space-y-2">
               {Object.entries(rankings).map(([genre, rank]) => (
                 genre !== 'overall' && (
-                  <div key={genre} className="flex justify-between items-center gap-8">
+                  <div key={genre} className={`flex flex-row items-center gap-2 justify-end ${reversed ? 'flex-row-reverse' : ''}`}>
                     <span className="text-gray-600">{genre}</span>
-                    <span className="font-semibold">#{rank}</span>
+                    <span className="font-semibold">{rank}</span>
                   </div>
                 )
               ))}
