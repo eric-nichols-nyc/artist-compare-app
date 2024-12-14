@@ -1,9 +1,9 @@
-import React from 'react'
-import ArtistComparisonFlow from '@/components/artist-comparison-flow'
-const ComparePage = () => {
+import { ArtistComparisonFlow } from '@/components/artist-comparison-flow'
+
+export default function ComparePage() {
   return (
-    <div><ArtistComparisonFlow /></div>
+    <main className="min-h-screen bg-gray-50">
+      <ArtistComparisonFlow />
+    </main>
   )
 }
-
-export default ComparePage

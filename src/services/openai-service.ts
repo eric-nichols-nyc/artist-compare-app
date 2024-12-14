@@ -59,6 +59,7 @@ export class OpenAIService {
         }
     }
 
+
     /**
      * Generate a comparison between two artists using GPT-4
      */
@@ -74,6 +75,19 @@ export class OpenAIService {
                     role: "user",
                     content: `Compare the musical artists ${artist1} and ${artist2} in terms of:
                     Format each matching attribute side by side, with shared elements clearly marked as "BOTH:" followed by the common trait. If traits differ, list them separately. for example:
+
+                    SOCIAL AND STREAMING METRICS
+                    YouTube Presence:
+                    ${artist1}: Most viewed video: [title] with [view_count] views
+                    ${artist2}: Most viewed video: [title] with [view_count] views
+
+                    Spotify Performance:
+                    ${artist1}: Most streamed song: [title] with [stream_count] streams
+                    ${artist2}: Most streamed song: [title] with [stream_count] streams
+
+                    Social Media Reach:
+                    ${artist1}: [follower_count] Instagram followers
+                    ${artist2}: [follower_count] Instagram followers
 
                     MUSICAL FOUNDATIONS
                     First Instrument:
