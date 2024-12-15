@@ -11,7 +11,7 @@ interface RecommendedArtist {
 }
 
 interface ArtistListCardProps {
-  searchQuery: string
+  searchQuery?: string
   onSearchChange: (query: string) => void
   recommendedArtists: RecommendedArtist[]
   onArtistSelect?: (artist: RecommendedArtist) => void
@@ -58,7 +58,7 @@ export function ArtistListCard({
               <span className="flex-1 text-left">{artist.name}</span>
               <div className="flex items-center gap-2">
                 <img 
-                  src={`/flags/${artist.countryCode.toLowerCase()}.svg`}
+                  src={`/images/${artist.countryCode.toLowerCase()}.svg`}
                   alt={artist.country}
                   className="w-5 h-4"
                 />
