@@ -19,55 +19,41 @@ interface Artist {
 
 interface ArtistComparisonSectionProps {
   id: number;
-  artist: Artist;
+  artist: Artist | null;
   title: string;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   recommendedArtists: Array<Omit<Artist, "rankings">>;
   onArtistSelect: (artist: Omit<Artist, "rankings">) => void;
+  onRemoveArtist: () => void;
+  isLoading?: boolean;
   reversed?: boolean;
 }
 
 export function ArtistComparisonSection({
-    id,
+  id,
   artist,
   title,
   searchQuery,
   onSearchChange,
   recommendedArtists,
   onArtistSelect,
+  onRemoveArtist,
+  isLoading,
   reversed,
 }: ArtistComparisonSectionProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
-  const [showList, setShowList] = useState(true);
-
-
-  const handleArtistSelect = (artist: Omit<Artist, "rankings">) => {
-    // replace and spaces with -
-    const artistName = artist.name.replace(/\s+/g, '-')+'-'+id.toString().toLowerCase();
-    // add artist 1 and artist 2 to the query seperately
-    onArtistSelect(artist);
-    setShowList(false);
+  const handleArtistSelect = (selectedArtist: Omit<Artist, "rankings">) => {
+    onArtistSelect(selectedArtist);
   };
-
-  useEffect(() => {
-    const query = searchParams.get("query");    
-    if (query) {
-      console.log(query);
-    }
-  }, [searchParams]);
 
   return (
     <div className="flex flex-col items-center gap-6">
-      {!showList ? (
+      {artist ? (
         <ArtistProfileCard
           {...artist}
-          overallRankChange={artist.name === "Travis Scott" ? 2 : 3}
+          overallRankChange={3}
           onChangeArtist={() => {
-            setShowList(true);
-            console.log(`Change ${artist.name} clicked`);
+            onRemoveArtist();
           }}
           reversed={reversed}
         />
@@ -77,6 +63,7 @@ export function ArtistComparisonSection({
           onSearchChange={onSearchChange}
           recommendedArtists={recommendedArtists}
           onArtistSelect={handleArtistSelect}
+          isLoading={isLoading}
         />
       )}
     </div>

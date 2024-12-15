@@ -12,7 +12,7 @@ export async function GET() {
     try {
         const { data: artists, error } = await supabase
             .from('artists')
-            .select('name')
+            .select('*')
             .order('name');
 
         if (error) {

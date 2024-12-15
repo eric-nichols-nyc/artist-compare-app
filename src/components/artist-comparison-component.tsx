@@ -20,13 +20,43 @@ interface ArtistComparisonProps {
   reversed?: boolean;
 }
 
+interface ArtistResponse {
+  artists: Array<Omit<Artist, "rankings">>;
+}
+
 export function ArtistComparison({ reversed = false }: ArtistComparisonProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
+  const [artists, setArtists] = useState<Array<Omit<Artist, "rankings">>>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedArtists, setSelectedArtists] = useState<{
+    artist1: Artist | null;
+    artist2: Artist | null;
+  }>({
+    artist1: null,
+    artist2: null,
+  });
 
-  const artist1Param = searchParams.get("artist1");
-  const artist2Param = searchParams.get("artist2");
+  // Fetch artists list for the main view
+  const fetchArtists = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/artists");
+      if (!response.ok) throw new Error("Failed to fetch artists");
+      const data: ArtistResponse = await response.json();
+      setArtists(data.artists || []);
+    } catch (error) {
+      console.error("Error fetching artists:", error);
+      setArtists([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchArtists();
+  }, []);
 
   useEffect(() => {
     const query = searchParams.get("query");
@@ -35,62 +65,39 @@ export function ArtistComparison({ reversed = false }: ArtistComparisonProps) {
     }
   }, [searchParams]);
 
-  const recommendedArtists = [
-    {
-      name: "The Neighbourhood",
-      country: "USA",
-      countryCode: "US",
-      genre: "ROCK",
-      imageUrl: "/artists/neighbourhood.jpg",
-    },
-    {
-      name: "Conan Gray",
-      country: "USA",
-      countryCode: "US",
-      genre: "POP",
-      imageUrl: "/artists/conan-gray.jpg",
-    },
-  ];
-
-  const billieEilish: Artist = {
-    name: "Billie Eilish",
-    country: "USA",
-    countryCode: "US",
-    genre: "POP",
-    imageUrl: "https://github.com/shadcn.png",
-    rankings: {
-      pop: 1,
-      mainstreamPop: 1,
-      overall: 1,
-    },
-  };
-
-  const drake: Artist = {
-    name: "Drake",
-    country: "Canada",
-    countryCode: "CA",
-    genre: "HIP HOP",
-    imageUrl: "https://github.com/shadcn.png",
-    rankings: {
-      pop: 2,
-      mainstreamPop: 3,
-      overall: 2,
-    },
-  };
-
-  const artists = reversed ? [drake, billieEilish] : [billieEilish, drake];
-
-  const handleArtistSelect = (artist: Omit<Artist, "rankings">) => {
-    console.log("artist selected", artist);
-    if (!artist1Param) {
-      router.push(`?artist1=${encodeURIComponent(artist.name)}`);
-    } else if (!artist2Param) {
-      router.push(
-        `?artist1=${encodeURIComponent(
-          artist1Param
-        )}&artist2=${encodeURIComponent(artist.name)}`
-      );
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (selectedArtists.artist1) {
+      params.set("artist1", selectedArtists.artist1.name);
+    } else {
+      params.delete("artist1");
     }
+    if (selectedArtists.artist2) {
+      params.set("artist2", selectedArtists.artist2.name);
+    } else {
+      params.delete("artist2");
+    }
+    router.push(`?${params.toString()}`);
+  }, [selectedArtists, router]);
+
+  const handleArtistSelect = (
+    artist: Omit<Artist, "rankings">,
+    sectionId: number
+  ) => {
+    setSelectedArtists((prev) => ({
+      ...prev,
+      [`artist${sectionId}`]: {
+        ...artist,
+        rankings: { pop: 0, mainstreamPop: 0, overall: 0 },
+      },
+    }));
+  };
+
+  const handleRemoveArtist = (sectionId: number) => {
+    setSelectedArtists((prev) => ({
+      ...prev,
+      [`artist${sectionId}`]: null,
+    }));
   };
 
   return (
@@ -102,21 +109,25 @@ export function ArtistComparison({ reversed = false }: ArtistComparisonProps) {
       <div className="grid grid-cols-2 gap-8">
         <ArtistComparisonSection
           id={1}
-          artist={artists[0]}
+          artist={selectedArtists.artist1}
           title="First Artist"
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          recommendedArtists={recommendedArtists}
-          onArtistSelect={handleArtistSelect}
+          recommendedArtists={artists}
+          onArtistSelect={(artist) => handleArtistSelect(artist, 1)}
+          onRemoveArtist={() => handleRemoveArtist(1)}
+          isLoading={loading}
         />
         <ArtistComparisonSection
           id={2}
-          artist={artists[1]}
+          artist={selectedArtists.artist2}
           title="Second Artist"
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          recommendedArtists={recommendedArtists}
-          onArtistSelect={handleArtistSelect}
+          recommendedArtists={artists}
+          onArtistSelect={(artist) => handleArtistSelect(artist, 2)}
+          onRemoveArtist={() => handleRemoveArtist(2)}
+          isLoading={loading}
           reversed={true}
         />
       </div>
