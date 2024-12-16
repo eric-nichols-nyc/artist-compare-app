@@ -25,7 +25,7 @@ export default function AdminPage() {
         setStatus({ type: 'loading' });
         
         try {
-            const response = await fetch('/api/artists/search', {
+            const response = await fetch('/api/artists/add', {
                 method: 'POST',
                 body: JSON.stringify({ artistName })
             });

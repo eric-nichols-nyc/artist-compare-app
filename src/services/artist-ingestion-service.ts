@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types';
+import { SpotifyService } from './spotify-service';
 
 // Initialize environment variables
 if (typeof window === 'undefined') {
@@ -41,6 +42,19 @@ interface LastFmResponse {
 interface YoutubeChannelInfo {
     id: string;
     statistics: any;
+    topVideos: Array<{
+        id?: string;
+        title?: string;
+        thumbnail?: string;
+        publishedAt?: string;
+        statistics?: {
+            viewCount?: string;
+            likeCount?: string;
+            commentCount?: string;
+        };
+        
+        duration?: string;
+    }>;
 }
 
 export class ArtistIngestionService {
@@ -85,6 +99,7 @@ export class ArtistIngestionService {
             const channelId = searchResponse.data.items?.[0]?.id?.channelId;
             if (!channelId) return null;
 
+            // Get channel statistics
             const channelResponse = await this.youtube.channels.list({
                 key: YOUTUBE_API_KEY,
                 part: ['statistics'],
@@ -94,9 +109,41 @@ export class ArtistIngestionService {
             const channelStats = channelResponse.data.items?.[0]?.statistics;
             if (!channelStats) return null;
 
+            // Get top videos
+            const topVideosResponse = await this.youtube.search.list({
+                key: YOUTUBE_API_KEY,
+                part: ['id', 'snippet'],
+                channelId: channelId,
+                type: ['video'],
+                order: 'viewCount',
+                maxResults: 10
+            });
+
+            // Get detailed video statistics
+            const videoIds = topVideosResponse.data.items
+                ?.map(item => item.id?.videoId)
+                .filter((id): id is string => id !== undefined);
+
+            const videoStats = videoIds ? await this.youtube.videos.list({
+                key: YOUTUBE_API_KEY,
+                part: ['statistics', 'contentDetails'],
+                id: videoIds
+            }) : null;
+
+            // Combine video data
+            const topVideos = topVideosResponse.data.items?.map((item, index) => ({
+                id: item.id?.videoId ?? undefined,
+                title: item.snippet?.title ?? undefined,
+                thumbnail: item.snippet?.thumbnails?.high?.url ?? undefined,
+                publishedAt: item.snippet?.publishedAt ?? undefined,
+                statistics: videoStats?.data.items?.[index]?.statistics ?? undefined,
+                duration: videoStats?.data.items?.[index]?.contentDetails?.duration ?? undefined
+            }));
+
             return {
                 id: channelId,
-                statistics: channelStats
+                statistics: channelStats,
+                topVideos: topVideos || []
             };
         } catch (error) {
             console.error('Error fetching YouTube channel:', error);
@@ -141,31 +188,61 @@ export class ArtistIngestionService {
      * Ingest artist data into the database
      */
     public async ingestArtist(artistName: string) {
-        console.log('ingestArtist...', artistName);
+        console.log('========== ingestArtist... ==========', artistName);
         try {
-            const [lastFmData, youtubeData] = await Promise.all([
+            // Get Spotify artist data first
+            const spotifyArtist = await SpotifyService.searchArtist(artistName);
+            
+            const [lastFmData, youtubeData, spotifyTopTracks, spotifyArtistData] = await Promise.all([
                 this.getLastFmArtistInfo(artistName),
-                this.getYoutubeChannelInfo(artistName)
+                this.getYoutubeChannelInfo(artistName),
+                SpotifyService.getArtistTopTracks(spotifyArtist.id),
+                SpotifyService.getArtistData(spotifyArtist.id)
             ]);
-            console.log('lastfm data', lastFmData);
-            console.log('youtube data', youtubeData);
 
-            // Insert artist data
+            console.log('spotifyTopTracks', spotifyTopTracks);  
+            console.log('spotifyArtistData', spotifyArtistData);
+            console.log('lastFmData', lastFmData);
+            console.log('youtubeData', youtubeData);
+
+            // Insert artist data with Spotify info
             const { data: artist, error: artistError } = await this.supabase
                 .from('artists')
                 .insert({
                     name: artistName,
-                    spotify_id: null,
+                    spotify_id: spotifyArtist.id,
                     last_fm_id: lastFmData.name,
                     youtube_channel_id: youtubeData?.id || null,
                     bio: lastFmData.bio,
-                    genres: lastFmData.tags.tag.map(tag => tag.name)
+                    genres: spotifyArtistData.genres || lastFmData.tags.tag.map(tag => tag.name),
+                    spotify_popularity: spotifyArtistData.popularity,
+                    spotify_followers: spotifyArtistData.followers?.total,
+                    image_url: spotifyArtistData.images?.[0]?.url
                 })
                 .select()
                 .single();
 
             if (artistError || !artist) {
                 throw new Error(`Failed to insert artist: ${artistError?.message}`);
+            }
+
+            // Insert top tracks
+            if (spotifyTopTracks.length > 0) {
+                const trackInserts = spotifyTopTracks.map((track: any) => ({
+                    artist_id: artist.id,
+                    spotify_id: track.id,
+                    name: track.name,
+                    popularity: track.popularity,
+                    preview_url: track.preview_url,
+                    external_url: track.external_urls.spotify,
+                    duration_ms: track.duration_ms,
+                    album_name: track.album.name,
+                    album_image_url: track.album.images[0]?.url
+                }));
+
+                await this.supabase
+                    .from('artist_top_tracks')
+                    .insert(trackInserts);
             }
 
             // Insert analytics data
