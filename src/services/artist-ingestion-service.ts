@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types';
 import { SpotifyService } from './spotify-service';
+import OpenAI from 'openai';
 
 // Initialize environment variables
 if (typeof window === 'undefined') {
@@ -60,6 +61,9 @@ interface YoutubeChannelInfo {
 export class ArtistIngestionService {
     private youtube;
     private supabase;
+    private openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY
+    });
 
     constructor() {
         this.youtube = google.youtube('v3');
@@ -116,7 +120,7 @@ export class ArtistIngestionService {
                 channelId: channelId,
                 type: ['video'],
                 order: 'viewCount',
-                maxResults: 10
+                maxResults: 5
             });
 
             // Get detailed video statistics
@@ -188,7 +192,7 @@ export class ArtistIngestionService {
      * Ingest artist data into the database
      */
     public async ingestArtist(artistName: string) {
-        console.log('========== ingestArtist... ==========', artistName);
+        console.log('========== ingestArtist', artistName,'====================');
         try {
             // Get Spotify artist data first
             const spotifyArtist = await SpotifyService.searchArtist(artistName);
@@ -246,6 +250,8 @@ export class ArtistIngestionService {
             }
 
             // Insert analytics data
+            const socialStats = await this.getSocialMediaStats(artistName);
+            console.log('socialStats', socialStats);
             await this.supabase
                 .from('artist_analytics')
                 .insert({
@@ -258,7 +264,10 @@ export class ArtistIngestionService {
                     youtube_total_views: youtubeData?.statistics.viewCount 
                         ? parseInt(youtubeData.statistics.viewCount) 
                         : null,
-                    lastfm_play_count: parseInt(lastFmData.stats.playcount)
+                    lastfm_play_count: parseInt(lastFmData.stats.playcount),
+                    instagram_followers: socialStats.instagram_followers,
+                    tiktok_followers: socialStats.tiktok_followers,
+                    facebook_followers: socialStats.facebook_followers
                 });
 
             // Process YouTube videos if available
@@ -335,5 +344,33 @@ export class ArtistIngestionService {
         await this.supabase
             .from('artist_similarities')
             .insert(similarArtistsData);
+    }
+
+    private async getSocialMediaStats(artistName: string) {
+        const prompt = `What are the current social media follower counts for ${artistName}? 
+                       Return only numbers for Instagram, TikTok, and Facebook in JSON format.
+                       If exact number unknown, provide best estimate based on recent data.`;
+
+        const response = await this.openai.chat.completions.create({
+            model: "gpt-4",
+            messages: [
+                {
+                    role: "system",
+                    content: "You are a helpful assistant that provides social media statistics in JSON format."
+                },
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ],
+            response_format: { type: "json_object" }
+        });
+
+        const stats = JSON.parse(response.choices[0].message.content!);
+        return {
+            instagram_followers: stats.instagram,
+            tiktok_followers: stats.tiktok,
+            facebook_followers: stats.facebook
+        };
     }
 }
