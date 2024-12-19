@@ -2,9 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Loader2, Search } from "lucide-react"
 import { toast } from "sonner"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -21,13 +22,15 @@ import { artistSchema, type ArtistFormValues } from "@/lib/validations/artist"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 
 export default function NewArtistForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [showFullForm, setShowFullForm] = useState(false)
 
   const form = useForm<ArtistFormValues>({
     resolver: zodResolver(artistSchema),
     defaultValues: {
-      name: "",
+      name: searchParams.get("name") || "",
       spotifyId: null,
       lastFmId: null,
       youtubeChannelId: null,
@@ -41,10 +44,23 @@ export default function NewArtistForm() {
     },
   })
 
+  useEffect(() => {
+    const nameFromUrl = searchParams.get("name")
+    if (nameFromUrl && !showFullForm) {
+      onSearchArtist({ name: nameFromUrl })
+    }
+  }, [searchParams])
+
   async function onSearchArtist(data: { name: string }) {
     try {
+      const start = performance.now()
       setLoading(true)
-      const response = await fetch(`/api/admin/add-artist?name=${encodeURIComponent(data.name)}`, {
+      
+      const params = new URLSearchParams(searchParams)
+      params.set("name", data.name)
+      router.push(`?${params.toString()}`)
+
+      const response = await fetch(`/api/admin/preview-artist?name=${encodeURIComponent(data.name)}`, {
         method: "GET",
       })
 
@@ -53,8 +69,10 @@ export default function NewArtistForm() {
       }
 
       const artistData = await response.json()
+      const end = performance.now()
+      console.log(`Time taken: ${end - start} milliseconds`)
+      console.log('artistData ', artistData)
       
-      // Update form with fetched data
       form.reset({
         name: data.name,
         spotifyId: artistData.spotifyId || null,

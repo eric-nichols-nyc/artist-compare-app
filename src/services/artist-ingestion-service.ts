@@ -188,6 +188,12 @@ export class ArtistIngestionService {
         }
     }
 
+    public async getSpotifyArtistData(artistName: string) {
+        const spotifyArtist = await SpotifyService.searchArtist(artistName);
+        console.log('spotifyArtist', spotifyArtist);
+        return spotifyArtist;
+    }
+
     /**
      * Ingest artist data into the database
      */

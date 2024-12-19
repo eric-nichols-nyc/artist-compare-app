@@ -6,10 +6,6 @@ import { createClient } from '@supabase/supabase-js';
 
 const ingestionService = new ArtistIngestionService();
 const openai = new OpenAI();
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_KEY!
-);
 
 export async function GET(request: Request) {
   try {
@@ -24,9 +20,10 @@ export async function GET(request: Request) {
     }
 
     // Fetch data from multiple sources in parallel
-    const [lastFmData, youtubeData] = await Promise.all([
+    const [lastFmData, youtubeData, spotifyData] = await Promise.all([
       ingestionService.getLastFmArtistInfo(artistName),
-      ingestionService.getYoutubeChannelInfo(artistName)
+      ingestionService.getYoutubeChannelInfo(artistName),
+      ingestionService.getSpotifyArtistData(artistName)
     ]);
 
     // Generate a brief bio using GPT-4
@@ -40,30 +37,44 @@ export async function GET(request: Request) {
     });
 
     // Structure the preview data
+    // const previewData = {
+    //   basic: {
+    //     name: artistName,
+    //     bio: bioCompletion.choices[0].message.content,
+    //     genres: lastFmData.tags.tag.map(tag => tag.name)
+    //   },
+    //   platform: {
+    //     youtube_channel_id: youtubeData?.id || null,
+    //     lastfm_id: lastFmData.name
+    //   },
+    //   analytics: {
+    //     monthly_listeners: parseInt(lastFmData.stats.listeners),
+    //     youtube_subscribers: youtubeData 
+    //       ? parseInt(youtubeData.statistics.subscriberCount) 
+    //       : null,
+    //     youtube_total_views: youtubeData 
+    //       ? parseInt(youtubeData.statistics.viewCount) 
+    //       : null,
+    //     lastfm_play_count: parseInt(lastFmData.stats.playcount)
+    //   },
+    //   raw: {
+    //     lastfm: lastFmData,
+    //     youtube: youtubeData
+    //   }
+    // };
+
     const previewData = {
-      basic: {
-        name: artistName,
-        bio: bioCompletion.choices[0].message.content,
-        genres: lastFmData.tags.map(tag => tag.name)
-      },
-      platform: {
-        youtube_channel_id: youtubeData?.id || null,
-        lastfm_id: lastFmData.name
-      },
-      analytics: {
-        monthly_listeners: parseInt(lastFmData.stats.listeners),
-        youtube_subscribers: youtubeData 
-          ? parseInt(youtubeData.statistics.subscriberCount) 
-          : null,
-        youtube_total_views: youtubeData 
-          ? parseInt(youtubeData.statistics.viewCount) 
-          : null,
-        lastfm_play_count: parseInt(lastFmData.stats.playcount)
-      },
-      raw: {
-        lastfm: lastFmData,
-        youtube: youtubeData
-      }
+      name: artistName,
+      bio: bioCompletion.choices[0].message.content,
+      genres: lastFmData.tags.tag.map(tag => tag.name),
+      spotifyId: spotifyData.id,
+      lastFmId: lastFmData.name,
+      youtubeChannelId: youtubeData?.id || null,
+      spotifyUrl: spotifyData.external_urls.spotify,
+      youtubeUrl: `https://www.youtube.com/channel/${youtubeData?.id}`,
+      tiktokUrl: null,
+      instagramUrl: null,
+      imageUrl: spotifyData.images[0].url || null,
     };
 
     console.log('previewData', previewData);
