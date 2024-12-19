@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { ArtistIngestionService } from '@/services/artist-ingestion-service';
 import { OpenAI } from 'openai';
 import { createClient } from '@supabase/supabase-js';
+import type { PreviewArtistResponse } from "@/types/api"
 
 const ingestionService = new ArtistIngestionService();
 const openai = new OpenAI();
@@ -20,61 +21,52 @@ export async function GET(request: Request) {
     }
 
     // Fetch data from multiple sources in parallel
-    const [lastFmData, youtubeData, spotifyData] = await Promise.all([
-      ingestionService.getLastFmArtistInfo(artistName),
+    const [youtubeData, spotifyData, similarArtistsData ] = await Promise.all([
       ingestionService.getYoutubeChannelInfo(artistName),
-      ingestionService.getSpotifyArtistData(artistName)
+      ingestionService.getSpotifyArtistData(artistName),
+      ingestionService.getLastFmArtistInfo(artistName)
     ]);
 
     // Generate a brief bio using GPT-4
     const bioCompletion = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-3.5-turbo',
       messages: [{
         role: 'user',
-        content: `Write a concise, factual biography for ${artistName}. Include their musical style, major achievements, and cultural impact. Keep it under 200 words.`
+        content: `Write a concise, factual biography for ${artistName}. Keep it to 1 paragraph under 200 words.`
       }],
       temperature: 0.7
     });
 
     // Structure the preview data
-    // const previewData = {
-    //   basic: {
-    //     name: artistName,
-    //     bio: bioCompletion.choices[0].message.content,
-    //     genres: lastFmData.tags.tag.map(tag => tag.name)
-    //   },
-    //   platform: {
-    //     youtube_channel_id: youtubeData?.id || null,
-    //     lastfm_id: lastFmData.name
-    //   },
-    //   analytics: {
-    //     monthly_listeners: parseInt(lastFmData.stats.listeners),
-    //     youtube_subscribers: youtubeData 
-    //       ? parseInt(youtubeData.statistics.subscriberCount) 
-    //       : null,
-    //     youtube_total_views: youtubeData 
-    //       ? parseInt(youtubeData.statistics.viewCount) 
-    //       : null,
-    //     lastfm_play_count: parseInt(lastFmData.stats.playcount)
-    //   },
-    //   raw: {
-    //     lastfm: lastFmData,
-    //     youtube: youtubeData
-    //   }
-    // };
-
-    const previewData = {
+   console.log('youtubeData ======== ', youtubeData)
+   //console.log('spotifyData ======== ', spotifyData)
+   //console.log('bioCompletion ======== ', bioCompletion.choices[0].message.content)
+   //console.log('similarArtistsData ======== ', similarArtistsData)
+    const previewData: PreviewArtistResponse = {
       name: artistName,
       bio: bioCompletion.choices[0].message.content,
-      genres: lastFmData.tags.tag.map(tag => tag.name),
-      spotifyId: spotifyData.id,
-      lastFmId: lastFmData.name,
+      genres: spotifyData.artist.genres,
+      spotifyId: spotifyData.artist.id,
       youtubeChannelId: youtubeData?.id || null,
-      spotifyUrl: spotifyData.external_urls.spotify,
+      spotifyUrl: spotifyData.artist.external_urls.spotify,
       youtubeUrl: `https://www.youtube.com/channel/${youtubeData?.id}`,
       tiktokUrl: null,
       instagramUrl: null,
-      imageUrl: spotifyData.images[0].url || null,
+      imageUrl: spotifyData.artist.images[0].url || null,
+      similarArtists: similarArtistsData || [],
+      topTracks: spotifyData.topTracks,
+      artistVideos: youtubeData?.topVideos,
+      analytics: {
+        monthlyListeners: 100000,
+        youtubeSubscribers: youtubeData?.statistics.subscribers,
+        youtubeTotalViews: 100000,
+        lastfmPlayCount: 100000,
+        spotifyFollowers: spotifyData.artist.followers.total,
+        spotifyPopularity: 100000,
+        topYoutubeVideo: youtubeData?.topVideos?.[0],
+        topSpotifyTrack: spotifyData.topTracks?.[0],
+      }
+
     };
 
     console.log('previewData', previewData);

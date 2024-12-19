@@ -33,7 +33,41 @@ export class SpotifyService {
             throw new Error('Artist not found');
         }
 
-        return data.artists.items[0];
+        const artistId = data.artists.items[0].id;
+
+        // get similar artists
+        const similarArtistsResponse = await fetch(
+            `https://customer.api.soundcharts.com/api/v2/artist/11e81bcc-9c1c-ce38-b96b-a0369fe50396/related?offset=0&limit=10`,
+            {
+                headers: {
+                    'x-app-id': 'soundcharts',
+                    'x-api-key': 'soundcharts'
+                }
+            }
+        );
+
+    
+       
+
+        const similarArtistsData = await similarArtistsResponse.json();
+        console.log('similarArtistsData', similarArtistsData);
+
+        // get top tracks
+        const topTracksResponse = await fetch(
+            `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
+        );  
+
+        const topTracksData = await topTracksResponse.json();
+        // send all data in the response
+        return {
+            artist: data.artists.items[0],
+            topTracks: topTracksData.tracks
+        };
     }
 
     public static async getArtistData(artistId: string) {

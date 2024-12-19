@@ -4,7 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types';
 import { SpotifyService } from './spotify-service';
 import OpenAI from 'openai';
-
+import type { PreviewArtistResponse } from "@/types/api"
+import { ArtistFormValues } from '@/lib/validations/artist';
+import { LastFmArtistInfo, LastFmResponse } from '@/types/api';
 // Initialize environment variables
 if (typeof window === 'undefined') {
     config();
@@ -19,39 +21,19 @@ if (!LASTFM_API_KEY || !YOUTUBE_API_KEY || !SUPABASE_URL || !SUPABASE_KEY) {
     throw new Error('Missing required environment variables');
 }
 
-// Type definitions
-interface LastFmArtistInfo {
-    name: string;
-    bio: string;
-    tags: { tag: Array<{ name: string }> };
-    stats: {
-        listeners: string;
-        playcount: string;
-    };
-    similar: {
-        artist: Array<{
-            name: string;
-            match: string;
-        }>;
-    };
-}
-
-interface LastFmResponse {
-    artist: LastFmArtistInfo;
-}
 
 interface YoutubeChannelInfo {
     id: string;
     statistics: any;
-    topVideos: Array<{
+    topVideos?: Array<{
         id?: string;
         title?: string;
         thumbnail?: string;
         publishedAt?: string;
         statistics?: {
-            viewCount?: string;
-            likeCount?: string;
-            commentCount?: string;
+            viewCount?: string | null | undefined;
+            likeCount?: string | null | undefined;
+            commentCount?: string | null | undefined;
         };
         
         duration?: string;
@@ -76,11 +58,11 @@ export class ArtistIngestionService {
     public async getLastFmArtistInfo(artistName: string): Promise<LastFmArtistInfo> {
         try {
             const response = await fetch(
-                `http://ws.audioscrobbler.com/2.0/?method=artist.getInfo&artist=${encodeURIComponent(artistName)}&api_key=${LASTFM_API_KEY}&format=json`
+                `http://ws.audioscrobbler.com/2.0/?method=artist.getSimilar&artist=${encodeURIComponent(artistName)}&api_key=${LASTFM_API_KEY}&format=json&limit=10`
             );
             const data = await response.json() as LastFmResponse;
             console.log('lastfm data', data);
-            return data.artist;
+            return data.similarartists.artist;
         } catch (error) {
             console.error('Error fetching Last.fm artist info:', error);
             throw error;
@@ -90,8 +72,9 @@ export class ArtistIngestionService {
     /**
      * Fetch YouTube channel information for an artist
      */
-    public async getYoutubeChannelInfo(artistName: string): Promise<YoutubeChannelInfo | null> {
-        try {
+    public async getYoutubeChannelInfo(artistName: string, cid?: string): Promise<YoutubeChannelInfo | null> {
+        let channelId;
+        if(!cid){
             const searchResponse = await this.youtube.search.list({
                 key: YOUTUBE_API_KEY,
                 part: ['id'],
@@ -100,7 +83,12 @@ export class ArtistIngestionService {
                 maxResults: 1
             });
 
-            const channelId = searchResponse.data.items?.[0]?.id?.channelId;
+            channelId = searchResponse.data.items?.[0]?.id?.channelId;
+        }else{
+            channelId = cid;
+        }
+        try {
+        
             if (!channelId) return null;
 
             // Get channel statistics
@@ -158,7 +146,7 @@ export class ArtistIngestionService {
     /**
      * Fetch top videos from a YouTube channel
      */
-    private async getYoutubeVideos(channelId: string) {
+    public async getYoutubeVideos(channelId: string) {
         try {
             const response = await this.youtube.search.list({
                 key: YOUTUBE_API_KEY,
@@ -166,7 +154,7 @@ export class ArtistIngestionService {
                 channelId: channelId,
                 type: ['video'],
                 order: 'viewCount',
-                maxResults: 50
+                maxResults: 5
             });
 
             if (!response.data.items) return [];
@@ -195,39 +183,26 @@ export class ArtistIngestionService {
     }
 
     /**
-     * Ingest artist data into the database
+     * Ingest artist data into the database using preview data
      */
-    public async ingestArtist(artistName: string) {
-        console.log('========== ingestArtist', artistName,'====================');
+    public async ingestArtist(previewData: PreviewArtistResponse) {
+        console.log('========== ingestArtist', previewData.name,'====================');
         try {
-            // Get Spotify artist data first
-            const spotifyArtist = await SpotifyService.searchArtist(artistName);
-            
-            const [lastFmData, youtubeData, spotifyTopTracks, spotifyArtistData] = await Promise.all([
-                this.getLastFmArtistInfo(artistName),
-                this.getYoutubeChannelInfo(artistName),
-                SpotifyService.getArtistTopTracks(spotifyArtist.id),
-                SpotifyService.getArtistData(spotifyArtist.id)
-            ]);
-
-            console.log('spotifyTopTracks', spotifyTopTracks);  
-            console.log('spotifyArtistData', spotifyArtistData);
-            console.log('lastFmData', lastFmData);
-            console.log('youtubeData', youtubeData);
-
-            // Insert artist data with Spotify info
+            // Insert artist data
             const { data: artist, error: artistError } = await this.supabase
                 .from('artists')
                 .insert({
-                    name: artistName,
-                    spotify_id: spotifyArtist.id,
-                    last_fm_id: lastFmData.name,
-                    youtube_channel_id: youtubeData?.id || null,
-                    bio: lastFmData.bio,
-                    genres: spotifyArtistData.genres || lastFmData.tags.tag.map(tag => tag.name),
-                    spotify_popularity: spotifyArtistData.popularity,
-                    spotify_followers: spotifyArtistData.followers?.total,
-                    image_url: spotifyArtistData.images?.[0]?.url
+                    name: previewData.name,
+                    spotify_id: previewData.spotifyId,
+                    last_fm_id: previewData.lastFmId,
+                    youtube_channel_id: previewData.youtubeChannelId,
+                    bio: previewData.bio,
+                    genres: previewData.genres,
+                    image_url: previewData.imageUrl,
+                    youtube_url: previewData.youtubeUrl,
+                    spotify_url: previewData.spotifyUrl,
+                    tiktok_url: previewData.tiktokUrl,
+                    instagram_url: previewData.instagramUrl,
                 })
                 .select()
                 .single();
@@ -236,54 +211,59 @@ export class ArtistIngestionService {
                 throw new Error(`Failed to insert artist: ${artistError?.message}`);
             }
 
-            // Insert top tracks
-            if (spotifyTopTracks.length > 0) {
-                const trackInserts = spotifyTopTracks.map((track: any) => ({
-                    artist_id: artist.id,
-                    spotify_id: track.id,
-                    name: track.name,
-                    popularity: track.popularity,
-                    preview_url: track.preview_url,
-                    external_url: track.external_urls.spotify,
-                    duration_ms: track.duration_ms,
-                    album_name: track.album.name,
-                    album_image_url: track.album.images[0]?.url
-                }));
+            // Fetch additional data for analytics
+            const [spotifyArtist, youtubeData, lastFmData] = await Promise.all([
+                previewData.spotifyId ? SpotifyService.getArtistData(previewData.spotifyId) : null,
+                previewData.youtubeChannelId ? this.getYoutubeChannelInfo(previewData.name) : null,
+                previewData.lastFmId ? this.getLastFmArtistInfo(previewData.name) : null,
+            ]);
 
+            // Insert analytics data if we have additional platform data
+            if (spotifyArtist || youtubeData || lastFmData) {
+                const socialStats = await this.getSocialMediaStats(previewData.name);
+                
                 await this.supabase
-                    .from('artist_top_tracks')
-                    .insert(trackInserts);
+                    .from('artist_analytics')
+                    .insert({
+                        artist_id: artist.id,
+                        date: new Date().toISOString().split('T')[0],
+                        monthly_listeners: lastFmData ? parseInt(lastFmData.stats.listeners) : null,
+                        youtube_subscribers: youtubeData?.statistics?.subscriberCount 
+                            ? parseInt(youtubeData.statistics.subscriberCount) 
+                            : null,
+                        youtube_total_views: youtubeData?.statistics?.viewCount 
+                            ? parseInt(youtubeData.statistics.viewCount) 
+                            : null,
+                        lastfm_play_count: lastFmData ? parseInt(lastFmData.stats.playcount) : null,
+                        spotify_followers: spotifyArtist?.followers?.total || null,
+                        spotify_popularity: spotifyArtist?.popularity || null,
+                        instagram_followers: socialStats.instagram_followers,
+                        tiktok_followers: socialStats.tiktok_followers,
+                        facebook_followers: socialStats.facebook_followers
+                    });
             }
-
-            // Insert analytics data
-            const socialStats = await this.getSocialMediaStats(artistName);
-            console.log('socialStats', socialStats);
-            await this.supabase
-                .from('artist_analytics')
-                .insert({
-                    artist_id: artist.id,
-                    date: new Date().toISOString().split('T')[0],
-                    monthly_listeners: parseInt(lastFmData.stats.listeners),
-                    youtube_subscribers: youtubeData?.statistics.subscriberCount 
-                        ? parseInt(youtubeData.statistics.subscriberCount) 
-                        : null,
-                    youtube_total_views: youtubeData?.statistics.viewCount 
-                        ? parseInt(youtubeData.statistics.viewCount) 
-                        : null,
-                    lastfm_play_count: parseInt(lastFmData.stats.playcount),
-                    instagram_followers: socialStats.instagram_followers,
-                    tiktok_followers: socialStats.tiktok_followers,
-                    facebook_followers: socialStats.facebook_followers
-                });
 
             // Process YouTube videos if available
-            if (youtubeData?.id) {
-                await this.processYoutubeVideos(youtubeData.id, artist.id);
+            if (previewData.youtubeChannelId) {
+                await this.processYoutubeVideos(previewData.youtubeChannelId, artist.id);
             }
 
-            // Process similar artists
-            if (lastFmData.similar) {
-                await this.processSimilarArtists(lastFmData.similar.artist, artist.id);
+            // Process Spotify top tracks if available
+            if (previewData.spotifyId) {
+                const spotifyTopTracks = await SpotifyService.getArtistTopTracks(previewData.spotifyId);
+                if (spotifyTopTracks.length > 0) {
+                    const trackInserts = spotifyTopTracks.map((track: any) => ({
+                        artist_id: artist.id,
+                        platform_track_id: track.id,
+                        name: track.name,
+                        popularity: track.popularity,
+                        platform: 'spotify'
+                    }));
+
+                    await this.supabase
+                        .from('artist_top_tracks')
+                        .insert(trackInserts);
+                }
             }
 
             return artist;
@@ -293,6 +273,11 @@ export class ArtistIngestionService {
         }
     }
 
+    public async addArtist(artist: ArtistFormValues) {
+        // add artist to database
+        console.log('addArtist', artist);
+        return "success"
+    }
     /**
      * Process and store YouTube videos for an artist
      */
@@ -335,10 +320,6 @@ export class ArtistIngestionService {
                     .eq('name', similarArtist.name)
                     .single();
 
-                if (!existingArtist) {
-                    await this.ingestArtist(similarArtist.name);
-                }
-
                 return {
                     artist_id: artistId,
                     similar_artist_id: existingArtist?.id,
@@ -378,5 +359,20 @@ export class ArtistIngestionService {
             tiktok_followers: stats.tiktok,
             facebook_followers: stats.facebook
         };
+    }
+
+    public async updateArtistYoutubeData(artistId: string, youtubeChannelId: string) {
+        const youtubeData = await this.getYoutubeVideos(youtubeChannelId);
+        return youtubeData;
+    }
+
+    public async updateArtist(artistId: string, data: any) {
+        const artist = await this.supabase
+            .from('artists')
+            .update(data)
+            .eq('id', artistId)
+            .select()
+            .single();
+        return artist;
     }
 }

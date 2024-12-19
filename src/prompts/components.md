@@ -33,4 +33,29 @@ you are an expert in React, Tailwind CSS and Framer Motion. You are tasked with 
      - spotifyUrl
      - tiktokUrl
      - instagramUrl
+     - similarArtists
+        - list similar artists in editable list
+     - topTracks
+        - list top tracks in editable list
+     - artistVideos
+        - list top videos in editable list
+     - artistAnalytics
+        - monthlyListeners
+        - youtubeSubscribers
+        - youtubeTotalViews
+        - lastfmPlayCount
+        - spotifyFollowers
+        - spotifyPopularity
+        - topYoutubeVideo
+        - topSpotifyTrack
+        - instagramFollowers
+        - facebookFollowers
+        - tiktokFollowers
+        - soundcloudFollowers
    - If the call is successful, the responsd data should be displayed in the form.
+
+
+   7. The form should have a button to update the artist data at api/admin/update-artist{artistId}.
+    - create this api route in the api folder.
+    - if i update the artist data, the form should be updated with the new data.
+    - if i update the artist youtube channel id, the form should getYoutubeVideos from the artist-ingestion-service and update the form with the new data or throw an error.

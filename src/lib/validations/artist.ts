@@ -12,6 +12,35 @@ export const artistSchema = z.object({
   spotifyUrl: z.string().url().nullable().optional(),
   tiktokUrl: z.string().url().nullable().optional(),
   instagramUrl: z.string().url().nullable().optional(),
+  similarArtists: z.array(
+    z.object({
+      name: z.string(),
+      match: z.string()
+    })
+  ).optional(),
+  topTracks: z.array(
+    z.object({
+      name: z.string(),
+      popularity: z.number(),
+      previewUrl: z.string().optional()
+    })
+  ).optional(),
+  artistVideos: z.array(
+    z.object({
+      title: z.string(),
+      viewCount: z.number(),
+      url: z.string().optional()
+    })
+  ).optional(),
+  analytics: z.object({
+    monthlyListeners: z.number().optional(),
+    youtubeSubscribers: z.number().optional(),
+    youtubeTotalViews: z.number().optional(),
+    lastfmPlayCount: z.number().optional(),
+    spotifyFollowers: z.number().optional(),
+    spotifyPopularity: z.number().optional(),
+    // ... other analytics fields
+  }).optional()
 })
 
 export type ArtistFormValues = z.infer<typeof artistSchema> 

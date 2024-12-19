@@ -3,9 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { useState, useEffect } from "react"
-import { Loader2, Search } from "lucide-react"
+import { Loader2, Search, Music, ExternalLink, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter, useSearchParams } from "next/navigation"
+import Image from "next/image"
+import { cn } from "@/lib/utils"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,12 +22,52 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { artistSchema, type ArtistFormValues } from "@/lib/validations/artist"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
+import type { PreviewArtistResponse } from "@/types/api"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { CardDescription } from "./ui/card"
+import { Separator } from "./ui/separator"
+
+interface ArtistAnalytics {
+  monthlyListeners?: number
+  youtubeSubscribers?: number
+  youtubeTotalViews?: number
+  lastfmPlayCount?: number
+  spotifyFollowers?: number
+  spotifyPopularity?: number
+  topYoutubeVideo?: any
+  topSpotifyTrack?: any
+  instagramFollowers?: number
+  facebookFollowers?: number
+  tiktokFollowers?: number
+  soundcloudFollowers?: number
+}
+
+interface SimilarArtist {
+  name: string;
+  match: string;
+}
+
+interface TopTrack {
+  name: string;
+  popularity: number;
+  previewUrl?: string;
+  albumImageUrl?: string;
+}
+
+interface ArtistVideo {
+  title: string;
+  viewCount: number;
+  url?: string;
+  thumbnail?: string;
+}
 
 export default function NewArtistForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [showFullForm, setShowFullForm] = useState(false)
+  const [analytics, setAnalytics] = useState<ArtistAnalytics | null>(null)
+  const [artistData, setArtistData] = useState<PreviewArtistResponse | null>(null)
 
   const form = useForm<ArtistFormValues>({
     resolver: zodResolver(artistSchema),
@@ -41,6 +83,9 @@ export default function NewArtistForm() {
       spotifyUrl: null,
       tiktokUrl: null,
       instagramUrl: null,
+      similarArtists: [],
+      topTracks: [],
+      artistVideos: [],
     },
   })
 
@@ -68,24 +113,30 @@ export default function NewArtistForm() {
         throw new Error("Failed to fetch artist details")
       }
 
-      const artistData = await response.json()
+      const artistData: PreviewArtistResponse & { analytics?: ArtistAnalytics } = await response.json()
+      setArtistData(artistData)
       const end = performance.now()
       console.log(`Time taken: ${end - start} milliseconds`)
       console.log('artistData ', artistData)
       
       form.reset({
         name: data.name,
-        spotifyId: artistData.spotifyId || null,
-        lastFmId: artistData.lastFmId || null,
-        youtubeChannelId: artistData.youtubeChannelId || null,
-        bio: artistData.bio || null,
-        genres: artistData.genres || [],
-        imageUrl: artistData.imageUrl || null,
-        youtubeUrl: artistData.youtubeUrl || null,
-        spotifyUrl: artistData.spotifyUrl || null,
-        tiktokUrl: artistData.tiktokUrl || null,
-        instagramUrl: artistData.instagramUrl || null,
+        spotifyId: artistData.spotifyId,
+        lastFmId: artistData.lastFmId,
+        youtubeChannelId: artistData.youtubeChannelId,
+        bio: artistData.bio,
+        genres: artistData.genres,
+        imageUrl: artistData.imageUrl,
+        youtubeUrl: artistData.youtubeUrl,
+        spotifyUrl: artistData.spotifyUrl,
+        tiktokUrl: artistData.tiktokUrl,
+        instagramUrl: artistData.instagramUrl,
+        similarArtists: artistData.similarArtists || [],
+        topTracks: artistData.topTracks || [],
+        artistVideos: artistData.artistVideos || [],
       })
+
+      setAnalytics(artistData.analytics || null)
 
       setShowFullForm(true)
       toast.success("Artist details fetched", {
@@ -117,7 +168,16 @@ export default function NewArtistForm() {
         instagramUrl: data.instagramUrl || null,
       }
 
-      const response = await fetch("/api/artists", {
+      // add a check to see if the artist already exists
+      const existingArtist = await fetch(`/api/admin/add-artist?name=${encodeURIComponent(data.name)}`, {
+        method: "GET",
+      })
+
+      if (existingArtist.ok) {
+        throw new Error("Artist already exists")
+      }
+
+      const response = await fetch("/api/admin/add-artist", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -144,6 +204,80 @@ export default function NewArtistForm() {
     }
   }
 
+  async function onUpdate(data: ArtistFormValues) {
+    try {
+      setLoading(true)
+      
+      const response = await fetch(`/api/admin/update-artist/${data.spotifyId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update artist")
+      }
+
+      const updatedData = await response.json()
+      setArtistData(updatedData)
+      
+      toast.success("Artist updated successfully", {
+        description: "The artist has been updated in the database.",
+      })
+
+    } catch (error) {
+      toast.error("Something went wrong", {
+        description: "Failed to update artist. Please try again.",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function onYoutubeChannelUpdate(channelId: string) {
+    try {
+      setLoading(true)
+      const response = await fetch(`/api/admin/update-artist/${artistData?.spotifyId}/youtube`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ youtubeChannelId: channelId }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update YouTube data")
+      }
+
+      const updatedData = await response.json()
+      console.log('updatedData ', updatedData)
+      return
+      if(Array.isArray(updatedData)) {
+        updatedData.map((video: any) => ({
+          ...video,
+          thumbnail: video.snippet.thumbnailUrl,
+        }))
+      }
+      setArtistData((prev) => prev ? {
+        ...prev,
+        artistVideos: updatedData,
+      } : null)
+      
+      toast.success("YouTube data updated", {
+        description: "The artist's YouTube videos have been updated.",
+      })
+
+    } catch (error) {
+      toast.error("Something went wrong", {
+        description: "Failed to update YouTube data. Please try again.",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -152,201 +286,547 @@ export default function NewArtistForm() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(showFullForm ? onSubmit : onSearchArtist)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Artist name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Artist name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {!showFullForm ? (
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {!loading && <Search className="mr-2 h-4 w-4" />}
-                Search Artist
-              </Button>
-            ) : (
-              <>
-                <FormField
-                  control={form.control}
-                  name="bio"
-                  render={({ field: { value, ...fieldProps } }) => (
-                    <FormItem>
-                      <FormLabel>Biography</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Artist biography"
-                          {...fieldProps}
-                          value={value ?? ""}
-                          rows={5}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="spotifyId"
-                    render={({ field: { value, ...fieldProps } }) => (
-                      <FormItem>
-                        <FormLabel>Spotify ID</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Spotify ID" 
-                            {...fieldProps}
-                            value={value ?? ""} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="lastFmId"
-                    render={({ field: { value, ...fieldProps } }) => (
-                      <FormItem>
-                        <FormLabel>Last.fm ID</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Last.fm ID" 
-                            {...fieldProps}
-                            value={value ?? ""} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="youtubeChannelId"
-                    render={({ field: { value, ...fieldProps } }) => (
-                      <FormItem>
-                        <FormLabel>YouTube Channel ID</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="YouTube Channel ID" 
-                            {...fieldProps}
-                            value={value ?? ""} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="imageUrl"
-                    render={({ field: { value, ...fieldProps } }) => (
-                      <FormItem>
-                        <FormLabel>Image URL</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Image URL" 
-                            {...fieldProps}
-                            value={value ?? ""} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="spotifyUrl"
-                    render={({ field: { value, ...fieldProps } }) => (
-                      <FormItem>
-                        <FormLabel>Spotify URL</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Spotify profile URL" 
-                            {...fieldProps}
-                            value={value ?? ""} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="youtubeUrl"
-                    render={({ field: { value, ...fieldProps } }) => (
-                      <FormItem>
-                        <FormLabel>YouTube URL</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="YouTube channel URL" 
-                            {...fieldProps}
-                            value={value ?? ""} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="tiktokUrl"
-                    render={({ field: { value, ...fieldProps } }) => (
-                      <FormItem>
-                        <FormLabel>TikTok URL</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="TikTok profile URL" 
-                            {...fieldProps}
-                            value={value ?? ""} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="instagramUrl"
-                    render={({ field: { value, ...fieldProps } }) => (
-                      <FormItem>
-                        <FormLabel>Instagram URL</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Instagram profile URL" 
-                            {...fieldProps}
-                            value={value ?? ""} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
+              {!showFullForm ? (
                 <Button type="submit" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Artist
+                  {!loading && <Search className="mr-2 h-4 w-4" />}
+                  Search Artist
                 </Button>
-              </>
-            )}
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="bio"
+                        render={({ field: { value, ...fieldProps } }) => (
+                          <FormItem>
+                            <FormLabel>Biography</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Artist biography"
+                                {...fieldProps}
+                                value={value ?? ""}
+                                rows={5}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="spotifyId"
+                          render={({ field: { value, ...fieldProps } }) => (
+                            <FormItem>
+                              <FormLabel>Spotify ID</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Spotify ID" 
+                                  {...fieldProps}
+                                  value={value ?? ""} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="lastFmId"
+                          render={({ field: { value, ...fieldProps } }) => (
+                            <FormItem>
+                              <FormLabel>Last.fm ID</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Last.fm ID" 
+                                  {...fieldProps}
+                                  value={value ?? ""} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="youtubeChannelId"
+                          render={({ field: { value, ...fieldProps } }) => (
+                            <FormItem>
+                              <FormLabel>YouTube Channel ID</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="YouTube Channel ID" 
+                                  {...fieldProps}
+                                  value={value ?? ""} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="spotifyUrl"
+                          render={({ field: { value, ...fieldProps } }) => (
+                            <FormItem>
+                              <FormLabel>Spotify URL</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Spotify profile URL" 
+                                  {...fieldProps}
+                                  value={value ?? ""} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="youtubeUrl"
+                          render={({ field: { value, ...fieldProps } }) => (
+                            <FormItem>
+                              <FormLabel>YouTube URL</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="YouTube channel URL" 
+                                  {...fieldProps}
+                                  value={value ?? ""} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="tiktokUrl"
+                          render={({ field: { value, ...fieldProps } }) => (
+                            <FormItem>
+                              <FormLabel>TikTok URL</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="TikTok profile URL" 
+                                  {...fieldProps}
+                                  value={value ?? ""} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="instagramUrl"
+                          render={({ field: { value, ...fieldProps } }) => (
+                            <FormItem>
+                              <FormLabel>Instagram URL</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Instagram profile URL" 
+                                  {...fieldProps}
+                                  value={value ?? ""} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="genres"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Genres</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Enter genres (comma-separated)"
+                                value={field.value.join(", ")}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  const genres = value
+                                    .split(",")
+                                    .map((genre) => genre.trim())
+                                    .filter((genre) => genre !== "");
+                                  field.onChange(genres);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="imageUrl"
+                          render={({ field: { value, ...fieldProps } }) => (
+                            <FormItem>
+                              <FormLabel>Image URL</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Image URL" 
+                                  {...fieldProps}
+                                  value={value ?? ""} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                              {value && (
+                                <div className="relative aspect-square w-full max-w-[200px] overflow-hidden rounded-lg border">
+                                  <Image
+                                    src={value}
+                                    alt="Artist preview"
+                                    fill
+                                    className={cn(
+                                      "object-cover",
+                                      "transition-opacity duration-400",
+                                    )}
+                                    onError={(e) => {
+                                      // Handle image load error
+                                      const target = e.target as HTMLImageElement
+                                      target.src = "/placeholder-image.jpg" // Add a placeholder image
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {analytics && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Artist Analytics</CardTitle>
+                            <CardDescription>Current statistics across platforms</CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="space-y-2">
+                                <h4 className="font-medium">Spotify</h4>
+                                <div className="space-y-2">
+                                  <div>
+                                    <label className="text-sm text-muted-foreground">Followers</label>
+                                    <Input
+                                      type="number"
+                                      value={analytics.spotifyFollowers || ""}
+                                      onChange={(e) => setAnalytics(prev => ({
+                                        ...prev!,
+                                        spotifyFollowers: parseInt(e.target.value) || undefined
+                                      }))}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-sm text-muted-foreground">Popularity</label>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      max="100"
+                                      value={analytics.spotifyPopularity || ""}
+                                      onChange={(e) => setAnalytics(prev => ({
+                                        ...prev!,
+                                        spotifyPopularity: parseInt(e.target.value) || undefined
+                                      }))}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <h4 className="font-medium">YouTube</h4>
+                                <div className="space-y-2">
+                                  <div>
+                                    <label className="text-sm text-muted-foreground">Subscribers</label>
+                                    <Input
+                                      type="number"
+                                      value={analytics.youtubeSubscribers || ""}
+                                      onChange={(e) => setAnalytics(prev => ({
+                                        ...prev!,
+                                        youtubeSubscribers: parseInt(e.target.value) || undefined
+                                      }))}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-sm text-muted-foreground">Total Views</label>
+                                    <Input
+                                      type="number"
+                                      value={analytics.youtubeTotalViews || ""}
+                                      onChange={(e) => setAnalytics(prev => ({
+                                        ...prev!,
+                                        youtubeTotalViews: parseInt(e.target.value) || undefined
+                                      }))}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <h4 className="font-medium">Last.fm</h4>
+                                <div className="text-sm text-muted-foreground">
+                                  <p>Monthly Listeners: {analytics.monthlyListeners?.toLocaleString()}</p>
+                                  <p>Play Count: {analytics.lastfmPlayCount?.toLocaleString()}</p>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <h4 className="font-medium">Social Media</h4>
+                                <div className="text-sm text-muted-foreground">
+                                  <p>Instagram: {analytics.instagramFollowers?.toLocaleString()}</p>
+                                  <p>TikTok: {analytics.tiktokFollowers?.toLocaleString()}</p>
+                                  <p>Facebook: {analytics.facebookFollowers?.toLocaleString()}</p>
+                                  <p>SoundCloud: {analytics.soundcloudFollowers?.toLocaleString()}</p>
+                                </div>
+                              </div>
+
+                              {analytics.topSpotifyTrack && (
+                                <div className="space-y-2">
+                                  <h4 className="font-medium">Top Spotify Track</h4>
+                                  <div className="text-sm text-muted-foreground">
+                                    <p>{analytics.topSpotifyTrack.name}</p>
+                                    <p>Popularity: {analytics.topSpotifyTrack.popularity}%</p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {analytics.topYoutubeVideo && (
+                                <div className="space-y-2">
+                                  <h4 className="font-medium">Top YouTube Video</h4>
+                                  <div className="text-sm text-muted-foreground">
+                                    <p>{analytics.topYoutubeVideo.title}</p>
+                                    <p>Views: {Number(analytics.topYoutubeVideo.statistics?.viewCount).toLocaleString()}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <Card className="mt-6">
+                      <CardHeader>
+                        <CardTitle>Similar Artists</CardTitle>
+                        <CardDescription>Artists with similar style or genre</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ScrollArea className="h-[200px] rounded-md border p-4">
+                          <div className="space-y-4">
+                            {artistData?.similarArtists?.map((artist, index) => (
+                              <div key={index} className="flex items-center gap-4">
+                                <Input
+                                  placeholder="Artist name"
+                                  value={artist.name}
+                                  onChange={(e) => {
+                                    const newArtists = [...(artistData.similarArtists || [])];
+                                    newArtists[index] = { ...artist, name: e.target.value };
+                                    form.setValue('similarArtists', newArtists);
+                                  }}
+                                />
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  className="w-24"
+                                  placeholder="Match %"
+                                  value={artist.match}
+                                  onChange={(e) => {
+                                    const newArtists = [...(artistData.similarArtists || [])];
+                                    newArtists[index] = { ...artist, match: e.target.value };
+                                    form.setValue('similarArtists', newArtists);
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="mt-6">
+                      <CardHeader>
+                        <CardTitle>Top Tracks</CardTitle>
+                        <CardDescription>Most popular tracks on Spotify</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ScrollArea className="h-[200px] rounded-md border p-4">
+                          <div className="space-y-4">
+                            {artistData?.topTracks?.map((track, index) => (
+                              <div key={index} className="flex items-center gap-4">
+                                {track.albumImageUrl && (
+                                  <div className="relative h-12 w-12 overflow-hidden rounded">
+                                    <Image
+                                      src={track.albumImageUrl}
+                                      alt={track.name}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                )}
+                                <Input
+                                  placeholder="Track name"
+                                  value={track.name}
+                                  className="flex-1"
+                                  onChange={(e) => {
+                                    const newTracks = [...(artistData.topTracks || [])];
+                                    newTracks[index] = { ...track, name: e.target.value };
+                                    form.setValue('topTracks', newTracks);
+                                  }}
+                                />
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  className="w-24"
+                                  placeholder="Popularity"
+                                  value={track.popularity}
+                                  onChange={(e) => {
+                                    const newTracks = [...(artistData.topTracks || [])];
+                                    newTracks[index] = { ...track, popularity: parseInt(e.target.value) };
+                                    form.setValue('topTracks', newTracks);
+                                  }}
+                                />
+                                {track.previewUrl && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => window.open(track.previewUrl, '_blank')}
+                                  >
+                                    <Music className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="mt-6">
+                      <CardHeader>
+                        <CardTitle>Top Videos</CardTitle>
+                        <CardDescription>Most viewed YouTube videos</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ScrollArea className="h-[200px] rounded-md border p-4">
+                          <div className="space-y-4">
+                            {artistData?.artistVideos?.map((video, index) => (
+                              <div key={index} className="flex items-center gap-4">
+                                {video.thumbnail && (
+                                  <div className="relative h-12 w-20 overflow-hidden rounded">
+                                    <Image
+                                      src={video.thumbnail}
+                                      alt={video.title}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                )}
+                                <Input
+                                  placeholder="Video title"
+                                  value={video.title}
+                                  className="flex-1"
+                                  onChange={(e) => {
+                                    const newVideos = [...(artistData.artistVideos || [])];
+                                    newVideos[index] = { ...video, title: e.target.value };
+                                    form.setValue('artistVideos', newVideos);
+                                  }}
+                                />
+                                <Input
+                                  type="number"
+                                  className="w-32"
+                                  placeholder="View count"
+                                  value={video.viewCount}
+                                  onChange={(e) => {
+                                    const newVideos = [...(artistData.artistVideos || [])];
+                                    newVideos[index] = { ...video, viewCount: parseInt(e.target.value) };
+                                    form.setValue('artistVideos', newVideos);
+                                  }}
+                                />
+                                {video.url && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => window.open(video.url, '_blank')}
+                                  >
+                                    <ExternalLink className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <Button type="submit" disabled={loading}>
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Create Artist
+                    </Button>
+
+                    {showFullForm && (
+                      <>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={loading}
+                          onClick={() => form.handleSubmit(onUpdate)()}
+                        >
+                          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          {!loading && <RefreshCw className="mr-2 h-4 w-4" />}
+                          Update Artist
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={loading}
+                          onClick={() => onYoutubeChannelUpdate(form.getValues("youtubeChannelId") || "")}
+                        >
+                          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          {!loading && <RefreshCw className="mr-2 h-4 w-4" />}
+                          Update YouTube Data
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           </form>
         </Form>
       </CardContent>
