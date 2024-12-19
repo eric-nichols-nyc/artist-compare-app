@@ -73,7 +73,7 @@ export class ArtistIngestionService {
     /**
      * Fetch artist information from Last.fm API
      */
-    private async getLastFmArtistInfo(artistName: string): Promise<LastFmArtistInfo> {
+    public async getLastFmArtistInfo(artistName: string): Promise<LastFmArtistInfo> {
         try {
             const response = await fetch(
                 `http://ws.audioscrobbler.com/2.0/?method=artist.getInfo&artist=${encodeURIComponent(artistName)}&api_key=${LASTFM_API_KEY}&format=json`
@@ -90,7 +90,7 @@ export class ArtistIngestionService {
     /**
      * Fetch YouTube channel information for an artist
      */
-    private async getYoutubeChannelInfo(artistName: string): Promise<YoutubeChannelInfo | null> {
+    public async getYoutubeChannelInfo(artistName: string): Promise<YoutubeChannelInfo | null> {
         try {
             const searchResponse = await this.youtube.search.list({
                 key: YOUTUBE_API_KEY,

@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Artist {
+  id                String    @id @default(uuid()) @db.Uuid
+  name              String
+  spotifyId         String?   @unique @map("spotify_id")
+  lastFmId          String?   @unique @map("last_fm_id")
+  youtubeChannelId  String?   @unique @map("youtube_channel_id")
+  bio               String?   @db.Text
+  genres            String[]
+  imageUrl          String?   @map("image_url") @db.Text
+  youtubeUrl        String?   @map("youtube_url") @db.Text
+  spotifyUrl        String?   @map("spotify_url") @db.Text
+  tiktokUrl         String?   @map("tiktok_url") @db.Text
+  instagramUrl      String?   @map("instagram_url") @db.Text
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  analytics         ArtistAnalytics[]
+  videos           ArtistVideo[]
+  geography        ArtistGeography[]
+  topTracks        ArtistTopTrack[]
+  comparisonsAsArtist1 ArtistComparison[] @relation("Artist1")
+  comparisonsAsArtist2 ArtistComparison[] @relation("Artist2")
+  similarToArtists ArtistSimilarity[]     @relation("SimilarTo")
+  similarArtists   ArtistSimilarity[]     @relation("SimilarFrom")
+
+  @@map("artists")
+}
+
+model ArtistAnalytics {
+  id                String   @id @default(uuid()) @db.Uuid
+  artistId          String   @map("artist_id") @db.Uuid
+  date              DateTime @db.Date
+  monthlyListeners  Int      @map("monthly_listeners")
+  youtubeSubscribers Int?    @map("youtube_subscribers")
+  youtubeTotalViews BigInt?  @map("youtube_total_views")
+  lastfmPlayCount   BigInt?  @map("lastfm_play_count")
+  spotifyFollowers  Int?     @map("spotify_followers")
+  spotifyPopularity Int?     @map("spotify_popularity")
+  topYoutubeVideo   Json?    @map("top_youtube_video")
+  topSpotifyTrack   Json?    @map("top_spotify_track")
+  instagramFollowers BigInt?  @map("instagram_followers")
+  facebookFollowers  BigInt?  @map("facebook_followers")
+  tiktokFollowers    BigInt?  @map("tiktok_followers")
+  soundcloudFollowers BigInt? @map("soundcloud_followers")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  artist            Artist   @relation(fields: [artistId], references: [id])
+
+  @@unique([artistId, date])
+  @@map("artist_analytics")
+}
+
+model ArtistComparison {
+  id              String   @id @default(uuid()) @db.Uuid
+  artist1Id       String   @map("artist1_id") @db.Uuid
+  artist2Id       String   @map("artist2_id") @db.Uuid
+  comparisonText  String   @map("comparison_text") @db.Text
+  similarityScore Float?   @map("similarity_score") @db.DoublePrecision
+  embedding       Unsupported("vector")?
+  source          String?
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  artist1         Artist   @relation("Artist1", fields: [artist1Id], references: [id])
+  artist2         Artist   @relation("Artist2", fields: [artist2Id], references: [id])
+
+  @@map("artist_comparisons")
+}
+
+model ArtistVideo {
+  id            String   @id @default(uuid()) @db.Uuid
+  artistId      String   @map("artist_id") @db.Uuid
+  youtubeId     String   @unique @map("youtube_id")
+  title         String
+  viewCount     BigInt   @map("view_count")
+  likeCount     BigInt   @map("like_count")
+  commentCount  Int      @map("comment_count")
+  publishedAt   DateTime @map("published_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  artist        Artist   @relation(fields: [artistId], references: [id])
+
+  @@map("artist_videos")
+}
+
+model ArtistGeography {
+  id            String   @id @default(uuid()) @db.Uuid
+  artistId      String   @map("artist_id") @db.Uuid
+  country       String   @db.VarChar(2)
+  listenerCount Int      @map("listener_count")
+  date          DateTime @db.Date
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  artist        Artist   @relation(fields: [artistId], references: [id])
+
+  @@unique([artistId, country, date])
+  @@map("artist_geography")
+}
+
+model ArtistSimilarity {
+  id              String   @id @default(uuid()) @db.Uuid
+  artistId        String   @map("artist_id") @db.Uuid
+  similarArtistId String   @map("similar_artist_id") @db.Uuid
+  similarityScore Float    @map("similarity_score") @db.DoublePrecision
+  platform        String?
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  artist          Artist   @relation("SimilarFrom", fields: [artistId], references: [id])
+  similarArtist   Artist   @relation("SimilarTo", fields: [similarArtistId], references: [id])
+
+  @@unique([artistId, similarArtistId])
+  @@map("artist_similarities")
+}
+
+model ArtistTopTrack {
+  id              String   @id @default(uuid()) @db.Uuid
+  artistId        String   @map("artist_id") @db.Uuid
+  platformTrackId String?  @map("platform_track_id")
+  name            String
+  popularity      Int
+  platform        String
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  artist          Artist   @relation(fields: [artistId], references: [id])
+
+  @@unique([platform, platformTrackId])
+  @@map("artist_top_tracks")
+}

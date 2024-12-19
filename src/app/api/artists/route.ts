@@ -1,31 +1,31 @@
 // app/api/artists/route.ts
-import { createClient } from '@supabase/supabase-js';
-import { Database } from '@/types';
-import { NextResponse } from 'next/server';
+import { db } from "@/lib/db"
+import { artistSchema } from "@/lib/validations/artist"
+import { NextResponse } from "next/server"
 
-const supabase = createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_KEY!
-);
+export async function POST(req: Request) {
+  try {
+    const json = await req.json()
+    const body = artistSchema.parse(json)
 
-export async function GET() {
-    try {
-        const { data: artists, error } = await supabase
-            .from('artists')
-            .select('*')
-            .order('name');
+    const artist = await db.artist.create({
+      data: {
+        name: body.name,
+        spotifyId: body.spotifyId,
+        lastFmId: body.lastFmId,
+        youtubeChannelId: body.youtubeChannelId,
+        bio: body.bio,
+        genres: body.genres,
+        imageUrl: body.imageUrl,
+        youtubeUrl: body.youtubeUrl,
+        spotifyUrl: body.spotifyUrl,
+        tiktokUrl: body.tiktokUrl,
+        instagramUrl: body.instagramUrl,
+      },
+    })
 
-        if (error) {
-            throw error;
-        }
-
-        return NextResponse.json({ artists });
-
-    } catch (error) {
-        console.error('Error fetching artists:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch artists' },
-            { status: 500 }
-        );
-    }
+    return NextResponse.json(artist)
+  } catch (error) {
+    return new NextResponse("Internal Error", { status: 500 })
+  }
 }
