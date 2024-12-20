@@ -1,6 +1,6 @@
 // services/musicbrainz-service.ts
 import axios from 'axios';
-
+import { unstable_cache } from 'next/cache';
 interface MusicBrainzArtist {
   id: string;
   name: string;
@@ -10,6 +10,7 @@ interface MusicBrainzArtist {
     end?: string;
   };
   genres?: Array<{ name: string }>;
+  gender?: string;
   tags?: Array<{ name: string }>;
   disambiguation?: string;
   score?: number;
@@ -20,7 +21,8 @@ interface ArtistDetails {
   name: string;
   country: string | null;
   genres: string[];
-  tags: string[];
+  gender: string | null;
+  tags?: string[];
   activeYears: {
     begin: string | null;
     end: string | null;
@@ -36,7 +38,7 @@ export class MusicBrainzService {
     this.api = axios.create({
       baseURL: 'https://musicbrainz.org/ws/2',
       headers: {
-        'User-Agent': 'ArtistComparisonApp/1.0.0 (your@email.com)',
+        'User-Agent': 'ArtistComparisonApp/1.0.0 (ebn646@gmail.com)',
         'Accept': 'application/json'
       }
     });
@@ -60,7 +62,7 @@ export class MusicBrainzService {
     }
   }
 
-  async getArtistDetails(artistName: string): Promise<ArtistDetails | null> {
+  public getArtistDetails = unstable_cache(async (artistName: string): Promise<ArtistDetails | null> => {
     try {
       // Search for artist
       const searchData = await this.rateLimitedRequest('/artist', {
@@ -73,10 +75,10 @@ export class MusicBrainzService {
       }
 
       const artist = searchData.artists[0] as MusicBrainzArtist;
-
+      console.log('=========mbartist', artist);
       // Get detailed information
       const detailedData = await this.rateLimitedRequest(`/artist/${artist.id}`, {
-        inc: 'genres+tags+url-rels',
+        inc: 'genres+url-rels',
         fmt: 'json'
       });
 
@@ -84,8 +86,8 @@ export class MusicBrainzService {
         id: artist.id,
         name: artist.name,
         country: artist.country || null,
+        gender: artist.gender || null,
         genres: (detailedData.genres || []).map((g: { name: string }) => g.name),
-        tags: (artist.tags || []).map(t => t.name),
         activeYears: {
           begin: artist['life-span']?.begin || null,
           end: artist['life-span']?.end || null
@@ -96,7 +98,7 @@ export class MusicBrainzService {
       console.error('Error fetching artist details:', error);
       return null;
     }
-  }
+  }, ['musicbrainz-artist-details'], { tags: ['musicbrainz-artist-details'], revalidate: 60 * 60 * 24 });
 
   async getCommonCollaborators(artist1Id: string, artist2Id: string): Promise<string[]> {
     try {

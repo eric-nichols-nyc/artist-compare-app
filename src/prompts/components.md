@@ -82,6 +82,28 @@ you are an expert in React, Tailwind CSS and Framer Motion. You are tasked with 
             - gender
             - country
             - lifeSpan
+         youtube videos
+            - list of youtube videos
+            - title
+            - description
+            - url
+            - imageUrl
+            - videoId
+            - stats
+               -views
+         spotify tracks
+            - list of spotify tracks
+            - title
+            - description
+            - url
+            - imageUrl
+            - trackId
+            - stats
+               - streams
+         similar artists
+            - list of similar artists
+            - name
+            - match
          analytics
             - lastfmMonthlyListeners
             - spotifyMonthlyListeners
@@ -90,16 +112,10 @@ you are an expert in React, Tailwind CSS and Framer Motion. You are tasked with 
             - lastfmPlayCount
             - spotifyFollowers
             - spotifyPopularity
-            - topYoutubeVideo
-            - topSpotifyTrack
             - instagramFollowers
             - facebookFollowers
             - tiktokFollowers
             - soundcloudFollowers
-         youtube videos
-            - list of youtube videos
-         spotify tracks
-            - list of spotify tracks
          social media links
             - youtubeUrl
             - spotifyUrl
@@ -107,10 +123,6 @@ you are an expert in React, Tailwind CSS and Framer Motion. You are tasked with 
             - instagramUrl
             - soundcloudUrl
             - facebookUrl
-         similar artists
-            - list of similar artists
-            - name
-            - match
       - there is another component that performs a spotify artist search and displays the results in a list.
       - the search component should have a search input and a button.
       - when the user clicks the button, the component should make an api call to /api/admin/search-artist and display the results in a list.

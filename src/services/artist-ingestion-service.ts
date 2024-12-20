@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types';
 import { SpotifyService } from './spotify-service';
+import { MusicBrainzService } from './music-brainz-service';
 import OpenAI from 'openai';
 import type { PreviewArtistResponse } from "@/types/api"
 import { ArtistFormValues } from '@/lib/validations/artist';
@@ -44,6 +45,7 @@ interface YoutubeChannelInfo {
 export class ArtistIngestionService {
     private youtube;
     private supabase;
+    private musicBrainzService: MusicBrainzService;
     private openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY
     });
@@ -51,6 +53,7 @@ export class ArtistIngestionService {
     constructor() {
         this.youtube = google.youtube('v3');
         this.supabase = createClient<Database>(SUPABASE_URL, SUPABASE_KEY);
+        this.musicBrainzService = new MusicBrainzService();
     }
 
     /**
@@ -77,7 +80,6 @@ export class ArtistIngestionService {
                 `http://ws.audioscrobbler.com/2.0/?method=artist.getInfo&artist=${encodeURIComponent(artistName)}&api_key=${LASTFM_API_KEY}&format=json`
             );
             const data = await response.json() as LastFmResponse;
-            console.log('lastfm data', data);
             return data.artist;
         } catch (error) {
             console.error('Error fetching Last.fm artist info:', error);
@@ -239,11 +241,13 @@ export class ArtistIngestionService {
         // 1. get artist musicbrainz id 
         const musicbrainzId = await this.getArtistMusicBrainzId(name);
         // 2. get artist musicbrainz info
-        const { biography, gender, country, lifeSpan } = await this.getArtistMusicBrainzInfo(musicbrainzId);
+        const musicbrainzInfo = await this.musicBrainzService.getArtistDetails(name);
+        console.log('musicbrainzInfo =============================', musicbrainzInfo);
+        const { gender, country } = musicbrainzInfo;
         // 3. get artist spotify id
         const spotifyId = await SpotifyService.searchArtist(name);
         // 4. get artist lastfm id
-        const lastfmId = await this.getLastFmArtistInfo(name);
+        const lastfm = await this.getLastFmArtistInfo(name);
         // 5. get artist youtube channel id
         const youtubeChannelId = await this.getYoutubeChannelInfo(name);
         // 6. get artist genres
@@ -256,14 +260,15 @@ export class ArtistIngestionService {
             name,
             spotifyId,
             musicbrainzId,
-            lastfmId,
+            lastfmId: lastfm.mbid,
+            lastfmPlayCount: lastfm.stats.playcount,
+            lastfmListeners: lastfm.stats.listeners,
             youtubeChannelId,
-            biography,
+            biography: lastfm?.bio?.summary,
             genres,
             imageUrl,
             gender,
             country,
-            lifeSpan
         }
     }
 

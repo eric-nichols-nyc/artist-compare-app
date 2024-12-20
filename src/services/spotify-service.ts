@@ -11,9 +11,6 @@ export class SpotifyService {
                 'Authorization': 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64')
             },
             body: 'grant_type=client_credentials',
-              // Add these options to ensure proper fetch behavior
-            cache: 'no-store',
-            next: { revalidate: 0 }
         });
 
         const data = await response.json();
