@@ -59,3 +59,87 @@ you are an expert in React, Tailwind CSS and Framer Motion. You are tasked with 
     - create this api route in the api folder.
     - if i update the artist data, the form should be updated with the new data.
     - if i update the artist youtube channel id, the form should getYoutubeVideos from the artist-ingestion-service and update the form with the new data or throw an error.
+
+
+    8. Crate a component to add a new artist to the database with 4 api calls.
+     The component has two parts:
+      - search component
+      - form component
+         - use zod validation
+         - use shadcn form input components
+         - do not use shadcn form or react-hook-form
+
+      - the form should have the following data structure:
+         basic artist data
+            - name
+            - spotifyId
+            - musicBrainzId
+            - lastFmId
+            - youtubeChannelId
+            - bio
+            - genres
+            - imageUrl
+            - gender
+            - country
+            - lifeSpan
+         analytics
+            - lastfmMonthlyListeners
+            - spotifyMonthlyListeners
+            - youtubeSubscribers
+            - youtubeTotalViews
+            - lastfmPlayCount
+            - spotifyFollowers
+            - spotifyPopularity
+            - topYoutubeVideo
+            - topSpotifyTrack
+            - instagramFollowers
+            - facebookFollowers
+            - tiktokFollowers
+            - soundcloudFollowers
+         youtube videos
+            - list of youtube videos
+         spotify tracks
+            - list of spotify tracks
+         social media links
+            - youtubeUrl
+            - spotifyUrl
+            - tiktokUrl
+            - instagramUrl
+            - soundcloudUrl
+            - facebookUrl
+         similar artists
+            - list of similar artists
+            - name
+            - match
+      - there is another component that performs a spotify artist search and displays the results in a list.
+      - the search component should have a search input and a button.
+      - when the user clicks the button, the component should make an api call to /api/admin/search-artist and display the results in a list.
+      - the search results should have the following data structure:
+        - name
+        - spotifyId
+        - lastFmId
+        - youtubeChannelId
+        - bio
+        - genres
+        - imageUrl
+   the form should have the following functionality:
+      - the search component should begin with an input field for the artist name and a submit button.
+      - if the name is valid, the from should make an api call /api/admin/preview-artist to create the information required for the artist form including:
+        - spotifyId
+        - lastFmId
+        - youtubeChannelId
+        - bio
+        - genres
+        - imageUrl
+
+      - next the form should call /api/admin/analytics to get the analytics data
+
+      - next the form should call /api/admin/youtube/videos to get the youtube videos
+
+      - next the form should call /api/admin/spotify/tracks to get the spotify tracks
+
+      - next the form should call /api/admin/scrape-artist/spotify to get the spotify data
+
+      - next the form should call /api/admin/scrape-artist/vibrate to get the vibrate data
+
+      - next the form should call /api/admin/scrape-artist/lastfm to get the lastfm data

@@ -40,7 +40,7 @@ export const artistSchema = z.object({
     spotifyFollowers: z.number().optional(),
     spotifyPopularity: z.number().optional(),
     // ... other analytics fields
-  }).optional()
+  }).nullable(),
 })
 
 export type ArtistFormValues = z.infer<typeof artistSchema> 

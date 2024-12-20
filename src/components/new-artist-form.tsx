@@ -86,6 +86,7 @@ export default function NewArtistForm() {
       similarArtists: [],
       topTracks: [],
       artistVideos: [],
+      analytics: null,
     },
   })
 
@@ -139,6 +140,7 @@ export default function NewArtistForm() {
         similarArtists: artistData.similarArtists || [],
         topTracks: artistData.topTracks || [],
         artistVideos: artistData.artistVideos || [],
+        analytics: artistData.analytics || null,
       })
 
       setAnalytics(artistData.analytics || null)
@@ -157,53 +159,38 @@ export default function NewArtistForm() {
   }
 
   async function onSubmit(data: ArtistFormValues) {
+    alert('submit')
     try {
       setLoading(true)
       
-      const formattedData = {
+      const submitData = {
         ...data,
-        spotifyId: data.spotifyId || null,
-        lastFmId: data.lastFmId || null,
-        youtubeChannelId: data.youtubeChannelId || null,
-        bio: data.bio || null,
-        imageUrl: data.imageUrl || null,
-        youtubeUrl: data.youtubeUrl || null,
-        spotifyUrl: data.spotifyUrl || null,
-        tiktokUrl: data.tiktokUrl || null,
-        instagramUrl: data.instagramUrl || null,
+        analytics: analytics
       }
 
-      // add a check to see if the artist already exists
-      const existingArtist = await fetch(`/api/admin/add-artist?name=${encodeURIComponent(data.name)}`, {
-        method: "GET",
-      })
-
-      if (existingArtist.ok) {
-        throw new Error("Artist already exists")
-      }
+      console.log('Submitting artist data:', submitData)
 
       const response = await fetch("/api/admin/add-artist", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formattedData),
+        body: JSON.stringify({ artist: submitData }),
       })
 
       if (!response.ok) {
         throw new Error("Failed to create artist")
       }
 
-      toast.success("Artist created successfully", {
-        description: "The artist has been added to the database.",
-      })
-      
+      const result = await response.json()
+      console.log('Result:', result)
+
+      toast.success("Artist created successfully")
       form.reset()
       setShowFullForm(false)
     } catch (error) {
-      toast.error("Something went wrong", {
-        description: "Failed to create artist. Please try again.",
-      })
+      console.error('Error:', error)
+      toast.error("Failed to create artist")
     } finally {
       setLoading(false)
     }
@@ -290,7 +277,7 @@ export default function NewArtistForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(showFullForm ? onSubmit : onSearchArtist)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-6">
               <FormField
                 control={form.control}
@@ -531,6 +518,88 @@ export default function NewArtistForm() {
                       </div>
                     </div>
                   </div>
+                  {/* Social Media Links */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      {/* YouTube URL */}
+                      <FormField
+                        control={form.control}
+                        name="youtubeUrl" 
+                        render={({ field: { value, ...fieldProps } }) => (
+                          <FormItem>
+                            <FormLabel>YouTube URL</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="YouTube URL"
+                                {...fieldProps}
+                                value={value ?? ""}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Spotify URL */}
+                      <FormField
+                        control={form.control}
+                        name="spotifyUrl"
+                        render={({ field: { value, ...fieldProps } }) => (
+                          <FormItem>
+                            <FormLabel>Spotify URL</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Spotify URL"
+                                {...fieldProps}
+                                value={value ?? ""}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* TikTok URL */}
+                      <FormField
+                        control={form.control}
+                        name="tiktokUrl"
+                        render={({ field: { value, ...fieldProps } }) => (
+                          <FormItem>
+                            <FormLabel>TikTok URL</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="TikTok URL"
+                                {...fieldProps}
+                                value={value ?? ""}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Instagram URL */}
+                      <FormField
+                        control={form.control}
+                        name="instagramUrl"
+                        render={({ field: { value, ...fieldProps } }) => (
+                          <FormItem>
+                            <FormLabel>Instagram URL</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Instagram URL"
+                                {...fieldProps}
+                                value={value ?? ""}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
 
                   {analytics && (
                     <Card className="mt-6">
@@ -753,13 +822,23 @@ export default function NewArtistForm() {
                                 <Input
                                   type="number"
                                   min="0"
-                                  max="100"
+                                  max="1"
+                                  step="0.01"
                                   className="w-24"
                                   placeholder="Match %"
-                                  value={artist.match}
+                                  value={Number(artist.match).toFixed(2)}
                                   onChange={(e) => {
+                                    let value = parseFloat(e.target.value);
+                                    // Only allow 0 or 1 if the input is not a decimal
+                                    if (!e.target.value.includes('.')) {
+                                      value = value === 1 ? 1 : 0;
+                                    }
+                                    // Clamp value between 0 and 1 and limit to 2 decimal places
+                                    value = Math.min(Math.max(value || 0, 0), 1);
+                                    value = Math.round(value * 100) / 100;
+                                    
                                     const newArtists = [...(artistData.similarArtists || [])];
-                                    newArtists[index] = { ...artist, match: e.target.value };
+                                    newArtists[index] = { ...artist, match: value.toString() };
                                     form.setValue('similarArtists', newArtists);
                                   }}
                                 />
@@ -899,9 +978,12 @@ export default function NewArtistForm() {
                   </div>
 
                   <div className="flex gap-4">
-                    <Button type="submit" disabled={loading}>
+                    <Button type="submit" disabled={loading} onClick={() => {
+                      console.log('submit')
+                      form.handleSubmit(onSubmit)()
+                    }}>
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Create Artist
+                      Add Artist
                     </Button>
 
                     {showFullForm && (

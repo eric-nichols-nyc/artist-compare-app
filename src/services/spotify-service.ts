@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 export class SpotifyService {
     private static async getAccessToken(): Promise<string> {
         const clientId = process.env.NEXT_PUBLIC_SPOTIFY_ID;
@@ -9,14 +10,17 @@ export class SpotifyService {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Authorization': 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64')
             },
-            body: 'grant_type=client_credentials'
+            body: 'grant_type=client_credentials',
+              // Add these options to ensure proper fetch behavior
+            cache: 'no-store',
+            next: { revalidate: 0 }
         });
 
         const data = await response.json();
         return data.access_token;
     }
 
-    public static async searchArtist(artistName: string) {
+    public static searchArtist = unstable_cache(async (artistName: string) => {
         const accessToken = await this.getAccessToken();
         
         const response = await fetch(
@@ -35,40 +39,37 @@ export class SpotifyService {
 
         const artistId = data.artists.items[0].id;
 
-        // get similar artists
-        const similarArtistsResponse = await fetch(
-            `https://customer.api.soundcharts.com/api/v2/artist/11e81bcc-9c1c-ce38-b96b-a0369fe50396/related?offset=0&limit=10`,
+   
+        return artistId;
+
+    },['spotify-search-artist'], { tags: ['spotify-search-artist'], revalidate: 60 * 60 * 24 });
+
+    public getSimilarArtists = unstable_cache(async (artistId: string) => {
+        const accessToken = await (this.constructor as typeof SpotifyService).getAccessToken();
+        const response = await fetch(
+            `https://api.spotify.com/v1/artists/${artistId}/related-artists`,
             {
                 headers: {
-                    'x-app-id': 'soundcharts',
-                    'x-api-key': 'soundcharts'
+                    'Authorization': `Bearer ${accessToken}`
                 }
             }
         );
+    },['spotify-similar-artists'], { tags: ['spotify-similar-artists'], revalidate: 60 * 60 * 24 });
 
-    
-       
-
-        const similarArtistsData = await similarArtistsResponse.json();
-        console.log('similarArtistsData', similarArtistsData);
-
-        // get top tracks
-        const topTracksResponse = await fetch(
+    public getTopTracks = unstable_cache(async (artistId: string) => {
+        const accessToken = await (this.constructor as typeof SpotifyService).getAccessToken();
+        const response = await fetch(
             `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
             {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             }
-        );  
+        );
 
-        const topTracksData = await topTracksResponse.json();
-        // send all data in the response
-        return {
-            artist: data.artists.items[0],
-            topTracks: topTracksData.tracks
-        };
-    }
+        const topTracksData = await response.json();
+        return topTracksData.tracks;
+    },['spotify-top-tracks'], { tags: ['spotify-top-tracks'], revalidate: 60 * 60 * 24 });
 
     public static async getArtistData(artistId: string) {
         const accessToken = await this.getAccessToken();
