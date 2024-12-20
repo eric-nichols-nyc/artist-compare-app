@@ -2,32 +2,21 @@
 import { NextResponse } from 'next/server';
 import { ArtistIngestionService } from '@/services/artist-ingestion-service';
 import { OpenAI } from 'openai';
-import { createClient } from '@supabase/supabase-js';
 import type { PreviewArtistResponse } from "@/types/api"
+import { unstable_cache } from 'next/cache';
 
 const ingestionService = new ArtistIngestionService();
 const openai = new OpenAI();
 
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const artistName = searchParams.get('name');
-
-    if (!artistName) {
-      return NextResponse.json(
-        { error: 'Artist name is required' },
-        { status: 400 }
-      );
-    }
-
-    // Fetch data from multiple sources in parallel
-    const [youtubeData, spotifyData, similarArtistsData ] = await Promise.all([
+// Create a cached version of the preview data fetcher
+const getPreviewData = unstable_cache(
+  async (artistName: string) => {
+    const [youtubeData, spotifyData, similarArtistsData] = await Promise.all([
       ingestionService.getYoutubeChannelInfo(artistName),
       ingestionService.getSpotifyArtistData(artistName),
       ingestionService.getLastFmArtistInfo(artistName)
     ]);
 
-    // Generate a brief bio using GPT-4
     const bioCompletion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [{
@@ -37,11 +26,6 @@ export async function GET(request: Request) {
       temperature: 0.7
     });
 
-    // Structure the preview data
-   console.log('youtubeData ======== ', youtubeData)
-   //console.log('spotifyData ======== ', spotifyData)
-   //console.log('bioCompletion ======== ', bioCompletion.choices[0].message.content)
-   //console.log('similarArtistsData ======== ', similarArtistsData)
     const previewData: PreviewArtistResponse = {
       name: artistName,
       bio: bioCompletion.choices[0].message.content,
@@ -59,19 +43,39 @@ export async function GET(request: Request) {
       analytics: {
         monthlyListeners: 100000,
         youtubeSubscribers: youtubeData?.statistics.subscribers,
-        youtubeTotalViews: 100000,
+        youtubeTotalViews: youtubeData?.statistics.viewCount,
         lastfmPlayCount: 100000,
         spotifyFollowers: spotifyData.artist.followers.total,
-        spotifyPopularity: 100000,
+        spotifyPopularity: spotifyData.artist.popularity,
         topYoutubeVideo: youtubeData?.topVideos?.[0],
         topSpotifyTrack: spotifyData.topTracks?.[0],
       }
-
     };
 
-    console.log('previewData', previewData);
+    return previewData;
+  },
+  ['artist-preview'], // Cache tag
+  {
+    revalidate: 3600, // Cache for 1 hour
+    tags: ['artist-preview']
+  }
+);
 
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const artistName = searchParams.get('name');
+
+    if (!artistName) {
+      return NextResponse.json(
+        { error: 'Artist name is required' },
+        { status: 400 }
+      );
+    }
+
+    const previewData = await getPreviewData(artistName);
     return NextResponse.json(previewData);
+
   } catch (error) {
     console.error('Error fetching artist preview:', error);
     return NextResponse.json(

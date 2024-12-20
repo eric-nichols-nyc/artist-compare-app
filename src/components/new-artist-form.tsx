@@ -52,6 +52,7 @@ interface TopTrack {
   popularity: number;
   previewUrl?: string;
   albumImageUrl?: string;
+  spotify_streams?: number;
 }
 
 interface ArtistVideo {
@@ -114,6 +115,11 @@ export default function NewArtistForm() {
       }
 
       const artistData: PreviewArtistResponse & { analytics?: ArtistAnalytics } = await response.json()
+      // map the images
+      artistData.topTracks = artistData?.topTracks?.map((track: any) => ({
+        ...track,
+        albumImageUrl: track.album.images[0].url,
+      }))
       setArtistData(artistData)
       const end = performance.now()
       console.log(`Time taken: ${end - start} milliseconds`)
@@ -593,28 +599,100 @@ export default function NewArtistForm() {
 
                               <div className="space-y-2">
                                 <h4 className="font-medium">Last.fm</h4>
-                                <div className="text-sm text-muted-foreground">
-                                  <p>Monthly Listeners: {analytics.monthlyListeners?.toLocaleString()}</p>
-                                  <p>Play Count: {analytics.lastfmPlayCount?.toLocaleString()}</p>
+                                <div className="space-y-2">
+                                  <div>
+                                    <label className="text-sm text-muted-foreground">Monthly Listeners</label>
+                                    <Input
+                                      type="number"
+                                      value={analytics.monthlyListeners || ""}
+                                      onChange={(e) => setAnalytics(prev => ({
+                                        ...prev!,
+                                        monthlyListeners: parseInt(e.target.value) || undefined
+                                      }))}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-sm text-muted-foreground">Play Count</label>
+                                    <Input
+                                      type="number"
+                                      value={analytics.lastfmPlayCount || ""}
+                                      onChange={(e) => setAnalytics(prev => ({
+                                        ...prev!,
+                                        lastfmPlayCount: parseInt(e.target.value) || undefined
+                                      }))}
+                                    />
+                                  </div>
                                 </div>
                               </div>
 
                               <div className="space-y-2">
                                 <h4 className="font-medium">Social Media</h4>
-                                <div className="text-sm text-muted-foreground">
-                                  <p>Instagram: {analytics.instagramFollowers?.toLocaleString()}</p>
-                                  <p>TikTok: {analytics.tiktokFollowers?.toLocaleString()}</p>
-                                  <p>Facebook: {analytics.facebookFollowers?.toLocaleString()}</p>
-                                  <p>SoundCloud: {analytics.soundcloudFollowers?.toLocaleString()}</p>
+                                <div className="space-y-2">
+                                  <div>
+                                    <label className="text-sm text-muted-foreground">Instagram Followers</label>
+                                    <Input
+                                      type="number"
+                                      value={analytics.instagramFollowers || ""}
+                                      onChange={(e) => setAnalytics(prev => ({
+                                        ...prev!,
+                                        instagramFollowers: parseInt(e.target.value) || undefined
+                                      }))}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-sm text-muted-foreground">TikTok Followers</label>
+                                    <Input
+                                      type="number"
+                                      value={analytics.tiktokFollowers || ""}
+                                      onChange={(e) => setAnalytics(prev => ({
+                                        ...prev!,
+                                        tiktokFollowers: parseInt(e.target.value) || undefined
+                                      }))}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-sm text-muted-foreground">Facebook Followers</label>
+                                    <Input
+                                      type="number"
+                                      value={analytics.facebookFollowers || ""}
+                                      onChange={(e) => setAnalytics(prev => ({
+                                        ...prev!,
+                                        facebookFollowers: parseInt(e.target.value) || undefined
+                                      }))}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-sm text-muted-foreground">SoundCloud Followers</label>
+                                    <Input
+                                      type="number"
+                                      value={analytics.soundcloudFollowers || ""}
+                                      onChange={(e) => setAnalytics(prev => ({
+                                        ...prev!,
+                                        soundcloudFollowers: parseInt(e.target.value) || undefined
+                                      }))}
+                                    />
+                                  </div>
                                 </div>
                               </div>
 
                               {analytics.topSpotifyTrack && (
                                 <div className="space-y-2">
                                   <h4 className="font-medium">Top Spotify Track</h4>
-                                  <div className="text-sm text-muted-foreground">
-                                    <p>{analytics.topSpotifyTrack.name}</p>
-                                    <p>Popularity: {analytics.topSpotifyTrack.popularity}%</p>
+                                  <div className="flex items-center gap-4">
+                                    {analytics.topSpotifyTrack.album?.images?.[0]?.url && (
+                                      <div className="relative h-12 w-12 overflow-hidden rounded">
+                                        <Image
+                                          src={analytics.topSpotifyTrack.album.images[0].url}
+                                          alt={analytics.topSpotifyTrack.name}
+                                          fill
+                                          className="object-cover"
+                                        />
+                                      </div>
+                                    )}
+                                    <div className="flex-1 text-sm text-muted-foreground">
+                                      <p>{analytics.topSpotifyTrack.name}</p>
+                                      <p>Popularity: {analytics.topSpotifyTrack.popularity}%</p>
+                                    </div>
                                   </div>
                                 </div>
                               )}
@@ -622,9 +700,21 @@ export default function NewArtistForm() {
                               {analytics.topYoutubeVideo && (
                                 <div className="space-y-2">
                                   <h4 className="font-medium">Top YouTube Video</h4>
-                                  <div className="text-sm text-muted-foreground">
-                                    <p>{analytics.topYoutubeVideo.title}</p>
-                                    <p>Views: {Number(analytics.topYoutubeVideo.statistics?.viewCount).toLocaleString()}</p>
+                                  <div className="flex items-center gap-4">
+                                    {analytics.topYoutubeVideo.thumbnail && (
+                                      <div className="relative h-12 w-20 overflow-hidden rounded">
+                                        <Image
+                                          src={analytics.topYoutubeVideo.thumbnail}
+                                          alt={analytics.topYoutubeVideo.title}
+                                          fill
+                                          className="object-cover"
+                                        />
+                                      </div>
+                                    )}
+                                    <div className="flex-1 text-sm text-muted-foreground">
+                                      <p>{analytics.topYoutubeVideo.title}</p>
+                                      <p>Views: {Number(analytics.topYoutubeVideo.statistics?.viewCount).toLocaleString()}</p>
+                                    </div>
                                   </div>
                                 </div>
                               )}
@@ -634,7 +724,7 @@ export default function NewArtistForm() {
                       )}
                     </div>
                   </div>
-
+                      {/* Similar Artists  */} 
                   <div className="space-y-6">
                     <Card className="mt-6">
                       <CardHeader>
@@ -675,6 +765,7 @@ export default function NewArtistForm() {
                       </CardContent>
                     </Card>
 
+                    {/* Top Tracks  */} 
                     <Card className="mt-6">
                       <CardHeader>
                         <CardTitle>Top Tracks</CardTitle>
@@ -715,6 +806,17 @@ export default function NewArtistForm() {
                                   onChange={(e) => {
                                     const newTracks = [...(artistData.topTracks || [])];
                                     newTracks[index] = { ...track, popularity: parseInt(e.target.value) };
+                                    form.setValue('topTracks', newTracks);
+                                  }}
+                                />
+                                <Input
+                                  type="number"
+                                  className="w-32"
+                                  placeholder="spotify streams"
+                                  value={track.spotify_streams}
+                                  onChange={(e) => {
+                                    const newTracks = [...(artistData.topTracks || [])];
+                                    newTracks[index] = { ...track, spotify_streams: parseInt(e.target.value) };
                                     form.setValue('topTracks', newTracks);
                                   }}
                                 />
