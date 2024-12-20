@@ -25,7 +25,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import type { PreviewArtistResponse } from "@/types/api"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { CardDescription } from "./ui/card"
-import { Separator } from "./ui/separator"
 
 interface ArtistAnalytics {
   monthlyListeners?: number
@@ -530,201 +529,207 @@ export default function NewArtistForm() {
                           )}
                         />
                       </div>
-
-                      {analytics && (
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>Artist Analytics</CardTitle>
-                            <CardDescription>Current statistics across platforms</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div className="space-y-2">
-                                <h4 className="font-medium">Spotify</h4>
-                                <div className="space-y-2">
-                                  <div>
-                                    <label className="text-sm text-muted-foreground">Followers</label>
-                                    <Input
-                                      type="number"
-                                      value={analytics.spotifyFollowers || ""}
-                                      onChange={(e) => setAnalytics(prev => ({
-                                        ...prev!,
-                                        spotifyFollowers: parseInt(e.target.value) || undefined
-                                      }))}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-sm text-muted-foreground">Popularity</label>
-                                    <Input
-                                      type="number"
-                                      min="0"
-                                      max="100"
-                                      value={analytics.spotifyPopularity || ""}
-                                      onChange={(e) => setAnalytics(prev => ({
-                                        ...prev!,
-                                        spotifyPopularity: parseInt(e.target.value) || undefined
-                                      }))}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                <h4 className="font-medium">YouTube</h4>
-                                <div className="space-y-2">
-                                  <div>
-                                    <label className="text-sm text-muted-foreground">Subscribers</label>
-                                    <Input
-                                      type="number"
-                                      value={analytics.youtubeSubscribers || ""}
-                                      onChange={(e) => setAnalytics(prev => ({
-                                        ...prev!,
-                                        youtubeSubscribers: parseInt(e.target.value) || undefined
-                                      }))}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-sm text-muted-foreground">Total Views</label>
-                                    <Input
-                                      type="number"
-                                      value={analytics.youtubeTotalViews || ""}
-                                      onChange={(e) => setAnalytics(prev => ({
-                                        ...prev!,
-                                        youtubeTotalViews: parseInt(e.target.value) || undefined
-                                      }))}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                <h4 className="font-medium">Last.fm</h4>
-                                <div className="space-y-2">
-                                  <div>
-                                    <label className="text-sm text-muted-foreground">Monthly Listeners</label>
-                                    <Input
-                                      type="number"
-                                      value={analytics.monthlyListeners || ""}
-                                      onChange={(e) => setAnalytics(prev => ({
-                                        ...prev!,
-                                        monthlyListeners: parseInt(e.target.value) || undefined
-                                      }))}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-sm text-muted-foreground">Play Count</label>
-                                    <Input
-                                      type="number"
-                                      value={analytics.lastfmPlayCount || ""}
-                                      onChange={(e) => setAnalytics(prev => ({
-                                        ...prev!,
-                                        lastfmPlayCount: parseInt(e.target.value) || undefined
-                                      }))}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                <h4 className="font-medium">Social Media</h4>
-                                <div className="space-y-2">
-                                  <div>
-                                    <label className="text-sm text-muted-foreground">Instagram Followers</label>
-                                    <Input
-                                      type="number"
-                                      value={analytics.instagramFollowers || ""}
-                                      onChange={(e) => setAnalytics(prev => ({
-                                        ...prev!,
-                                        instagramFollowers: parseInt(e.target.value) || undefined
-                                      }))}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-sm text-muted-foreground">TikTok Followers</label>
-                                    <Input
-                                      type="number"
-                                      value={analytics.tiktokFollowers || ""}
-                                      onChange={(e) => setAnalytics(prev => ({
-                                        ...prev!,
-                                        tiktokFollowers: parseInt(e.target.value) || undefined
-                                      }))}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-sm text-muted-foreground">Facebook Followers</label>
-                                    <Input
-                                      type="number"
-                                      value={analytics.facebookFollowers || ""}
-                                      onChange={(e) => setAnalytics(prev => ({
-                                        ...prev!,
-                                        facebookFollowers: parseInt(e.target.value) || undefined
-                                      }))}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-sm text-muted-foreground">SoundCloud Followers</label>
-                                    <Input
-                                      type="number"
-                                      value={analytics.soundcloudFollowers || ""}
-                                      onChange={(e) => setAnalytics(prev => ({
-                                        ...prev!,
-                                        soundcloudFollowers: parseInt(e.target.value) || undefined
-                                      }))}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-
-                              {analytics.topSpotifyTrack && (
-                                <div className="space-y-2">
-                                  <h4 className="font-medium">Top Spotify Track</h4>
-                                  <div className="flex items-center gap-4">
-                                    {analytics.topSpotifyTrack.album?.images?.[0]?.url && (
-                                      <div className="relative h-12 w-12 overflow-hidden rounded">
-                                        <Image
-                                          src={analytics.topSpotifyTrack.album.images[0].url}
-                                          alt={analytics.topSpotifyTrack.name}
-                                          fill
-                                          className="object-cover"
-                                        />
-                                      </div>
-                                    )}
-                                    <div className="flex-1 text-sm text-muted-foreground">
-                                      <p>{analytics.topSpotifyTrack.name}</p>
-                                      <p>Popularity: {analytics.topSpotifyTrack.popularity}%</p>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-
-                              {analytics.topYoutubeVideo && (
-                                <div className="space-y-2">
-                                  <h4 className="font-medium">Top YouTube Video</h4>
-                                  <div className="flex items-center gap-4">
-                                    {analytics.topYoutubeVideo.thumbnail && (
-                                      <div className="relative h-12 w-20 overflow-hidden rounded">
-                                        <Image
-                                          src={analytics.topYoutubeVideo.thumbnail}
-                                          alt={analytics.topYoutubeVideo.title}
-                                          fill
-                                          className="object-cover"
-                                        />
-                                      </div>
-                                    )}
-                                    <div className="flex-1 text-sm text-muted-foreground">
-                                      <p>{analytics.topYoutubeVideo.title}</p>
-                                      <p>Views: {Number(analytics.topYoutubeVideo.statistics?.viewCount).toLocaleString()}</p>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
                     </div>
                   </div>
-                      {/* Similar Artists  */} 
+
+                  {analytics && (
+                    <Card className="mt-6">
+                      <CardHeader>
+                        <CardTitle>Artist Analytics</CardTitle>
+                        <CardDescription>Current statistics across platforms</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <Card className="p-4">
+                            <div className="space-y-4">
+                              <h4 className="font-medium">Spotify</h4>
+                              <div className="space-y-2">
+                                <div>
+                                  <label className="text-sm text-muted-foreground">Followers</label>
+                                  <Input
+                                    type="number"
+                                    value={analytics.spotifyFollowers || ""}
+                                    onChange={(e) => setAnalytics(prev => ({
+                                      ...prev!,
+                                      spotifyFollowers: parseInt(e.target.value) || undefined
+                                    }))}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm text-muted-foreground">Popularity</label>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={analytics.spotifyPopularity || ""}
+                                    onChange={(e) => setAnalytics(prev => ({
+                                      ...prev!,
+                                      spotifyPopularity: parseInt(e.target.value) || undefined
+                                    }))}
+                                  />
+                                </div>
+                                {analytics.topSpotifyTrack && (
+                                  <div className="mt-4">
+                                    <label className="text-sm text-muted-foreground">Top Track</label>
+                                    <div className="flex items-center gap-4 mt-2">
+                                      {analytics.topSpotifyTrack.album?.images?.[0]?.url && (
+                                        <div className="relative h-12 w-12 overflow-hidden rounded">
+                                          <Image
+                                            src={analytics.topSpotifyTrack.album.images[0].url}
+                                            alt={analytics.topSpotifyTrack.name}
+                                            fill
+                                            className="object-cover"
+                                          />
+                                        </div>
+                                      )}
+                                      <div className="flex-1 text-sm text-muted-foreground">
+                                        <p>{analytics.topSpotifyTrack.name}</p>
+                                        <p>Popularity: {analytics.topSpotifyTrack.popularity}%</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </Card>
+
+                          <Card className="p-4">
+                            <div className="space-y-4">
+                              <h4 className="font-medium">YouTube</h4>
+                              <div className="space-y-2">
+                                <div>
+                                  <label className="text-sm text-muted-foreground">Subscribers</label>
+                                  <Input
+                                    type="number"
+                                    value={analytics.youtubeSubscribers || ""}
+                                    onChange={(e) => setAnalytics(prev => ({
+                                      ...prev!,
+                                      youtubeSubscribers: parseInt(e.target.value) || undefined
+                                    }))}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm text-muted-foreground">Total Views</label>
+                                  <Input
+                                    type="number"
+                                    value={analytics.youtubeTotalViews || ""}
+                                    onChange={(e) => setAnalytics(prev => ({
+                                      ...prev!,
+                                      youtubeTotalViews: parseInt(e.target.value) || undefined
+                                    }))}
+                                  />
+                                </div>
+                                {analytics.topYoutubeVideo && (
+                                  <div className="mt-4">
+                                    <label className="text-sm text-muted-foreground">Top Video</label>
+                                    <div className="flex items-center gap-4 mt-2">
+                                      {analytics.topYoutubeVideo.thumbnail && (
+                                        <div className="relative h-12 w-20 overflow-hidden rounded">
+                                          <Image
+                                            src={analytics.topYoutubeVideo.thumbnail}
+                                            alt={analytics.topYoutubeVideo.title}
+                                            fill
+                                            className="object-cover"
+                                          />
+                                        </div>
+                                      )}
+                                      <div className="flex-1 text-sm text-muted-foreground">
+                                        <p>{analytics.topYoutubeVideo.title}</p>
+                                        <p>Views: {Number(analytics.topYoutubeVideo.statistics?.viewCount).toLocaleString()}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </Card>
+
+                          <Card className="p-4">
+                            <div className="space-y-2">
+                              <h4 className="font-medium">Last.fm</h4>
+                              <div className="space-y-2">
+                                <div>
+                                  <label className="text-sm text-muted-foreground">Monthly Listeners</label>
+                                  <Input
+                                    type="number"
+                                    value={analytics.monthlyListeners || ""}
+                                    onChange={(e) => setAnalytics(prev => ({
+                                      ...prev!,
+                                      monthlyListeners: parseInt(e.target.value) || undefined
+                                    }))}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm text-muted-foreground">Play Count</label>
+                                  <Input
+                                    type="number"
+                                    value={analytics.lastfmPlayCount || ""}
+                                    onChange={(e) => setAnalytics(prev => ({
+                                      ...prev!,
+                                      lastfmPlayCount: parseInt(e.target.value) || undefined
+                                    }))}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+
+                          <Card className="p-4 md:col-span-2">
+                            <div className="space-y-2">
+                              <h4 className="font-medium">Social Media</h4>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <label className="text-sm text-muted-foreground">Instagram Followers</label>
+                                  <Input
+                                    type="number"
+                                    value={analytics.instagramFollowers || ""}
+                                    onChange={(e) => setAnalytics(prev => ({
+                                      ...prev!,
+                                      instagramFollowers: parseInt(e.target.value) || undefined
+                                    }))}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm text-muted-foreground">TikTok Followers</label>
+                                  <Input
+                                    type="number"
+                                    value={analytics.tiktokFollowers || ""}
+                                    onChange={(e) => setAnalytics(prev => ({
+                                      ...prev!,
+                                      tiktokFollowers: parseInt(e.target.value) || undefined
+                                    }))}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm text-muted-foreground">Facebook Followers</label>
+                                  <Input
+                                    type="number"
+                                    value={analytics.facebookFollowers || ""}
+                                    onChange={(e) => setAnalytics(prev => ({
+                                      ...prev!,
+                                      facebookFollowers: parseInt(e.target.value) || undefined
+                                    }))}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm text-muted-foreground">SoundCloud Followers</label>
+                                  <Input
+                                    type="number"
+                                    value={analytics.soundcloudFollowers || ""}
+                                    onChange={(e) => setAnalytics(prev => ({
+                                      ...prev!,
+                                      soundcloudFollowers: parseInt(e.target.value) || undefined
+                                    }))}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
                   <div className="space-y-6">
                     <Card className="mt-6">
                       <CardHeader>
@@ -765,7 +770,6 @@ export default function NewArtistForm() {
                       </CardContent>
                     </Card>
 
-                    {/* Top Tracks  */} 
                     <Card className="mt-6">
                       <CardHeader>
                         <CardTitle>Top Tracks</CardTitle>
