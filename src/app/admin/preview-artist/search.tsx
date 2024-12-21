@@ -74,7 +74,7 @@ export function ArtistListCard({ onArtistSelect }: ArtistListCardProps) {
             {searchResults.map((artist) => (
               <div
                 key={artist.id}
-                onClick={() => {onArtistSelect?.(artist); setSearchResults([]);}}
+                onClick={() => {onArtistSelect?.(artist); setSearchQuery(''); setSearchResults([]);}}
                 className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
               >
                 {artist.imageUrl && (
