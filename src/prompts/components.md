@@ -144,14 +144,6 @@ you are an expert in React, Tailwind CSS and Framer Motion. You are tasked with 
         - genres
         - imageUrl
 
-      - next the form should call /api/admin/analytics to get the analytics data
-
       - next the form should call /api/admin/youtube/videos to get the youtube videos
 
       - next the form should call /api/admin/spotify/tracks to get the spotify tracks
-
-      - next the form should call /api/admin/scrape-artist/spotify to get the spotify data
-
-      - next the form should call /api/admin/scrape-artist/vibrate to get the vibrate data
-
-      - next the form should call /api/admin/scrape-artist/lastfm to get the lastfm data
