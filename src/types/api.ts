@@ -27,14 +27,14 @@ export interface PreviewArtistResponse {
   topTracks?: any[]
   artistVideos?: any[]
   analytics?: {
-    monthlyListeners?: number
+    lastFmMonthlyListeners?: number
+    lastfmPlayCount?: number
     youtubeSubscribers?: number
     youtubeTotalViews?: number
-    lastfmPlayCount?: number
+    youtubeVideoCount?: number
+    spotifyMonthlyListeners?: number
     spotifyFollowers?: number
     spotifyPopularity?: number
-    topYoutubeVideo?: any
-    topSpotifyTrack?: any
     instagramFollowers?: number
     facebookFollowers?: number
     tiktokFollowers?: number
@@ -49,7 +49,6 @@ export interface ArtistIngestionResponse {
     lastfmListeners: number | null
     youtubeChannelId: string | undefined
     youtubeChannelStats: any
-    biography: string | null
     biography: string | null
     genres?: string[]
     imageUrl?: string | null

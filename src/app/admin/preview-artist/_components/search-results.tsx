@@ -1,36 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense } from 'react'
 import Image from 'next/image'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { SpotifyArtist } from '@/types/api'
-interface Artist {
-  name: string
-  spotifyId: string
-  imageUrl: string
-  genres?: string[]
-  bio?: string
-  youtubeChannelId?: string
-  videos?: Array<{
-    title: string
-    videoId: string
-    views: number
-    imageUrl: string
-  }>
-  tracks?: Array<{
-    title: string
-    trackId: string
-    streams: number
-    imageUrl: string
-  }>
-  analytics?: {
-    monthlyListeners?: number
-    youtubeSubscribers?: number
-    spotifyFollowers?: number
-  }
-}
+import { ArtistDetails } from './artist-details'
 
 interface SearchResultsProps {
   selectedArtists: SpotifyArtist[]
@@ -38,21 +13,12 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({ selectedArtists, onRemoveArtist }: SearchResultsProps) {
-  const [expandedCard, setExpandedCard] = useState<string | null>(null)
-
-  const formatNumber = (num?: number) => {
-    if (!num) return 'N/A'
-    return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num)
-  }
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
       {selectedArtists.map((artist) => (
         <Card 
           key={artist.spotifyId}
-          className={`relative p-4 transition-all duration-300 ${
-            expandedCard === artist.spotifyId ? 'col-span-2 row-span-2' : ''
-          }`}
+          className="relative p-4"
         >
           {/* Header Section */}
           <div className="flex items-start justify-between mb-4">
@@ -76,7 +42,9 @@ export function SearchResults({ selectedArtists, onRemoveArtist }: SearchResults
                   ))}
                 </div>
               </div>
+    
             </div>
+          
             <button
               onClick={() => onRemoveArtist(artist.spotifyId)}
               className="text-red-500 hover:text-red-700"
@@ -84,28 +52,19 @@ export function SearchResults({ selectedArtists, onRemoveArtist }: SearchResults
               ×
             </button>
           </div>
+          <div className="flex flex-col">
+              {/* add spotifyId */}
+              <div className="text-sm text-gray-500">Spotify ID: {artist.spotifyId}</div>
+              {/* add followers */}
+              <div className="text-sm text-gray-500">Followers: {artist.followers}</div>
+              {/* add popularity */}
+              <div className="text-sm text-gray-500">Popularity: {artist.popularity}</div>
+              </div>
 
-          {/* Analytics Section */}
-          {/* <div className="grid grid-cols-3 gap-2 mb-4">
-            <div className="text-center p-2 bg-gray-50 rounded">
-              <div className="text-sm text-gray-600">Monthly</div>
-              <div className="font-semibold">
-                {formatNumber(artist.analytics?.monthlyListeners)}
-              </div>
-            </div>
-            <div className="text-center p-2 bg-gray-50 rounded">
-              <div className="text-sm text-gray-600">YouTube</div>
-              <div className="font-semibold">
-                {formatNumber(artist.analytics?.youtubeSubscribers)}
-              </div>
-            </div>
-            <div className="text-center p-2 bg-gray-50 rounded">
-              <div className="text-sm text-gray-600">Spotify</div>
-              <div className="font-semibold">
-                {formatNumber(artist.analytics?.spotifyFollowers)}
-              </div>
-            </div>
-          </div> */}
+          {/* Artist Details Section */}
+          <Suspense fallback={<div className="p-4">Loading artist details...</div>}>
+            <ArtistDetails artist={artist} />
+          </Suspense>
         </Card>
       ))}
     </div>
