@@ -5,6 +5,7 @@ import { ArtistIngestionResponse, SpotifyArtist } from '@/types/api'
 import { ArtistVideos } from './artist-videos'
 import { ArtistTracks } from './artist-tracks'
 import { SimilarArtists } from './similar-artists'
+import { ArtistAnalytics } from './artist-analytics'
 
 interface ArtistDetailsProps {
   artist: SpotifyArtist
@@ -52,20 +53,10 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
           <p>{artistInfo.biography}</p>
         </div>
       )}
-      <div className="mt-4 grid grid-cols-2 gap-4">
-        {artistInfo.lastfmListeners && (
-          <div className="bg-gray-50 p-3 rounded">
-            <div className="text-sm text-gray-600">Last.fm Listeners</div>
-            <div className="font-semibold">{artistInfo.lastfmListeners}</div>
-          </div>
-        )}
-        {artistInfo.lastfmPlayCount && (
-          <div className="bg-gray-50 p-3 rounded">
-            <div className="text-sm text-gray-600">Last.fm Plays</div>
-            <div className="font-semibold">{artistInfo.lastfmPlayCount}</div>
-          </div>
-        )}
-      </div>
+
+      <Suspense fallback={<div className="p-4">Loading analytics...</div>}>
+        <ArtistAnalytics artist={artist} />
+      </Suspense>
 
       <div className="grid grid-cols-1 gap-6">
         <Suspense fallback={<div className="p-4">Loading videos...</div>}>
