@@ -81,7 +81,7 @@ you are an expert in React, Tailwind CSS and Framer Motion. You are tasked with 
             - imageUrl
             - gender
             - country
-            - lifeSpan
+            - age
          youtube videos
             - list of youtube videos
             - title
@@ -90,7 +90,7 @@ you are an expert in React, Tailwind CSS and Framer Motion. You are tasked with 
             - imageUrl
             - videoId
             - stats
-               -views
+            -views
          spotify tracks
             - list of spotify tracks
             - title

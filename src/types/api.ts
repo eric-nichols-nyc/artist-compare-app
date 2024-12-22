@@ -41,3 +41,32 @@ export interface PreviewArtistResponse {
     soundcloudFollowers?: number
   }
 } 
+
+
+export interface ArtistIngestionResponse {
+    musicbrainzId: string
+    lastfmPlayCount: number | null
+    lastfmListeners: number | null
+    youtubeChannelId: string | undefined
+    youtubeChannelStats: any
+    biography: string | null
+    biography: string | null
+    genres?: string[]
+    imageUrl?: string | null
+    gender?: string | null
+    country?: string | null
+    activeYears?: {
+        begin: string | null
+        end: string | null
+    }
+}
+
+
+export interface SpotifyArtist {
+    name: string
+    spotifyId: string
+    imageUrl: string
+    genres: string[]
+    popularity: number
+    followers: number
+}

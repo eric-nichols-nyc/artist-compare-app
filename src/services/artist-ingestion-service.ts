@@ -9,6 +9,7 @@ import OpenAI from 'openai';
 import type { PreviewArtistResponse } from "@/types/api"
 import { ArtistFormValues } from '@/lib/validations/artist';
 import { LastFmArtistInfo, LastFmResponse } from '@/types/api';
+import { YoutubeService } from './youtube-service';
 // Initialize environment variables
 if (typeof window === 'undefined') {
     config();
@@ -46,12 +47,13 @@ export class ArtistIngestionService {
     private youtube;
     private supabase;
     private musicBrainzService: MusicBrainzService;
+    private youtubeService: YoutubeService;
     private openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY
     });
 
     constructor() {
-        this.youtube = google.youtube('v3');
+        this.youtubeService = new YoutubeService();
         this.supabase = createClient<Database>(SUPABASE_URL, SUPABASE_KEY);
         this.musicBrainzService = new MusicBrainzService();
     }
@@ -59,7 +61,7 @@ export class ArtistIngestionService {
     /**
      * Fetch artist information from Last.fm API
      */
-    public async getLastFmSimilarArtistInfo(artistName: string): Promise<LastFmArtistInfo> {
+    public getLastFmSimilarArtistInfo = unstable_cache(async (artistName: string): Promise<LastFmArtistInfo> => {
         try {
             const response = await fetch(
                 `http://ws.audioscrobbler.com/2.0/?method=artist.getSimilar&artist=${encodeURIComponent(artistName)}&api_key=${LASTFM_API_KEY}&format=json&limit=10`
@@ -71,7 +73,7 @@ export class ArtistIngestionService {
             console.error('Error fetching Last.fm artist info:', error);
             throw error;
         }
-    }
+    }, ['lastfm-similar-artist-info'], { tags: ['lastfm-similar-artist-info'], revalidate: 60 * 60 * 24 });
 
     // fetch lastFm artist info
     public getLastFmArtistInfo = unstable_cache(async (artistName: string): Promise<LastFmArtistInfo> => {
@@ -90,109 +92,16 @@ export class ArtistIngestionService {
     /**
      * Fetch YouTube channel information for an artist
      */
-    public getYoutubeChannelInfo = unstable_cache(async (artistName: string, cid?: string): Promise<YoutubeChannelInfo | null> => {
-        let channelId;
-        if (!cid) {
-            const searchResponse = await this.youtube.search.list({
-                key: YOUTUBE_API_KEY,
-                part: ['id'],
-                q: `${artistName} official`,
-                type: ['channel'],
-                maxResults: 1
-            });
-
-            channelId = searchResponse.data.items?.[0]?.id?.channelId;
-        } else {
-            channelId = cid;
-        }
-        try {
-
-            if (!channelId) return null;
-
-            // Get channel statistics
-            const channelResponse = await this.youtube.channels.list({
-                key: YOUTUBE_API_KEY,
-                part: ['statistics'],
-                id: [channelId]
-            });
-
-            const channelStats = channelResponse.data.items?.[0]?.statistics;
-            if (!channelStats) return null;
-
-            // Get top videos
-            // const topVideosResponse = await this.youtube.search.list({
-            //     key: YOUTUBE_API_KEY,
-            //     part: ['id', 'snippet'],
-            //     channelId: channelId,
-            //     type: ['video'],
-            //     order: 'viewCount',
-            //     maxResults: 5
-            // });
-
-            // // Get detailed video statistics
-            // const videoIds = topVideosResponse.data.items
-            //     ?.map(item => item.id?.videoId)
-            //     .filter((id): id is string => id !== undefined);
-
-            // const videoStats = videoIds ? await this.youtube.videos.list({
-            //     key: YOUTUBE_API_KEY,
-            //     part: ['statistics', 'contentDetails'],
-            //     id: videoIds
-            // }) : null;
-
-            // Combine video data
-            // const topVideos = topVideosResponse.data.items?.map((item, index) => ({
-            //     id: item.id?.videoId ?? undefined,
-            //     title: item.snippet?.title ?? undefined,
-            //     thumbnail: item.snippet?.thumbnails?.high?.url ?? undefined,
-            //     publishedAt: item.snippet?.publishedAt ?? undefined,
-            //     statistics: videoStats?.data.items?.[index]?.statistics ?? undefined,
-            //     duration: videoStats?.data.items?.[index]?.contentDetails?.duration ?? undefined
-            // }));
-
-            return {
-                id: channelId,
-                statistics: channelStats,
-                //topVideos: topVideos || []
-            };
-        } catch (error) {
-            console.error('Error fetching YouTube channel:', error);
-            return null;
-        }
-    }, ['youtube-channel-info'], { tags: ['youtube-channel-info'], revalidate: 60 * 60 * 24 });
+    public getYoutubeChannelInfo = async (artistName: string, channelId?: string) => {
+        return this.youtubeService.getChannelInfo(artistName, channelId);
+    }
 
     /**
      * Fetch top videos from a YouTube channel
      */
-    public getYoutubeVideos = unstable_cache(async (channelId: string) => {
-        try {
-            const response = await this.youtube.search.list({
-                key: YOUTUBE_API_KEY,
-                part: ['id'],
-                channelId: channelId,
-                type: ['video'],
-                order: 'viewCount',
-                maxResults: 5
-            });
-
-            if (!response.data.items) return [];
-
-            const videoIds = response.data.items
-                .map(item => item.id?.videoId)
-                .filter((id): id is string => id !== undefined);
-
-            const videosResponse = await this.youtube.videos.list({
-                key: YOUTUBE_API_KEY,
-                part: ['snippet', 'statistics'],
-                id: videoIds
-            });
-
-            return videosResponse.data.items || [];
-        } catch (error) {
-            console.error('Error fetching YouTube videos:', error);
-            return [];
-        }
-    }, ['youtube-videos'], { tags: ['youtube-videos'], revalidate: 60 * 60 * 24 });
+    public getYoutubeVideos = async (channelId: string) => {
+        return this.youtubeService.getChannelTopVideos(channelId);
+    }
 
     public getSpotifyArtistData = unstable_cache(async (artistName: string) => {
         const spotifyArtist = await SpotifyService.searchArtist(artistName);
@@ -238,37 +147,34 @@ export class ArtistIngestionService {
 
     // get artist info  return bio, spotifyId, lastfmId, youtubeChannelId, genres, imageUrl
     public async getArtistInfo(name: string) {
-        // 1. get artist musicbrainz id 
-        const musicbrainzId = await this.getArtistMusicBrainzId(name);
-        // 2. get artist musicbrainz info
+        const lastfm = await this.getLastFmArtistInfo(name);
         const musicbrainzInfo = await this.musicBrainzService.getArtistDetails(name);
         console.log('musicbrainzInfo =============================', musicbrainzInfo);
-        const { gender, country } = musicbrainzInfo;
-        // 3. get artist spotify id
-        const spotifyId = await SpotifyService.searchArtist(name);
-        // 4. get artist lastfm id
-        const lastfm = await this.getLastFmArtistInfo(name);
-        // 5. get artist youtube channel id
-        const youtubeChannelId = await this.getYoutubeChannelInfo(name);
-        // 6. get artist genres
-        const spotifyData = await SpotifyService.getArtistData(spotifyId);
-        const genres = spotifyData.genres;
-        // 7. get artist image url
-        const imageUrl = spotifyData.images[0].url;
+        
+        if (!musicbrainzInfo) {
+            throw new Error('Could not find artist info in MusicBrainz');
+        }
+
+        const { id, gender, country, activeYears } = musicbrainzInfo;
+        const {begin, end} = activeYears;
+        const musicbrainzId = id;
+        const youtubeChannel = await this.getYoutubeChannelInfo(name);
+        const youtubeChannelId = youtubeChannel?.id;
+
+        // Generate both full and summary bios using Gemini
+       
 
         return {
-            name,
-            spotifyId,
             musicbrainzId,
-            lastfmId: lastfm.mbid,
-            lastfmPlayCount: lastfm.stats.playcount,
-            lastfmListeners: lastfm.stats.listeners,
+            lastfmPlayCount: lastfm.stats?.playcount,
+            lastfmListeners: lastfm.stats?.listeners,
             youtubeChannelId,
-            biography: lastfm?.bio?.summary,
-            genres,
-            imageUrl,
+            youtubeChannelStats: youtubeChannel?.statistics,
+            biography: lastfm.bio?.summary,
             gender,
             country,
+            begin,
+            end
         }
     }
 
@@ -375,13 +281,13 @@ export class ArtistIngestionService {
      * Process and store YouTube videos for an artist
      */
     private async processYoutubeVideos(channelId: string, artistId: string) {
-        const videos = await this.getYoutubeVideos(channelId);
+        const videos = await this.youtubeService.getChannelTopVideos(channelId);
         const videoInserts = videos
-            .filter(video => video.snippet && video.statistics)
+            .filter(video => video.title && video.statistics)
             .map(video => ({
                 artist_id: artistId,
                 youtube_id: video.id!,
-                title: video.snippet!.title!,
+                title: video.title!,
                 view_count: video.statistics?.viewCount
                     ? parseInt(video.statistics.viewCount)
                     : 0,
@@ -391,7 +297,7 @@ export class ArtistIngestionService {
                 comment_count: video.statistics?.commentCount
                     ? parseInt(video.statistics.commentCount)
                     : 0,
-                published_at: video.snippet!.publishedAt
+                published_at: video.publishedAt
             }));
 
         if (videoInserts.length > 0) {

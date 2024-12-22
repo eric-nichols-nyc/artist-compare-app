@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-
+import { SpotifyArtist } from '@/types/api'
 interface Artist {
   name: string
   spotifyId: string
@@ -33,7 +33,7 @@ interface Artist {
 }
 
 interface SearchResultsProps {
-  selectedArtists: Artist[]
+  selectedArtists: SpotifyArtist[]
   onRemoveArtist: (spotifyId: string) => void
 }
 
@@ -86,7 +86,7 @@ export function SearchResults({ selectedArtists, onRemoveArtist }: SearchResults
           </div>
 
           {/* Analytics Section */}
-          <div className="grid grid-cols-3 gap-2 mb-4">
+          {/* <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="text-center p-2 bg-gray-50 rounded">
               <div className="text-sm text-gray-600">Monthly</div>
               <div className="font-semibold">
@@ -105,88 +105,7 @@ export function SearchResults({ selectedArtists, onRemoveArtist }: SearchResults
                 {formatNumber(artist.analytics?.spotifyFollowers)}
               </div>
             </div>
-          </div>
-
-          {/* Expand/Collapse Button */}
-          <button
-            onClick={() => setExpandedCard(
-              expandedCard === artist.spotifyId ? null : artist.spotifyId
-            )}
-            className="text-sm text-blue-500 hover:text-blue-700"
-          >
-            {expandedCard === artist.spotifyId ? 'Show Less' : 'Show More'}
-          </button>
-
-          {/* Expanded Content */}
-          {expandedCard === artist.spotifyId && (
-            <div className="mt-4 space-y-4">
-              {/* Bio Section */}
-              {artist.bio && (
-                <div>
-                  <h4 className="font-semibold mb-2">Biography</h4>
-                  <ScrollArea className="h-32">
-                    <p className="text-sm text-gray-600">{artist.bio}</p>
-                  </ScrollArea>
-                </div>
-              )}
-
-              {/* Videos Section */}
-              {artist.videos && artist.videos.length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-2">Top Videos</h4>
-                  <ScrollArea className="h-48">
-                    <div className="space-y-2">
-                      {artist.videos.map((video) => (
-                        <div key={video.videoId} className="flex items-center gap-2">
-                          <Image
-                            src={video.imageUrl}
-                            alt={video.title}
-                            width={80}
-                            height={45}
-                            className="rounded"
-                          />
-                          <div>
-                            <p className="text-sm font-medium truncate">{video.title}</p>
-                            <p className="text-xs text-gray-500">
-                              {formatNumber(video.views)} views
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              )}
-
-              {/* Tracks Section */}
-              {artist.tracks && artist.tracks.length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-2">Top Tracks</h4>
-                  <ScrollArea className="h-48">
-                    <div className="space-y-2">
-                      {artist.tracks.map((track) => (
-                        <div key={track.trackId} className="flex items-center gap-2">
-                          <Image
-                            src={track.imageUrl}
-                            alt={track.title}
-                            width={40}
-                            height={40}
-                            className="rounded"
-                          />
-                          <div>
-                            <p className="text-sm font-medium truncate">{track.title}</p>
-                            <p className="text-xs text-gray-500">
-                              {formatNumber(track.streams)} streams
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              )}
-            </div>
-          )}
+          </div> */}
         </Card>
       ))}
     </div>

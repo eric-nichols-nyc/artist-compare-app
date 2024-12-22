@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     const response = await spotify.searchArtists(query, { limit: 10 });
     
     const artists = response.body.artists?.items.map(artist => ({
-      id: artist.id,
+      spotifyId: artist.id,
       name: artist.name,
       imageUrl: artist.images?.[0]?.url,
       genres: artist.genres,

@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { ArtistListCard } from './search'
-import { SearchResults } from './search-results'
+import { ArtistListCard } from './_components/search'
+import { SearchResults } from './_components/search-results'
 
 interface Artist {
   name: string
   spotifyId: string
-  imageUrl: string
+  imageUrl?: string
 }
 
 export default function PreviewArtistPage() {

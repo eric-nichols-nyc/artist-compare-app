@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 
 interface SpotifyArtist {
-    id: string;
+spotifyId: string;
   name: string;
   imageUrl?: string;
   genres: string[];
@@ -73,7 +73,7 @@ export function ArtistListCard({ onArtistSelect }: ArtistListCardProps) {
           <div className="space-y-3">
             {searchResults.map((artist) => (
               <div
-                key={artist.id}
+                key={artist.spotifyId}
                 onClick={() => {onArtistSelect?.(artist); setSearchQuery(''); setSearchResults([]);}}
                 className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
               >
