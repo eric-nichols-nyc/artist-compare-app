@@ -270,3 +270,19 @@ export interface SpotifyTrack {
     begin: string | null;
     end: string | null;
   }
+
+  export interface SpotifyTrack {
+    id: string
+    name: string
+    imageUrl: string
+    popularity: number
+    previewUrl: string | null
+    externalUrls: {
+        spotify: string
+    }
+    album: {
+        images: {
+            url: string
+        }[]
+    }
+}

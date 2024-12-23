@@ -1,5 +1,4 @@
 import { ArtistIngestionService } from "@/services/artist-ingestion-service"
-import { PreviewArtistResponse } from "@/types/api"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
@@ -21,15 +20,16 @@ const ArtistFormValuesSchema = z.object({
 export async function POST(req: Request) {
   const { artist } = await req.json()
   // add zod validation for ArtistFormValues
-  const validatedArtist = ArtistFormValuesSchema.parse(artist)
-  // send back flattened errors if any
-  if (validatedArtist.error) {
-    return new NextResponse(validatedArtist.error, { status: 400 })
+  try {
+    const validatedArtist = ArtistFormValuesSchema.parse(artist)
+    const artistIngestionService = new ArtistIngestionService()
+    const result = await artistIngestionService.addArtist(validatedArtist)
+    return new NextResponse(result, { status: 200 })
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ errors: error.flatten().fieldErrors }, { status: 400 })
+    }
+    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
   }
-
-  // add artist to database
-  const artistIngestionService = new ArtistIngestionService()
-  const result = await artistIngestionService.addArtist(validatedArtist)
-  return new NextResponse(result, { status: 200 })
 
 }

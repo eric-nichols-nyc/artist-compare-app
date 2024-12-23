@@ -22,6 +22,5 @@ export async function GET(req: Request) {
         }, 'summary');
         artist.biography = summaryBio;
     }
-    console.log(artist);
     return NextResponse.json(artist);
 }

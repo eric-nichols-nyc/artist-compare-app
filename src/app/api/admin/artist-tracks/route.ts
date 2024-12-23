@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { SpotifyService } from "@/services/spotify-service"
-
+import { SpotifyTrack } from "@/types"
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const spotifyId = searchParams.get('spotifyId')
@@ -11,15 +11,15 @@ export async function GET(req: Request) {
 
   try {
     const tracks = await SpotifyService.getArtistTopTracks(spotifyId)
-    
+    console.log('TOP TRACKS', tracks)
     // Transform the tracks data to include only what we need
-    const formattedTracks = tracks.map(track => ({
+    const formattedTracks: SpotifyTrack[] = tracks.map((track: SpotifyTrack) => ({
       id: track.id,
       name: track.name,
       imageUrl: track.album?.images?.[0]?.url,
       popularity: track.popularity,
-      previewUrl: track.preview_url,
-      externalUrl: track.external_urls?.spotify
+      previewUrl: track.previewUrl,
+      externalUrl: track.externalUrls?.spotify
     }))
     
     return NextResponse.json({ tracks: formattedTracks })
@@ -28,3 +28,5 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Failed to fetch tracks' }, { status: 500 })
   }
 } 
+
+

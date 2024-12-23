@@ -185,7 +185,6 @@ export class ArtistIngestionService {
      * Ingest artist data into the database using preview data
      */
     public async ingestArtist(previewData: PreviewArtistResponse) {
-        console.log('========== ingestArtist', previewData.name, '====================');
         try {
             // Insert artist data
             const { data: artist, error: artistError } = await this.supabase
