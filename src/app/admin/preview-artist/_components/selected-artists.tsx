@@ -1,9 +1,7 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
-import Image from "next/image";
+import { Suspense } from "react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { SpotifyArtist } from "@/types/api";
 import { ArtistDetails } from "./artist-details";
 import { ArtistTracks } from "./artist-tracks";
@@ -12,7 +10,6 @@ import { ArtistAnalytics } from "./artist-analytics";
 import { ArtistVideos } from "./artist-videos";
 import {
   ArtistFormProvider,
-  useArtistForm,
 } from "@/providers/artist-form-provider";
 import { ArtistHeader } from "./artist-header";
 

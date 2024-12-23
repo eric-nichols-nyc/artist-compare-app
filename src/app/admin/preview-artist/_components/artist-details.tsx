@@ -1,39 +1,59 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import { ArtistIngestionResponse, SpotifyArtist } from "@/types/api";
-
+import { useEffect, useState } from "react";
+import { SpotifyArtist } from "@/types/api";
+import { useArtistForm } from "@/providers/artist-form-provider";
 interface ArtistDetailsProps {
   artist: SpotifyArtist;
 }
 
 export function ArtistDetails({ artist }: ArtistDetailsProps) {
-  const [artistInfo, setArtistInfo] = useState<ArtistIngestionResponse | null>(
-    null
-  );
+    const { state, dispatch } = useArtistForm()
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchArtistInfo = async () => {
       try {
-        setIsLoading(true);
-        const response = await fetch(
-          "/api/admin/ingest-artist?name=" + artist.name
-        );
+        const response = await fetch(`/api/admin/ingest-artist?name=${artist.name}`);
         const data = await response.json();
-        setArtistInfo(data);
+        
+        dispatch({
+          type: 'UPDATE_ARTIST_INFO',
+          payload: {
+            musicBrainzId: data.musicBrainzId,
+            bio: data.biography,
+            country: data.country,
+            gender: data.gender,
+            activeYears: {
+              begin: data.begin,
+              end: data.end,
+            },
+            youtubeChannelId: data.youtubeChannelId,
+          }
+        });
+
+        dispatch({
+          type: 'UPDATE_ANALYTICS',
+          payload: {
+            lastfmPlayCount: data.lastfmPlayCount,
+            lastfmListeners: data.lastfmListeners,
+            youtubeSubscribers: data.youtubeChannelStats.subscriberCount,
+            youtubeTotalViews: data.youtubeChannelStats.viewCount,
+          }
+        });
       } catch (error) {
         console.error("Error fetching artist info:", error);
-        setError("Failed to load artist details");
-      } finally {
+        setError("Error fetching artist info");
+      }finally{
         setIsLoading(false);
       }
     };
 
     fetchArtistInfo();
-  }, [artist.name]);
+  }, [artist.name, dispatch]);
 
+  // console.log(state.artistInfo)
   if (isLoading) {
     return <div className="p-4">Loading artist details...</div>;
   }
@@ -42,15 +62,15 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
     return <div className="p-4 text-red-500">{error}</div>;
   }
 
-  if (!artistInfo) {
-    return <div className="p-4">No artist information available</div>;
+  if (!state.artistInfo.bio) {
+    return <div className="p-4">No artist bio is available</div>;
   }
 
   return (
     <div className="mt-4">
-      {artistInfo.biography && (
+      {state.artistInfo.bio && (
         <div className="prose prose-sm max-w-none">
-          <p>{artistInfo.biography}</p>
+          <p>{state.artistInfo.bio}</p>
         </div>
       )}
     </div>

@@ -186,20 +186,28 @@ export interface Database {
     };
 };
 
-export interface SpotifyArtist {
+export interface BasicArtistInfo {
     name: string;
-    spotifyId: string;
+    spotifyId: string | null;
     imageUrl: string | null;
     genres: string[];
+}
+
+export interface SpotifyArtist extends BasicArtistInfo {
     followers: number | null;
     popularity: number | null;
 }
 
-export interface ArtistInfo {
-    name: string;
+export interface ArtistInfo extends BasicArtistInfo {
     bio: string | null;
     genres: string[];
-    spotifyId: string | null;
+    musicBrainzId: string | null;
+    country: string | null;
+    gender: string | null;
+    activeYears: {
+        begin: string | null;
+        end: string | null;
+    };
     lastFmId: string | null;
     youtubeChannelId: string | null;
     imageUrl: string | null;
@@ -244,3 +252,21 @@ export interface SpotifyTrack {
     spotifyStreams: number | null;
   }
   
+
+  export interface ArtistPlatformData {
+    musicbrainzId: string;
+    lastfmPlayCount: string;
+    lastfmListeners: string;
+    youtubeChannelId: string;
+    youtubeChannelStats: {
+      viewCount: string;
+      subscriberCount: string;
+      hiddenSubscriberCount: boolean;
+      videoCount: string;
+    };
+    biography: string;
+    gender: string;
+    country: string;
+    begin: string | null;
+    end: string | null;
+  }

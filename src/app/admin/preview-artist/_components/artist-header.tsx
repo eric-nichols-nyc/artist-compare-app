@@ -18,6 +18,7 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
           name: artist.name,
           imageUrl: artist.imageUrl,
           genres: artist.genres,
+          spotifyId: artist.spotifyId
         }
       })
       dispatch({
@@ -27,12 +28,12 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
             spotifyPopularity: artist.popularity,
         }
       })
-  }, [dispatch])
+  }, [dispatch, artist])
 
   useEffect(() => {
     console.log('artistInfo', artistInfo)
     console.log('analytics', analytics)
-  }, [artistInfo, analytics])
+  }, [artistInfo, analytics, artist])
 
   if (!artistInfo) {
     return <div className="p-4">No artist information available</div>
@@ -54,7 +55,16 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
         <div>
           <h2 className="text-2xl font-bold">{artistInfo.name}</h2>
           <div className="text-sm text-gray-500">
-            {artistInfo.genres.slice(0, 3).join(', ')}
+            genres: {artistInfo.genres.slice(0, 3).join(', ')}
+          </div>
+          <div className="text-sm text-gray-500">
+            gender: {artistInfo.gender}
+          </div>
+          <div className="text-sm text-gray-500">
+           country:  {artistInfo.country}
+          </div>
+          <div className="text-sm text-gray-500">
+            born: {artistInfo.activeYears.begin}
           </div>
         </div>
       </div>
