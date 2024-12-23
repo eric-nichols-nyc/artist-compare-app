@@ -7,12 +7,12 @@ import { Badge } from '@/components/ui/badge'
 import { SpotifyArtist } from '@/types/api'
 import { ArtistDetails } from './artist-details'
 
-interface SearchResultsProps {
+interface SearchedhArtistProps {
   selectedArtists: SpotifyArtist[]
   onRemoveArtist: (spotifyId: string) => void
 }
 
-export function SearchResults({ selectedArtists, onRemoveArtist }: SearchResultsProps) {
+export function AddArtistForm({ selectedArtists, onRemoveArtist }: SearchedhArtistProps) {
   return (
     <div className="grid grid-cols-1 gap-4 mt-6">
       {selectedArtists.map((artist) => (

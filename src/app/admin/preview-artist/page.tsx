@@ -1,34 +1,38 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { ArtistListCard } from './_components/search'
-import { SearchResults } from './_components/search-results'
-
+import { useState } from "react";
+import { ArtistSearch } from "./_components/artist-search";
+import { AddArtistForm } from "./_components/add-artist-form";
+import { ArtistFormProvider } from "@/providers/artist-form-provider";
 interface Artist {
-  name: string
-  spotifyId: string
-  imageUrl?: string
+  name: string;
+  spotifyId: string;
+  imageUrl?: string;
 }
 
 export default function PreviewArtistPage() {
-  const [selectedArtists, setSelectedArtists] = useState<Artist[]>([])
+  const [selectedArtists, setSelectedArtists] = useState<Artist[]>([]);
 
   const handleArtistSelect = (artist: Artist) => {
-    console.log('artist', artist)
-      setSelectedArtists([...selectedArtists, artist])
-  }
+    console.log("artist", artist);
+    setSelectedArtists([...selectedArtists, artist]);
+  };
 
   const handleRemoveArtist = (spotifyId: string) => {
-    setSelectedArtists(selectedArtists.filter(a => a.spotifyId !== spotifyId))
-  }
+    setSelectedArtists(
+      selectedArtists.filter((a) => a.spotifyId !== spotifyId)
+    );
+  };
 
   return (
     <div className="container mx-auto p-6">
-        <ArtistListCard onArtistSelect={handleArtistSelect} />
-      <SearchResults 
-        selectedArtists={selectedArtists}
-        onRemoveArtist={handleRemoveArtist}
-      />
+      <ArtistFormProvider>
+        <ArtistSearch onArtistSelect={handleArtistSelect} />
+        <AddArtistForm
+          selectedArtists={selectedArtists}
+          onRemoveArtist={handleRemoveArtist}
+        />
+      </ArtistFormProvider>
     </div>
-  )
+  );
 }

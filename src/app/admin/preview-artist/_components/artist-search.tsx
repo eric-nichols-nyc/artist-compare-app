@@ -18,7 +18,7 @@ interface ArtistListCardProps {
   onArtistSelect?: (artist: SpotifyArtist) => void;
 }
 
-export function ArtistListCard({ onArtistSelect }: ArtistListCardProps) {
+export function ArtistSearch({ onArtistSelect }: ArtistListCardProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SpotifyArtist[]>([]);
   const [isSearching, setIsSearching] = useState(false);
