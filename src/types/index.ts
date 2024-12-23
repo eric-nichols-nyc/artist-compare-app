@@ -185,3 +185,62 @@ export interface Database {
         };
     };
 };
+
+export interface SpotifyArtist {
+    name: string;
+    spotifyId: string;
+    imageUrl: string | null;
+    genres: string[];
+    followers: number | null;
+    popularity: number | null;
+}
+
+export interface ArtistInfo {
+    name: string;
+    bio: string | null;
+    genres: string[];
+    spotifyId: string | null;
+    lastFmId: string | null;
+    youtubeChannelId: string | null;
+    imageUrl: string | null;
+    spotifyUrl: string | null;
+    youtubeUrl: string | null;
+    tiktokUrl: string | null;
+    instagramUrl: string | null;
+  }
+  
+
+export interface Analytics {
+    spotifyMonthlyListeners: number | null;
+    youtubeSubscribers: number | null;
+    youtubeTotalViews: number | null;
+    lastfmListeners: number | null;
+    lastfmPlayCount: number | null;
+    spotifyFollowers: number | null;
+    spotifyPopularity: number | null;
+    instagramFollowers: number | null;
+    facebookFollowers: number | null;
+    tiktokFollowers: number | null;
+    soundcloudFollowers: number | null;
+  }
+
+
+export interface YoutubeVideo {
+    title: string;
+    videoId: string;
+    viewCount: number;
+    likeCount: number;
+    commentCount: number;
+    thumbnail: string;
+    publishedAt: string;
+  }
+  
+export interface SpotifyTrack {
+    name: string;
+    trackId: string;
+    popularity: number;
+    previewUrl: string | null;
+    albumImageUrl: string | null;
+    spotifyStreams: number | null;
+  }
+  

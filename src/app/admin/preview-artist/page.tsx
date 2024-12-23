@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ArtistSearch } from "./_components/artist-search";
-import { AddArtistForm } from "./_components/add-artist-form";
+import { SelectedArtists } from "./_components/selected-artists";
 import { ArtistFormProvider } from "@/providers/artist-form-provider";
 interface Artist {
   name: string;
@@ -28,7 +28,7 @@ export default function PreviewArtistPage() {
     <div className="container mx-auto p-6">
       <ArtistFormProvider>
         <ArtistSearch onArtistSelect={handleArtistSelect} />
-        <AddArtistForm
+        <SelectedArtists
           selectedArtists={selectedArtists}
           onRemoveArtist={handleRemoveArtist}
         />

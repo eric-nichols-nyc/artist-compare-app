@@ -54,51 +54,8 @@
 import { createContext, useContext, useReducer, ReactNode } from 'react';
 import { artistFormSchema } from '@/validations/artist-form-schema';
 // Types for each section
-interface ArtistInfo {
-  name: string;
-  bio: string | null;
-  genres: string[];
-  spotifyId: string | null;
-  lastFmId: string | null;
-  youtubeChannelId: string | null;
-  imageUrl: string | null;
-  spotifyUrl: string | null;
-  youtubeUrl: string | null;
-  tiktokUrl: string | null;
-  instagramUrl: string | null;
-}
+import { ArtistInfo, Analytics, YoutubeVideo, SpotifyTrack } from '@/types';
 
-interface Analytics {
-  monthlyListeners: number | null;
-  youtubeSubscribers: number | null;
-  youtubeTotalViews: number | null;
-  lastfmPlayCount: number | null;
-  spotifyFollowers: number | null;
-  spotifyPopularity: number | null;
-  instagramFollowers: number | null;
-  facebookFollowers: number | null;
-  tiktokFollowers: number | null;
-  soundcloudFollowers: number | null;
-}
-
-interface YoutubeVideo {
-  title: string;
-  videoId: string;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  thumbnail: string;
-  publishedAt: string;
-}
-
-interface SpotifyTrack {
-  name: string;
-  trackId: string;
-  popularity: number;
-  previewUrl: string | null;
-  albumImageUrl: string | null;
-  spotifyStreams: number | null;
-}
 
 /**
  * ArtistFormState Structure
@@ -221,9 +178,10 @@ const initialState: ArtistFormState = {
     instagramUrl: null,
   },
   analytics: {
-    monthlyListeners: null,
+    spotifyMonthlyListeners: null,
     youtubeSubscribers: null,
     youtubeTotalViews: null,
+    lastfmListeners: null,
     lastfmPlayCount: null,
     spotifyFollowers: null,
     spotifyPopularity: null,

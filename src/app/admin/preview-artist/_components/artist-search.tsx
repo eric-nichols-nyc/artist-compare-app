@@ -4,7 +4,7 @@ import { debounce } from 'lodash';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
-
+import { useArtistForm } from '@/providers/artist-form-provider';
 interface SpotifyArtist {
 spotifyId: string;
   name: string;
@@ -19,6 +19,7 @@ interface ArtistListCardProps {
 }
 
 export function ArtistSearch({ onArtistSelect }: ArtistListCardProps) {
+  const { state, dispatch } = useArtistForm()
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SpotifyArtist[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -33,9 +34,12 @@ export function ArtistSearch({ onArtistSelect }: ArtistListCardProps) {
     try {
       const response = await fetch(`/api/spotify/search?q=${encodeURIComponent(query)}`);
       const data = await response.json();
-      
+
       if (response.ok) {
+        console.log("data", data);
         setSearchResults(data.artists);
+        dispatch({ type: 'UPDATE_ARTIST_INFO', payload: data.artists[0] });
+        //
       } else {
         console.error('Search failed:', data.error);
       }

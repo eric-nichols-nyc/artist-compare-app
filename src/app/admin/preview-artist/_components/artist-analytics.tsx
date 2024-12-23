@@ -1,59 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { SpotifyArtist } from '@/types/api'
-
-interface Analytics {
-  lastfmListeners?: number
-  lastfmPlayCount?: number
-  youtubeSubscribers?: number
-  youtubeViews?: number
-  spotifyFollowers?: number
-  spotifyPopularity?: number
-}
+import { useArtistForm } from '@/providers/artist-form-provider'
 
 interface ArtistAnalyticsProps {
   artist: SpotifyArtist
 }
 
 export function ArtistAnalytics({ artist }: ArtistAnalyticsProps) {
-  const [analytics, setAnalytics] = useState<Analytics | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { state, dispatch } = useArtistForm()
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        setIsLoading(true)
-        const response = await fetch(`/api/admin/artist-analytics?name=${encodeURIComponent(artist.name)}`)
-        const data = await response.json()
-        setAnalytics(data)
-      } catch (error) {
-        console.error('Error fetching analytics:', error)
-        setError('Failed to load analytics')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchAnalytics()
-  }, [artist.name])
-
-  const formatNumber = (num?: number) => {
+  const formatNumber = (num: number | null | undefined) => {
     if (!num) return 'N/A'
     return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num)
   }
 
-  if (isLoading) {
-    return <div className="p-4">Loading analytics...</div>
-  }
 
   if (error) {
     return <div className="p-4 text-red-500">{error}</div>
   }
 
-  if (!analytics) {
+  if (!state.analytics) {
     return <div className="p-4">No analytics available</div>
   }
 
@@ -61,24 +31,24 @@ export function ArtistAnalytics({ artist }: ArtistAnalyticsProps) {
     {
       name: 'Spotify',
       stats: [
-        { label: 'Followers', value: formatNumber(analytics.spotifyFollowers) },
-        { label: 'Popularity', value: analytics.spotifyPopularity || 'N/A' }
+        { label: 'Followers', value: formatNumber(state.analytics.spotifyFollowers) },
+        { label: 'Popularity', value: state.analytics.spotifyPopularity || 'N/A' }
       ],
       bgColor: 'bg-green-50'
     },
     {
       name: 'YouTube',
       stats: [
-        { label: 'Subscribers', value: formatNumber(analytics.youtubeSubscribers) },
-        { label: 'Total Views', value: formatNumber(analytics.youtubeViews) }
+        { label: 'Subscribers', value: formatNumber(state.analytics.youtubeSubscribers) },
+        { label: 'Total Views', value: formatNumber(state.analytics.youtubeTotalViews) }
       ],
       bgColor: 'bg-red-50'
     },
     {
       name: 'Last.fm',
       stats: [
-        { label: 'Listeners', value: formatNumber(analytics.lastfmListeners) },
-        { label: 'Play Count', value: formatNumber(analytics.lastfmPlayCount) }
+        { label: 'Listeners', value: formatNumber(state.analytics.lastfmListeners) },
+        { label: 'Play Count', value: formatNumber(state.analytics.lastfmPlayCount) }
       ],
       bgColor: 'bg-blue-50'
     }
