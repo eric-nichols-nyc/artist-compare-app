@@ -1,25 +1,29 @@
-'use client'
+"use client";
 
-import { Suspense } from 'react'
-import Image from 'next/image'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { SpotifyArtist } from '@/types/api'
-import { ArtistDetails } from './artist-details'
+import { Suspense } from "react";
+import Image from "next/image";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { SpotifyArtist } from "@/types/api";
+import { ArtistDetails } from "./artist-details";
+import { ArtistTracks } from "./artist-tracks";
+import { SimilarArtists } from "./similar-artists";
+import { ArtistAnalytics } from "./artist-analytics";
+import { ArtistVideos } from "./artist-videos";
 
 interface SearchedhArtistProps {
-  selectedArtists: SpotifyArtist[]
-  onRemoveArtist: (spotifyId: string) => void
+  selectedArtists: SpotifyArtist[];
+  onRemoveArtist: (spotifyId: string) => void;
 }
 
-export function AddArtistForm({ selectedArtists, onRemoveArtist }: SearchedhArtistProps) {
+export function AddArtistForm({
+  selectedArtists,
+  onRemoveArtist,
+}: SearchedhArtistProps) {
   return (
     <div className="grid grid-cols-1 gap-4 mt-6">
       {selectedArtists.map((artist) => (
-        <Card 
-          key={artist.spotifyId}
-          className="relative p-4"
-        >
+        <Card key={artist.spotifyId} className="relative p-4">
           {/* Header Section */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -42,9 +46,8 @@ export function AddArtistForm({ selectedArtists, onRemoveArtist }: SearchedhArti
                   ))}
                 </div>
               </div>
-    
             </div>
-          
+
             <button
               onClick={() => onRemoveArtist(artist.spotifyId)}
               className="text-red-500 hover:text-red-700"
@@ -53,20 +56,46 @@ export function AddArtistForm({ selectedArtists, onRemoveArtist }: SearchedhArti
             </button>
           </div>
           <div className="flex flex-col">
-              {/* add spotifyId */}
-              <div className="text-sm text-gray-500">Spotify ID: {artist.spotifyId}</div>
-              {/* add followers */}
-              <div className="text-sm text-gray-500">Followers: {artist.followers}</div>
-              {/* add popularity */}
-              <div className="text-sm text-gray-500">Popularity: {artist.popularity}</div>
-              </div>
+            {/* add spotifyId */}
+            <div className="text-sm text-gray-500">
+              Spotify ID: {artist.spotifyId}
+            </div>
+            {/* add followers */}
+            <div className="text-sm text-gray-500">
+              Followers: {artist.followers}
+            </div>
+            {/* add popularity */}
+            <div className="text-sm text-gray-500">
+              Popularity: {artist.popularity}
+            </div>
+          </div>
 
           {/* Artist Details Section */}
-          <Suspense fallback={<div className="p-4">Loading artist details...</div>}>
+          <Suspense
+            fallback={<div className="p-4">Loading artist details...</div>}
+          >
             <ArtistDetails artist={artist} />
+            <Suspense
+              fallback={<div className="p-4">Loading analytics...</div>}
+            >
+              <ArtistAnalytics artist={artist} />
+            </Suspense>
+            <Suspense fallback={<div className="p-4">Loading videos...</div>}>
+              <ArtistVideos artist={artist} />
+            </Suspense>
+
+            <Suspense fallback={<div className="p-4">Loading tracks...</div>}>
+              <ArtistTracks artist={artist} />
+            </Suspense>
+
+            <Suspense
+              fallback={<div className="p-4">Loading similar artists...</div>}
+            >
+              <SimilarArtists artist={artist} />
+            </Suspense>
           </Suspense>
         </Card>
       ))}
     </div>
-  )
-} 
+  );
+}
