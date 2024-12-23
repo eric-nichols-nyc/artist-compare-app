@@ -6,6 +6,9 @@ import { useArtistForm } from '@/providers/artist-form-provider'
 import Image from 'next/image'
 import { useEffect } from 'react'
 import { SpotifyArtist } from '@/types'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+
 export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
   const { state, dispatch } = useArtistForm()
   const { artistInfo, analytics } = state
@@ -52,19 +55,44 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
             />
           </div>
         )}
-        <div>
-          <h2 className="text-2xl font-bold">{artistInfo.name}</h2>
-          <div className="text-sm text-gray-500">
-            genres: {artistInfo.genres.slice(0, 3).join(', ')}
+        <div className="space-y-2 flex-1">
+          <div className="grid w-full items-center gap-1.5">
+            <Label htmlFor="name">Artist Name</Label>
+            <Input 
+              id="name"
+              value={artistInfo.name}
+              readOnly
+              className="bg-gray-50"
+            />
           </div>
-          <div className="text-sm text-gray-500">
-            gender: {artistInfo.gender}
+          <div className="grid w-full items-center gap-1.5">
+            <Label htmlFor="genres">Genres</Label>
+            <Input 
+              id="genres"
+              value={artistInfo.genres.slice(0, 3).join(', ')}
+              readOnly
+              className="bg-gray-50"
+            />
           </div>
-          <div className="text-sm text-gray-500">
-           country:  {artistInfo.country}
-          </div>
-          <div className="text-sm text-gray-500">
-            born: {artistInfo.activeYears.begin}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="gender">Gender</Label>
+              <Input 
+                id="gender"
+                value={artistInfo.gender || 'N/A'}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="country">Country</Label>
+              <Input 
+                id="country"
+                value={artistInfo.country || 'N/A'}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
           </div>
         </div>
       </div>

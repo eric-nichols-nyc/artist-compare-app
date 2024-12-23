@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Card } from '@/components/ui/card'
 import { SpotifyArtist } from '@/types/api'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 
 interface Track {
   id: string
@@ -71,17 +73,26 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
                   />
                 </div>
               )}
-              <div className="flex-grow">
-                <h5 className="font-medium text-sm line-clamp-1">{track.name}</h5>
-                <div className="flex gap-4 mt-1">
-                  <div className="text-sm text-gray-500">
-                    Popularity: {track.popularity}
+              <div className="flex-grow space-y-2">
+                <div className="space-y-1">
+                  <Label>Track Name</Label>
+                  <Input 
+                    value={track.name}
+                    readOnly
+                    className="bg-gray-50"
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <div className="space-y-1 flex-1">
+                    <Label>Popularity</Label>
+                    <Input 
+                      value={track.popularity || 'N/A'}
+                      readOnly
+                      className="bg-gray-50"
+                    />
                   </div>
                   {track.previewUrl && (
-                    <audio
-                      controls
-                      className="h-8 w-48"
-                    >
+                    <audio controls className="h-8 w-48">
                       <source src={track.previewUrl} type="audio/mpeg" />
                     </audio>
                   )}

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { SpotifyArtist } from "@/types/api";
 import { useArtistForm } from "@/providers/artist-form-provider";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface ArtistAnalyticsProps {
   artist: SpotifyArtist;
@@ -85,9 +87,13 @@ export function ArtistAnalytics({ artist }: ArtistAnalyticsProps) {
               <h5 className="font-medium text-sm mb-2">{platform.name}</h5>
               <div className="grid grid-cols-2 gap-4">
                 {platform.stats.map((stat) => (
-                  <div key={stat.label} className="text-sm">
-                    <div className="text-gray-600">{stat.label}</div>
-                    <div className="font-semibold">{stat.value}</div>
+                  <div key={stat.label} className="space-y-1">
+                    <Label>{stat.label}</Label>
+                    <Input 
+                      value={stat.value}
+                      readOnly
+                      className="bg-white/50"
+                    />
                   </div>
                 ))}
               </div>
@@ -95,18 +101,23 @@ export function ArtistAnalytics({ artist }: ArtistAnalyticsProps) {
           </Card>
         ))}
       </div>
-      <Card className="flex gap-4 p-4 mt-4 justify-between">
-        <div className="text-xs text-gray-500">
-          instagram: {state.analytics.instagramFollowers || "N/A"}
-        </div>
-        <div className="text-xs text-gray-500">
-          facebook: {state.analytics.facebookFollowers || "N/A"}
-        </div>
-        <div className="text-xs text-gray-500">
-          tiktok: {state.analytics.tiktokFollowers || "N/A"}
-        </div>
-        <div className="text-xs text-gray-500">
-          soundcloud: {state.analytics.soundcloudFollowers || "N/A"}
+      <Card className="p-4 mt-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: 'Instagram', value: state.analytics?.instagramFollowers },
+            { label: 'Facebook', value: state.analytics?.facebookFollowers },
+            { label: 'TikTok', value: state.analytics?.tiktokFollowers },
+            { label: 'SoundCloud', value: state.analytics?.soundcloudFollowers },
+          ].map((social) => (
+            <div key={social.label} className="space-y-1">
+              <Label>{social.label}</Label>
+              <Input 
+                value={social.value || 'N/A'}
+                readOnly
+                className="bg-gray-50 text-sm"
+              />
+            </div>
+          ))}
         </div>
       </Card>
     </div>

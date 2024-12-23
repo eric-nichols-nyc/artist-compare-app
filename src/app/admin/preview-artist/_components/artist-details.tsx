@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { SpotifyArtist } from "@/types/api";
 import { useArtistForm } from "@/providers/artist-form-provider";
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+
 interface ArtistDetailsProps {
   artist: SpotifyArtist;
 }
@@ -69,8 +72,14 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
   return (
     <div className="mt-4">
       {state.artistInfo.bio && (
-        <div className="prose prose-sm max-w-none">
-          <p>{state.artistInfo.bio}</p>
+        <div className="space-y-2">
+          <Label htmlFor="bio">Artist Biography</Label>
+          <Textarea
+            id="bio"
+            value={state.artistInfo.bio}
+            readOnly
+            className="min-h-[200px] bg-gray-50"
+          />
         </div>
       )}
     </div>
