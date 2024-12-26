@@ -93,6 +93,60 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
                 className="bg-gray-50"
               />
             </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="country">Spotify ID</Label>
+              <Input 
+                id="spotifyId"
+                value={artistInfo.spotifyId || 'N/A'}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="country">Spotify URL</Label>
+              <Input 
+                id="spotifyUrl"
+                value={artistInfo.spotifyUrl || 'N/A'}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="country">Youtube Channel ID</Label>
+              <Input 
+                id="spotifyId"
+                value={artistInfo.youtubeChannelId || 'N/A'}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="country">Youtube URL</Label>
+              <Input 
+                id="spotifyId"
+                value={artistInfo.youtubeUrl || 'N/A'}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="country">Tiktok URL</Label>
+              <Input 
+                id="spotifyId"
+                value={artistInfo.tiktokUrl || 'N/A'}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="country">Instagram URL</Label>
+              <Input 
+                id="spotifyId"
+                value={artistInfo.instagramUrl || 'N/A'}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
           </div>
         </div>
       </div>

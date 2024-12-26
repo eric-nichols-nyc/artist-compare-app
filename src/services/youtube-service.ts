@@ -1,34 +1,11 @@
 import { google } from 'googleapis';
 import { unstable_cache } from 'next/cache';
-
+import { YoutubeChannelInfo, YoutubeVideo, YoutubeVideoStatistics } from '@/types';
 if (!process.env.NEXT_PUBLIC_YOUTUBE_API) {
     throw new Error('Missing YOUTUBE_API_KEY environment variable');
 }
 
-export interface YoutubeVideoStatistics {
-    viewCount?: string | null;
-    likeCount?: string | null;
-    commentCount?: string | null;
-}
 
-export interface YoutubeVideo {
-    id?: string;
-    title?: string;
-    thumbnail?: string;
-    publishedAt?: string;
-    statistics?: YoutubeVideoStatistics;
-    duration?: string;
-}
-
-export interface YoutubeChannelInfo {
-    id: string;
-    statistics: {
-        viewCount?: string;
-        subscriberCount?: string;
-        videoCount?: string;
-    };
-    topVideos?: YoutubeVideo[];
-}
 
 export class YoutubeService {
     private youtube;
@@ -57,7 +34,7 @@ export class YoutubeService {
         }
     }
 
-    public getChannelInfo = unstable_cache(async (artistName: string, cid?: string): Promise<YoutubeChannelInfo | null> => {
+    public getChannelInfo = unstable_cache(async (artistName: string, cid?: string | undefined | null): Promise<YoutubeChannelInfo | null> => {
         try {
             let channelId = cid;
 
@@ -94,7 +71,11 @@ export class YoutubeService {
 
             return {
                 id: channelId,
-                statistics: channelStats,
+                statistics: {
+                    viewCount: channelStats.viewCount ?? 0,
+                    subscriberCount: channelStats.subscriberCount ?? undefined,
+                    videoCount: channelStats.videoCount ?? undefined
+                },
                 topVideos
             };
         } catch (error) {
@@ -104,6 +85,9 @@ export class YoutubeService {
     }, ['youtube-channel-info'], { tags: ['youtube-channel-info'], revalidate: 60 * 60 * 24 });
 
     public getChannelTopVideos = unstable_cache(async (channelId: string): Promise<YoutubeVideo[]> => {
+        if(!channelId){
+            throw new Error('ChannelID is required')
+        }
         try {
             const searchResponse = await this.rateLimitRequest(
                 this.youtube.search.list({
@@ -131,16 +115,16 @@ export class YoutubeService {
             );
 
             return (videosResponse.data.items || []).map(video => ({
-                id: video.id,
-                title: video.snippet?.title,
-                thumbnail: video.snippet?.thumbnails?.high?.url,
-                publishedAt: video.snippet?.publishedAt,
+                videoId: video.id ?? '',
+                title: video.snippet?.title ?? '',
+                thumbnail: video.snippet?.thumbnails?.high?.url ?? '',
+                publishedAt: video.snippet?.publishedAt ?? '',
                 statistics: {
-                    viewCount: video.statistics?.viewCount,
-                    likeCount: video.statistics?.likeCount,
-                    commentCount: video.statistics?.commentCount
+                    viewCount: video.statistics?.viewCount ?? undefined,
+                    likeCount: video.statistics?.likeCount ?? undefined,
+                    commentCount: video.statistics?.commentCount ?? undefined
                 },
-                duration: video.contentDetails?.duration
+                duration: video.contentDetails?.duration ?? ''
             }));
         } catch (error) {
             console.error('Error fetching YouTube videos:', error);
@@ -148,13 +132,9 @@ export class YoutubeService {
         }
     }, ['youtube-channel-videos'], { tags: ['youtube-channel-videos'], revalidate: 60 * 60 * 24 });
 
-    public async updateChannelVideos(channelId: string): Promise<YoutubeVideo[]> {
-        // This method bypasses cache to get fresh data
-        return this.getChannelTopVideos.clear().call(this, channelId);
-    }
 
     public formatVideoStats(statistics: YoutubeVideoStatistics): string {
-        const views = statistics.viewCount ? parseInt(statistics.viewCount).toLocaleString() : '0';
+        const views = statistics.viewCount ? parseInt(statistics.viewCount).toLocaleString() : 0;
         const likes = statistics.likeCount ? parseInt(statistics.likeCount).toLocaleString() : '0';
         return `${views} views • ${likes} likes`;
     }

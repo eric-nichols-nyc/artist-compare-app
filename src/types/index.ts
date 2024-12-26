@@ -232,16 +232,6 @@ export interface Analytics {
     soundcloudFollowers: number | null;
   }
 
-
-export interface YoutubeVideo {
-    title: string;
-    videoId: string;
-    viewCount: number;
-    likeCount: number;
-    commentCount: number;
-    thumbnail: string;
-    publishedAt: string;
-  }
   
 export interface SpotifyTrack {
     name: string;
@@ -285,4 +275,32 @@ export interface SpotifyTrack {
             url: string
         }[]
     }
+}
+
+export interface YoutubeVideoStatistics {
+    viewCount?: number | null;
+    likeCount?: string | null;
+    commentCount?: string | null;
+}
+
+export interface YoutubeVideo {
+    id?: string;
+    title: string;
+    videoId: string;
+    likeCount?: number;
+    commentCount?: number;
+    thumbnail: string;
+    publishedAt: string;
+    statistics?: YoutubeVideoStatistics;
+    duration?: string;
+  }
+
+export interface YoutubeChannelInfo {
+    id: string;
+    statistics: {
+        viewCount?: string;
+        subscriberCount?: string;
+        videoCount?: string;
+    };
+    topVideos?: YoutubeVideo[];
 }

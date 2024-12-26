@@ -1,5 +1,4 @@
 import { unstable_cache } from 'next/cache';
-import { google } from 'googleapis';
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types';
@@ -177,9 +176,6 @@ export class ArtistIngestionService {
             end
         }
     }
-
-
-
 
     /**
      * Ingest artist data into the database using preview data
