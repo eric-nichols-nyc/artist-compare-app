@@ -74,7 +74,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
       case 'UPDATE_SPOTIFY_TRACKS':
         set({ spotifyTracks: action.payload });
         break;
-      case 'UPDATE_SIMILAR_ARTISTS':
+      case 'UPDATE_SIMILAR_ARTIST_SELECTION':
         set({ similarArtists: action.payload });
         break;
       case 'SET_SUBMITTING':

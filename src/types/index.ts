@@ -386,5 +386,5 @@ export interface ArtistFormState {
   | { type: 'UPDATE_SPOTIFY_TRACKS'; payload: SpotifyTrack[] }
   | { type: 'SET_SUBMITTING'; payload: boolean }
   | { type: 'SET_ERRORS'; payload: Record<string, string> }
-  | { type: 'UPDATE_SIMILAR_ARTISTS'; payload: SimilarArtist[] }
+  | { type: 'UPDATE_SIMILAR_ARTIST_SELECTION'; payload: SimilarArtist[] }
   | { type: 'RESET_FORM' };
