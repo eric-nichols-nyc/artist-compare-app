@@ -1,3 +1,4 @@
+import { YoutubeVideo } from "@/validations/artist-form-schema";
 export interface Database {
     public: {
         Tables: {
@@ -329,8 +330,8 @@ export interface SpotifyTrack {
     name: string
     imageUrl: string
     popularity: number
-    previewUrl: string | null
-    externalUrls: {
+    preview_url: string | null
+    external_urls: {
         spotify: string
     }
     album: {
@@ -345,18 +346,6 @@ export interface YoutubeVideoStatistics {
     likeCount?: string | undefined;
     commentCount?: string | undefined;
 }
-
-export interface YoutubeVideo {
-    id?: string;
-    title: string;
-    videoId: string;
-    likeCount?: number;
-    commentCount?: number;
-    thumbnail: string;
-    publishedAt: string;
-    statistics?: YoutubeVideoStatistics;
-    duration?: string;
-  }
 
 export interface YoutubeChannelInfo {
     id: string;

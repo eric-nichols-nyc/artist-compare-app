@@ -7,16 +7,10 @@ import { SpotifyArtist } from '@/types'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { useArtistForm } from '@/providers/artist-form-provider'
+import { SpotifyTrack } from '@/validations/artist-form-schema'
+import { Button } from '@/components/ui/button'
+import { ExternalLinkIcon } from 'lucide-react'
 
-interface Track {
-  id: string
-  name: string
-  imageUrl?: string
-  popularity?: number
-  previewUrl?: string
-  externalUrl?: string
-  streams?: number
-}
 
 interface ArtistTracksProps {
   artist: SpotifyArtist
@@ -24,7 +18,7 @@ interface ArtistTracksProps {
 
 export function ArtistTracks({ artist }: ArtistTracksProps) {
   const { state, dispatch } = useArtistForm();
-  const [tracks, setTracks] = useState<Track[]>([])
+  const [tracks, setTracks] = useState<SpotifyTrack[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -64,7 +58,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
     <div className="mt-4">
       <h4 className="font-semibold mb-3">Top Tracks</h4>
       <div className="grid grid-cols-1 gap-4">
-        {tracks.slice(0, 5).map((track) => (
+        {state.spotifyTracks.slice(0, 5).map((track: SpotifyTrack) => (
           <Card key={track.id} className="p-3">
             <div className="flex gap-3">
               {track.imageUrl && (
@@ -79,6 +73,14 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
                 </div>
               )}
               <div className="flex-grow space-y-2">
+              <div className="space-y-1">
+                  <Label>Track Id</Label>
+                  <Input 
+                    value={track.id}
+                    readOnly
+                    className="bg-gray-50"
+                  />
+                </div>
                 <div className="space-y-1">
                   <Label>Track Name</Label>
                   <Input 
@@ -96,17 +98,19 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
                       className="bg-gray-50"
                     />
                   </div>
-                  {state.spotifyTracks.previewUrl && (
-                    <audio controls className="h-8 w-48">
-                      <source src={state.spotifyTracks.previewUrl} type="audio/mpeg" />
-                    </audio>
+                  {track.externalUrl && (
+                    <a href={track.externalUrl} target="_blank" rel="noopener noreferrer">
+                      <Button>
+                        <ExternalLinkIcon className="w-4 h-4" />
+                      </Button>
+                    </a>
                   )}
                 </div>
                 <div>
                   <div>
                     <Label>Streams</Label>
                     <Input  
-                      value={track.streams || 'N/A'}
+                      value={track.spotifyStreams || 'N/A'}
                       className="bg-gray-50"
                     />
                   </div>

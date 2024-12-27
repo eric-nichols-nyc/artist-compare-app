@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 // Helper schemas for common patterns
 const urlSchema = z.string().url().nullable().or(z.literal(""));
 const positiveNumberSchema = z.number().min(0).nullable();
@@ -16,6 +15,12 @@ export const artistInfoSchema = z.object({
   spotifyId: z.string(),
   musicbrainzId: z.string(),
   youtubeChannelId: z.string(),
+  country: z.string(),
+  gender: z.string(),
+  activeYears: z.object({
+    begin: z.string(),
+    end: z.string(),
+  }),
   imageUrl: urlSchema,
   spotifyUrl: urlSchema,
   youtubeUrl: urlSchema,
@@ -31,7 +36,7 @@ export const artistInfoSchema = z.object({
 
 // Analytics Section
 export const analyticsSchema = z.object({
-  monthlyListeners: positiveNumberSchema.nullable(),
+  spotifyMonthlyListeners: positiveNumberSchema.nullable(),
   youtubeSubscribers: positiveNumberSchema.nullable(),
   youtubeTotalViews: positiveNumberSchema.nullable(),
   lastfmPlayCount: positiveNumberSchema.nullable(),
@@ -57,10 +62,10 @@ export const youtubeVideoSchema = z.object({
 // Spotify Track Schema
 export const spotifyTrackSchema = z.object({
   name: z.string().min(1, "Track name is required"),
-  trackId: z.string().min(1, "Track ID is required"),
+  id: z.string().min(1, "Track ID is required"),
   popularity: z.number().min(0).max(100),
-  previewUrl: urlSchema,
-  albumImageUrl: urlSchema,
+  externalUrl: urlSchema,
+  imageUrl: urlSchema,
   spotifyStreams: positiveNumberSchema,
 });
 
@@ -118,7 +123,7 @@ export const transformApiResponse = {
 
   analytics: (data: any): Analytics => {
     return analyticsSchema.parse({
-      monthlyListeners: data.monthly_listeners || null,
+      spotifyMonthlyListeners: data.monthly_listeners || null,
       youtubeSubscribers: data.youtube_subscribers || null,
       youtubeTotalViews: data.youtube_total_views || null,
       lastfmPlayCount: data.lastfm_play_count || null,

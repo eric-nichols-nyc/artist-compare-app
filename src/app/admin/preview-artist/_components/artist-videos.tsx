@@ -5,7 +5,8 @@ import Image from 'next/image'
 import { Card } from '@/components/ui/card'
 import { SpotifyArtist } from '@/types'
 import { useArtistForm } from '@/providers/artist-form-provider'
-import { YoutubeVideo } from '@/types'
+import { YoutubeVideo } from '@/validations/artist-form-schema'
+
 
 interface ArtistVideosProps {
   artist: SpotifyArtist

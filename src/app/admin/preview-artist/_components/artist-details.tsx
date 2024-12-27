@@ -20,6 +20,7 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
       try {
         const response = await fetch(`/api/admin/ingest-artist?name=${artist.name}`);
         const data = await response.json();
+        console.log('dataaaaaaaaa', data.musicbrainzId);
         dispatch({
           type: 'UPDATE_ARTIST_INFO',
           payload: {

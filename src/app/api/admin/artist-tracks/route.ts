@@ -17,10 +17,9 @@ export async function GET(req: Request) {
       name: track.name,
       imageUrl: track.album?.images?.[0]?.url,
       popularity: track.popularity,
-      previewUrl: track.previewUrl,
-      externalUrl: track.externalUrls?.spotify
-    }))
-    
+      previewUrl: track.preview_url || null,
+      externalUrl: track.external_urls?.spotify || null
+    }))    
     return NextResponse.json({ tracks: formattedTracks })
   } catch (error) {
     console.error('Error fetching tracks:', error)

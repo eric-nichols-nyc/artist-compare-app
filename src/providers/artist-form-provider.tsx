@@ -52,9 +52,9 @@
  */
 
 import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
-import { artistFormSchema } from '@/validations/artist-form-schema';
+import { artistFormSchema, YoutubeVideo,SpotifyTrack } from '@/validations/artist-form-schema';
 // Types for each section
-import { ArtistInfo, Analytics, YoutubeVideo, SpotifyTrack } from '@/types';
+import { ArtistInfo, Analytics } from '@/types';
 
 
 /**
@@ -103,7 +103,7 @@ import { ArtistInfo, Analytics, YoutubeVideo, SpotifyTrack } from '@/types';
  * isSubmitting: boolean    // Form submission status
  * errors: Record<string, string>  // Validation errors by field path
  */
-interface ArtistFormState {
+export interface ArtistFormState {
   artistInfo: ArtistInfo;
   analytics: Analytics;
   youtubeVideos: YoutubeVideo[];
@@ -260,7 +260,7 @@ export function ArtistFormProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(formReducer, initialState);
 
   useEffect(() => {
-    console.log('artistProvider state', JSON.stringify(state, null, 2));
+    // console.log('artistProvider state', JSON.stringify(state, null, 2));
   }, [state]);
 
   return (
@@ -284,6 +284,7 @@ export async function validateForm(state: ArtistFormState): Promise<{
   isValid: boolean; 
   errors: Record<string, string> | null;
 }> {
+  console.log('validateForm state', JSON.stringify(state.artistInfo, null, 2));
   try {
     const result = await artistFormSchema.safeParseAsync({
       artistInfo: state.artistInfo,
