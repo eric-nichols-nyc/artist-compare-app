@@ -341,6 +341,18 @@ export interface SpotifyTrack {
     }
 }
 
+export interface SimilarSpotifyArtistWithMatch {
+    id: string;
+    name: string;
+    popularity: number;
+    images: {
+        url: string;
+    }[];
+    genres: string[];
+    match?: number;
+}
+
+
 export interface YoutubeVideoStatistics {
     viewCount?: string | undefined;
     likeCount?: string | undefined;

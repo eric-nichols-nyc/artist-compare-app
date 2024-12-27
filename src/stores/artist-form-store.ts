@@ -5,6 +5,7 @@ interface ArtistFormStore extends ArtistFormState {
   dispatch: (action: FormAction) => void;
   refreshYoutubeVideos: (channelId: string) => Promise<void>;
   refreshYoutubeAnalytics: (channelId: string) => Promise<void>;
+  refreshSimilarArtists: (artistName: string) => Promise<void>;
 }
 
 export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
@@ -112,6 +113,16 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
       }));
     } catch (error) {
       console.error('Error fetching YouTube analytics:', error);
+    }
+  },
+
+  refreshSimilarArtists: async (artistName: string) => {
+    try {
+      const response = await fetch(`/api/admin/similar-spotify-artists?name=${encodeURIComponent(artistName)}`);
+      const data = await response.json();
+      set({ similarArtists: data || [] });
+    } catch (error) {
+      console.error('Error fetching similar artists:', error);
     }
   },
 })); 

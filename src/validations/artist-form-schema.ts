@@ -75,6 +75,10 @@ export const spotifyTrackSchema = z.object({
 export const similarArtistSchema = z.object({
   name: z.string().min(1, "Artist name is required"),
   imageUrl: urlSchema,
+  id: z.string(),
+  genres: z.array(z.string()),
+  match: z.number().nullable(),
+  selected: z.boolean().optional(),
 });
 
 // Complete Form Schema

@@ -34,11 +34,6 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
       })
   }, [dispatch, artist])
 
-  useEffect(() => {
-    console.log('artistInfo', artistInfo)
-    console.log('analytics', analytics)
-  }, [artistInfo, analytics, artist])
-
   const handleChange = (field: keyof typeof artistInfo, value: string) => {
     dispatch({
       type: 'UPDATE_ARTIST_INFO',
