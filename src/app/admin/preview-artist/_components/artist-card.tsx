@@ -9,6 +9,7 @@ import { ArtistVideos } from "./artist-videos";
 import { ArtistAnalytics } from "./artist-analytics";
 import { SimilarArtists } from "./similar-artists";
 import { useArtistForm, validateForm } from "@/providers/artist-form-provider";
+import { HeaderSkeleton } from "./skeletons";
 
 interface ArtistCardProps {
   artist: SpotifyArtist;
@@ -32,17 +33,17 @@ export function ArtistCard({ artist }: ArtistCardProps) {
     <>
       <Card className="relative p-4">
         <ArtistHeader artist={artist} />
-        <Suspense fallback={<div className="p-4">Loading artist details...</div>}>
+        <Suspense fallback={<HeaderSkeleton />}>
           <ArtistDetails artist={artist} />
         </Suspense>
-        <Suspense fallback={<div className="p-4">Loading videos...</div>}>
+        <Suspense fallback={<HeaderSkeleton />}>
           <ArtistVideos artist={artist} />
         </Suspense>
-        <Suspense fallback={<div className="p-4">Loading tracks...</div>}>
+        <Suspense fallback={<HeaderSkeleton />}>
           <ArtistTracks artist={artist} />
         </Suspense>
         <ArtistAnalytics />
-        <Suspense fallback={<div className="p-4">Loading similar artists...</div>}>
+        <Suspense fallback={<HeaderSkeleton />}>
           <SimilarArtists artist={artist} />
         </Suspense>
       </Card>

@@ -129,7 +129,7 @@ export class ArtistIngestionService {
     public async getArtistInfo(name: string) {
         const lastfm = await this.getLastFmArtistInfo(name);
         const musicbrainzInfo = await this.musicBrainzService.getArtistDetails(name);
-        console.log('musicbrainzInfo =============================', musicbrainzInfo);
+        // console.log('musicbrainzInfo =============================', musicbrainzInfo);
         
         if (!musicbrainzInfo) {
             throw new Error('Could not find artist info in MusicBrainz');

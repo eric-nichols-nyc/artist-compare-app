@@ -127,6 +127,7 @@ export function ArtistAnalytics() {
         ))}
       </div>
       <Card className="p-4 mt-4">
+        <p>Social Media Fan base</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { label: 'Instagram', value: analytics?.instagramFollowers },

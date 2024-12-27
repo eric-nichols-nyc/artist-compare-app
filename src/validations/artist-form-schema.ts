@@ -66,7 +66,7 @@ export const spotifyTrackSchema = z.object({
   name: z.string().min(1, "Track name is required"),
   id: z.string().min(1, "Track ID is required"),
   popularity: z.number().min(0).max(100),
-  externalUrl: urlSchema,
+  externalUrl: urlSchema.optional(),
   imageUrl: urlSchema,
   spotifyStreams: positiveNumberSchema,
 });

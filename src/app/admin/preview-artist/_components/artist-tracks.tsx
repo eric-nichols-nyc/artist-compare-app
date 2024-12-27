@@ -69,7 +69,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
       <h4 className="font-semibold mb-3">Top Tracks</h4>
       <ScrollArea className="h-[600px] rounded-md border">
         <div className="p-4">
-          {spotifyTracks.map((track: SpotifyTrack) => (
+          {spotifyTracks.map((track: SpotifyTrack, index:number) => (
             <Card key={track.id} className="p-4 mb-4">
               <div className="flex gap-4">
                 <div className="flex-shrink-0">

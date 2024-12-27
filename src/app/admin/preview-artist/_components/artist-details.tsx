@@ -5,6 +5,7 @@ import { SpotifyArtist } from "@/types";
 import { useArtistFormStore } from "@/stores/artist-form-store";
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { HeaderSkeleton } from "./skeletons";
 
 interface ArtistDetailsProps {
   artist: SpotifyArtist;
@@ -51,12 +52,15 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
       }
     };
 
-    fetchArtistInfo();
+    setTimeout(() => {
+      fetchArtistInfo();
+    }, 3000);
+
   }, [artist.name, dispatch]);
 
   // console.log(state.artistInfo)
   if (isLoading) {
-    return <div className="p-4">Loading artist details...</div>;
+    return <HeaderSkeleton />;
   }
 
   if (error) {
