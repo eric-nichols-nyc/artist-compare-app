@@ -11,7 +11,7 @@ model Artist {
   id                String    @id @default(uuid()) @db.Uuid
   name              String
   spotifyId         String?   @unique @map("spotify_id")
-  musicBrainzId          String?   @unique @map("last_fm_id")
+  musicbrainzId          String?   @unique @map("last_fm_id")
   youtubeChannelId  String?   @unique @map("youtube_channel_id")
   bio               String?   @db.Text
   genres            String[]

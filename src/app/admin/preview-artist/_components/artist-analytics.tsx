@@ -2,16 +2,11 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { SpotifyArtist } from "@/types/api";
 import { useArtistForm } from "@/providers/artist-form-provider";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-interface ArtistAnalyticsProps {
-  artist: SpotifyArtist;
-}
-
-export function ArtistAnalytics({ artist }: ArtistAnalyticsProps) {
+export function ArtistAnalytics() {
   const { state, dispatch } = useArtistForm();
   const [error, setError] = useState<string | null>(null);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SpotifyArtist } from "@/types/api";
+import { SpotifyArtist } from "@/types";
 import { useArtistForm } from "@/providers/artist-form-provider";
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -20,11 +20,10 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
       try {
         const response = await fetch(`/api/admin/ingest-artist?name=${artist.name}`);
         const data = await response.json();
-        
         dispatch({
           type: 'UPDATE_ARTIST_INFO',
           payload: {
-            musicBrainzId: data.musicBrainzId,
+            musicbrainzId: data.musicbrainzId,
             bio: data.biography,
             country: data.country,
             gender: data.gender,

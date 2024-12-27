@@ -3,25 +3,16 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Card } from '@/components/ui/card'
-import { SpotifyArtist } from '@/types/api'
-
-interface Video {
-  id?: string
-  title?: string
-  thumbnail?: string
-  statistics?: {
-    viewCount?: string
-    likeCount?: string
-    commentCount?: string
-  }
-}
+import { SpotifyArtist } from '@/types'
+import { useArtistForm } from '@/providers/artist-form-provider'
+import { YoutubeVideo } from '@/types'
 
 interface ArtistVideosProps {
   artist: SpotifyArtist
 }
 
 export function ArtistVideos({ artist }: ArtistVideosProps) {
-  const [videos, setVideos] = useState<Video[]>([])
+  const { state, dispatch } = useArtistForm();
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -31,7 +22,8 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
         setIsLoading(true)
         const response = await fetch(`/api/admin/artist-videos?name=${encodeURIComponent(artist.name)}`)
         const data = await response.json()
-        setVideos(data.videos || [])
+        console.log('video data', data.videos)
+        dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: data.videos || [] })
       } catch (error) {
         console.error('Error fetching videos:', error)
         setError('Failed to load videos')
@@ -56,7 +48,7 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
     return <div className="p-4 text-red-500">{error}</div>
   }
 
-  if (!videos.length) {
+  if (!state.youtubeVideos.length) {
     return <div className="p-4">No videos available</div>
   }
 
@@ -64,7 +56,7 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
     <div className="mt-4">
       <h4 className="font-semibold mb-3">Top Videos</h4>
       <div className="grid grid-cols-1 gap-4">
-        {videos.slice(0, 3).map((video) => (
+        {state.youtubeVideos.map((video: YoutubeVideo) => (
           <Card key={video.id} className="p-3">
             <div className="flex gap-3">
               {video.thumbnail && (

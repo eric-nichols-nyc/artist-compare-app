@@ -3,7 +3,7 @@ import { z } from "zod";
 // Helper schemas for common patterns
 const urlSchema = z.string().url().nullable().or(z.literal(""));
 const positiveNumberSchema = z.number().min(0).nullable();
-const socialMediaSchema = z.object({
+export const socialMediaSchema = z.object({
   followers: z.number().min(0),
   url: urlSchema,
 });
@@ -13,9 +13,9 @@ export const artistInfoSchema = z.object({
   name: z.string().min(1, "Artist name is required"),
   bio: z.string().nullable(),
   genres: z.array(z.string()).min(1, "At least one genre is required"),
-  spotifyId: z.string().nullable(),
-  lastFmId: z.string().nullable(),
-  youtubeChannelId: z.string().nullable(),
+  spotifyId: z.string(),
+  musicbrainzId: z.string(),
+  youtubeChannelId: z.string(),
   imageUrl: urlSchema,
   spotifyUrl: urlSchema,
   youtubeUrl: urlSchema,
@@ -23,7 +23,7 @@ export const artistInfoSchema = z.object({
   instagramUrl: urlSchema,
 }).refine((data) => {
   // At least one platform ID must be provided
-  return data.spotifyId || data.lastFmId || data.youtubeChannelId;
+  return data.spotifyId || data.musicbrainzId || data.youtubeChannelId;
 }, {
   message: "At least one platform ID (Spotify, Last.fm, or YouTube) is required",
   path: ["platformId"],
@@ -31,16 +31,16 @@ export const artistInfoSchema = z.object({
 
 // Analytics Section
 export const analyticsSchema = z.object({
-  monthlyListeners: positiveNumberSchema,
-  youtubeSubscribers: positiveNumberSchema,
-  youtubeTotalViews: positiveNumberSchema,
-  lastfmPlayCount: positiveNumberSchema,
-  spotifyFollowers: positiveNumberSchema,
+  monthlyListeners: positiveNumberSchema.nullable(),
+  youtubeSubscribers: positiveNumberSchema.nullable(),
+  youtubeTotalViews: positiveNumberSchema.nullable(),
+  lastfmPlayCount: positiveNumberSchema.nullable(),
+  spotifyFollowers: positiveNumberSchema.nullable(),
   spotifyPopularity: z.number().min(0).max(100).nullable(),
-  instagramFollowers: positiveNumberSchema,
-  facebookFollowers: positiveNumberSchema,
-  tiktokFollowers: positiveNumberSchema,
-  soundcloudFollowers: positiveNumberSchema,
+  instagramFollowers: positiveNumberSchema.nullable(),
+  facebookFollowers: positiveNumberSchema.nullable(),
+  tiktokFollowers: positiveNumberSchema.nullable(),
+  soundcloudFollowers: positiveNumberSchema.nullable(),
 });
 
 // YouTube Video Schema
@@ -106,7 +106,7 @@ export const transformApiResponse = {
       bio: data.bio || null,
       genres: Array.isArray(data.genres) ? data.genres : [],
       spotifyId: data.spotify_id || null,
-      lastFmId: data.last_fm_id || null,
+      musicbrainzId: data.music_brainz_id || null,
       youtubeChannelId: data.youtube_channel_id || null,
       imageUrl: data.image_url || null,
       spotifyUrl: data.spotify_url || null,

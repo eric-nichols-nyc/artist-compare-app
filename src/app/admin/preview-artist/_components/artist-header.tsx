@@ -112,37 +112,55 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
               />
             </div>
             <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="country">Youtube Channel ID</Label>
+              <Label htmlFor="musicbrainzId">MusicBrainz ID</Label>
               <Input 
-                id="spotifyId"
+                id="musicbrainzId"
+                value={artistInfo.musicbrainzId || 'N/A'}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="youtubeChannelId">Youtube Channel ID</Label>
+              <Input 
+                id="youtubeChannelId"
                 value={artistInfo.youtubeChannelId || 'N/A'}
                 readOnly
                 className="bg-gray-50"
               />
             </div>
             <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="country">Youtube URL</Label>
+              <Label htmlFor="youtube">Youtube URL</Label>
               <Input 
-                id="spotifyId"
+                id="youtube"
                 value={artistInfo.youtubeUrl || 'N/A'}
                 readOnly
                 className="bg-gray-50"
               />
             </div>
             <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="country">Tiktok URL</Label>
+              <Label htmlFor="tiktok">Tiktok URL</Label>
               <Input 
-                id="spotifyId"
+                id="tiktok"
                 value={artistInfo.tiktokUrl || 'N/A'}
                 readOnly
                 className="bg-gray-50"
               />
             </div>
             <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="country">Instagram URL</Label>
+              <Label htmlFor="instagram">Instagram URL</Label>
               <Input 
-                id="spotifyId"
+                id="instagram"
                 value={artistInfo.instagramUrl || 'N/A'}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="viberate">Viberate URL</Label>
+              <Input 
+                id="viberate"
+                value={artistInfo.viberateUrl || 'N/A'}
                 readOnly
                 className="bg-gray-50"
               />

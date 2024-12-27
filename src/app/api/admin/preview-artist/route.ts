@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { ArtistIngestionService } from '@/services/artist-ingestion-service';
 import { OpenAI } from 'openai';
-import type { PreviewArtistResponse } from "@/types/api"
+import type { PreviewArtistResponse } from "@/types"
 import { unstable_cache } from 'next/cache';
 
 const ingestionService = new ArtistIngestionService();
@@ -74,6 +74,7 @@ export async function GET(request: Request) {
     }
 
     const previewData = await getPreviewData(artistName);
+    console.log('previewdata ====== ', previewData)
     return NextResponse.json(previewData);
 
   } catch (error) {

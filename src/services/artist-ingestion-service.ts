@@ -5,9 +5,9 @@ import { Database } from '@/types';
 import { SpotifyService } from './spotify-service';
 import { MusicBrainzService } from './music-brainz-service';
 import OpenAI from 'openai';
-import type { PreviewArtistResponse } from "@/types/api"
+import type { PreviewArtistResponse } from "@/types"
 import { ArtistFormValues } from '@/lib/validations/artist';
-import { LastFmArtistInfo, LastFmResponse } from '@/types/api';
+import { LastFmArtistInfo, LastFmResponse } from '@/types';
 import { YoutubeService } from './youtube-service';
 // Initialize environment variables
 if (typeof window === 'undefined') {
@@ -24,26 +24,7 @@ if (!LASTFM_API_KEY || !YOUTUBE_API_KEY || !SUPABASE_URL || !SUPABASE_KEY) {
 }
 
 
-interface YoutubeChannelInfo {
-    id: string;
-    statistics: any;
-    topVideos?: Array<{
-        id?: string;
-        title?: string;
-        thumbnail?: string;
-        publishedAt?: string;
-        statistics?: {
-            viewCount?: string | null | undefined;
-            likeCount?: string | null | undefined;
-            commentCount?: string | null | undefined;
-        };
-
-        duration?: string;
-    }>;
-}
-
 export class ArtistIngestionService {
-    private youtube;
     private supabase;
     private musicBrainzService: MusicBrainzService;
     private youtubeService: YoutubeService;
@@ -109,7 +90,7 @@ export class ArtistIngestionService {
     }, ['spotify-artist-data'], { tags: ['spotify-artist-data'], revalidate: 60 * 60 * 24 });
 
     // get artist musicbrainz id
-    public getArtistMusicBrainzId = unstable_cache(async (artistName: string) => {
+    public getArtistmusicbrainzId = unstable_cache(async (artistName: string) => {
         try {
             const response = await fetch(
                 `https://musicbrainz.org/ws/2/artist?query=${encodeURIComponent(artistName)}&fmt=json`,

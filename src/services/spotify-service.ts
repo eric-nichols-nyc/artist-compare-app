@@ -1,21 +1,25 @@
 import { unstable_cache } from "next/cache";
 export class SpotifyService {
-    private static async getAccessToken(): Promise<string> {
-        const clientId = process.env.NEXT_PUBLIC_SPOTIFY_ID;
-        const clientSecret = process.env.NEXT_PUBLIC_SPOTIFY_SECRET;
-        
-        const response = await fetch('https://accounts.spotify.com/api/token', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64')
-            },
-            body: 'grant_type=client_credentials',
-        });
+    private static getAccessToken = unstable_cache(
+        async (): Promise<string> => {
+            const clientId = process.env.NEXT_PUBLIC_SPOTIFY_ID;
+            const clientSecret = process.env.NEXT_PUBLIC_SPOTIFY_SECRET;
+            
+            const response = await fetch('https://accounts.spotify.com/api/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64')
+                },
+                body: 'grant_type=client_credentials',
+            });
 
-        const data = await response.json();
-        return data.access_token;
-    }
+            const data = await response.json();
+            return data.access_token;
+        },
+        ['spotify-access-token'],
+        { tags: ['spotify-access-token'], revalidate: 3600 } // Cache for 1 hour
+    );
 
     public static searchArtist = unstable_cache(async (artistName: string) => {
         const accessToken = await this.getAccessToken();
@@ -33,6 +37,7 @@ export class SpotifyService {
         if (!data.artists?.items?.length) {
             throw new Error('Artist not found');
         }
+        console.log('searchArtist = ', data)
 
         const artistId = data.artists.items[0].id;
 
@@ -53,21 +58,6 @@ export class SpotifyService {
         );
     },['spotify-similar-artists'], { tags: ['spotify-similar-artists'], revalidate: 60 * 60 * 24 });
 
-    public getTopTracks = unstable_cache(async (artistId: string) => {
-        const accessToken = await (this.constructor as typeof SpotifyService).getAccessToken();
-        const response = await fetch(
-            `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            }
-        );
-
-        const topTracksData = await response.json();
-        return topTracksData.tracks;
-    },['spotify-top-tracks'], { tags: ['spotify-top-tracks'], revalidate: 60 * 60 * 24 });
-
     public static async getArtistData(artistId: string) {
         const accessToken = await this.getAccessToken();
         
@@ -83,19 +73,23 @@ export class SpotifyService {
         return response.json();
     }
 
-    public static async getArtistTopTracks(artistId: string) {
-        const accessToken = await this.getAccessToken();
-        
-        const response = await fetch(
-            `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
+    public static getArtistTopTracks = unstable_cache(
+        async (artistId: string) => {
+            const accessToken = await this.getAccessToken();
+            
+            const response = await fetch(
+                `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
                 }
-            }
-        );
+            );
 
-        const data = await response.json();
-        return data.tracks || [];
-    }
+            const data = await response.json();
+            return data.tracks || [];
+        },
+        ['spotify-top-tracks'],
+        { tags: ['spotify-top-tracks'], revalidate: 60 * 60 * 24 }
+    );
 } 

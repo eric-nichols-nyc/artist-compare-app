@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Card } from '@/components/ui/card'
-import { SpotifyArtist } from '@/types/api'
+import { SpotifyArtist } from '@/types'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { useArtistForm } from '@/providers/artist-form-provider'
 
 interface Track {
   id: string
@@ -14,6 +15,7 @@ interface Track {
   popularity?: number
   previewUrl?: string
   externalUrl?: string
+  streams?: number
 }
 
 interface ArtistTracksProps {
@@ -21,6 +23,7 @@ interface ArtistTracksProps {
 }
 
 export function ArtistTracks({ artist }: ArtistTracksProps) {
+  const { state, dispatch } = useArtistForm();
   const [tracks, setTracks] = useState<Track[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +34,9 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
         setIsLoading(true)
         const response = await fetch(`/api/admin/artist-tracks?spotifyId=${artist.spotifyId}`)
         const data = await response.json()
+        console.log("spotifyTracks", data.tracks);
         setTracks(data.tracks || [])
+        dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: data.tracks || [] })
       } catch (error) {
         console.error('Error fetching tracks:', error)
         setError('Failed to load tracks')
@@ -91,11 +96,20 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
                       className="bg-gray-50"
                     />
                   </div>
-                  {track.previewUrl && (
+                  {state.spotifyTracks.previewUrl && (
                     <audio controls className="h-8 w-48">
-                      <source src={track.previewUrl} type="audio/mpeg" />
+                      <source src={state.spotifyTracks.previewUrl} type="audio/mpeg" />
                     </audio>
                   )}
+                </div>
+                <div>
+                  <div>
+                    <Label>Streams</Label>
+                    <Input  
+                      value={track.streams || 'N/A'}
+                      className="bg-gray-50"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

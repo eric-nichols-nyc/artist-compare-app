@@ -51,7 +51,7 @@
  * @see FormSubmissionService - Form submission handler
  */
 
-import { createContext, useContext, useReducer, ReactNode } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { artistFormSchema } from '@/validations/artist-form-schema';
 // Types for each section
 import { ArtistInfo, Analytics, YoutubeVideo, SpotifyTrack } from '@/types';
@@ -70,7 +70,7 @@ import { ArtistInfo, Analytics, YoutubeVideo, SpotifyTrack } from '@/types';
  *   bio: string | null;     // Optional
  *   genres: string[];       // At least one required
  *   spotifyId: string | null;
- *   lastFmId: string | null;
+ *   musicbrainzId: string | null;
  *   youtubeChannelId: string | null;
  *   // At least one platform ID required
  *   // Social URLs and image - all optional
@@ -169,8 +169,7 @@ const initialState: ArtistFormState = {
     bio: null,
     genres: [],
     spotifyId: null,
-    lastFmId: null,
-    musicBrainzId: null,
+    musicbrainzId: null,
     youtubeChannelId: null,
     imageUrl: null,
     spotifyUrl: null,
@@ -179,6 +178,7 @@ const initialState: ArtistFormState = {
     instagramUrl: null,
     country: null,
     gender: null,
+    viberateUrl: null,
     activeYears: {
       begin: null,
       end: null,
@@ -259,6 +259,10 @@ const ArtistFormContext = createContext<{
 export function ArtistFormProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(formReducer, initialState);
 
+  useEffect(() => {
+    console.log('artistProvider state', JSON.stringify(state, null, 2));
+  }, [state]);
+
   return (
     <ArtistFormContext.Provider value={{ state, dispatch }}>
       {children}
@@ -318,7 +322,6 @@ export function prepareFormData(state: ArtistFormState) {
     },
     youtubeVideos: state.youtubeVideos.map(video => ({
       ...video,
-      viewCount: Number(video.viewCount),
       likeCount: Number(video.likeCount),
       commentCount: Number(video.commentCount),
     })),

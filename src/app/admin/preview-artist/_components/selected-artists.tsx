@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { Card } from "@/components/ui/card";
-import { SpotifyArtist } from "@/types/api";
+import { SpotifyArtist } from "@/types";
 import { ArtistDetails } from "./artist-details";
 import { ArtistTracks } from "./artist-tracks";
 import { SimilarArtists } from "./similar-artists";
@@ -12,6 +12,10 @@ import {
   ArtistFormProvider,
 } from "@/providers/artist-form-provider";
 import { ArtistHeader } from "./artist-header";
+import { Button } from "@/components/ui/button";
+import { useArtistForm } from "@/providers/artist-form-provider";
+import { ArtistFormState } from "@/types";
+import { validateForm } from "@/providers/artist-form-provider";
 
 interface SearchedhArtistProps {
   selectedArtists: SpotifyArtist[];
@@ -22,6 +26,14 @@ export function SelectedArtists({
   selectedArtists,
   onRemoveArtist,
 }: SearchedhArtistProps) {
+
+  const { state, dispatch } = useArtistForm();
+
+
+  const handleSubmitArtist = async() => {
+    const result = await validateForm(state);
+    console.log("result", result);
+  }
 
 
   return (
@@ -44,13 +56,14 @@ export function SelectedArtists({
             <Suspense fallback={<div className="p-4">Loading tracks...</div>}>
               <ArtistTracks artist={artist} />
             </Suspense>
-            <ArtistAnalytics artist={artist} />
+            <ArtistAnalytics />
             <Suspense
               fallback={<div className="p-4">Loading similar artists...</div>}
             >
               <SimilarArtists artist={artist} />
             </Suspense>
           </Card>
+          <Button onClick={() => handleSubmitArtist(artist)}>Submit</Button>
         </ArtistFormProvider>
       ))}
     </div>

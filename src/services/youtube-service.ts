@@ -72,7 +72,7 @@ export class YoutubeService {
             return {
                 id: channelId,
                 statistics: {
-                    viewCount: channelStats.viewCount ?? 0,
+                    viewCount: channelStats.viewCount ?? '0',
                     subscriberCount: channelStats.subscriberCount ?? undefined,
                     videoCount: channelStats.videoCount ?? undefined
                 },

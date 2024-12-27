@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ArtistIngestionService } from "@/services/artist-ingestion-service";
-import { ArtistIngestionResponse } from "@/types/api";
+import { ArtistIngestionResponse } from "@/types";
 import { GeminiService } from "@/services/gemini-service";
 const artistIngestionService = new ArtistIngestionService();
 export async function GET(req: Request) {

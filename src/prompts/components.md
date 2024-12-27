@@ -73,7 +73,7 @@ you are an expert in React, Tailwind CSS and Framer Motion. You are tasked with 
          basic artist data
             - name
             - spotifyId
-            - musicBrainzId
+            - musicbrainzId
             - lastFmId
             - youtubeChannelId
             - bio
