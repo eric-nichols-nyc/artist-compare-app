@@ -6,10 +6,26 @@ import { useArtistFormStore } from "@/stores/artist-form-store";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { parseCompactNumber } from "@/lib/utils/number-format";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 export function ArtistAnalytics() {
-  const { analytics, dispatch } = useArtistFormStore();
+  const { analytics, artistInfo, refreshYoutubeAnalytics } = useArtistFormStore();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleRefreshYoutube = async () => {
+    if (!artistInfo.youtubeChannelId) return;
+    
+    setIsRefreshing(true);
+    try {
+      await refreshYoutubeAnalytics(artistInfo.youtubeChannelId);
+    } catch (error) {
+      setError('Failed to refresh YouTube analytics');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const formatNumber = (num: number | null | undefined) => {
     if (!num) return "N/A";
@@ -56,6 +72,16 @@ export function ArtistAnalytics() {
         },
       ],
       bgColor: "bg-red-50",
+      action: artistInfo.youtubeChannelId && (
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleRefreshYoutube}
+          disabled={isRefreshing}
+        >
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+        </Button>
+      ),
     },
     {
       name: "Last.fm",
@@ -80,7 +106,10 @@ export function ArtistAnalytics() {
         {platforms.map((platform) => (
           <Card key={platform.name} className={`p-4 ${platform.bgColor}`}>
             <div className="flex flex-col">
-              <h5 className="font-medium text-sm mb-2">{platform.name}</h5>
+              <div className="flex justify-between items-center mb-2">
+                <h5 className="font-medium text-sm">{platform.name}</h5>
+                {platform.action}
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 {platform.stats.map((stat) => (
                   <div key={stat.label} className="space-y-1">

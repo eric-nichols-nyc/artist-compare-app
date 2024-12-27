@@ -71,12 +71,19 @@ export const spotifyTrackSchema = z.object({
   spotifyStreams: positiveNumberSchema,
 });
 
+// Similar Artist Schema
+export const similarArtistSchema = z.object({
+  name: z.string().min(1, "Artist name is required"),
+  imageUrl: urlSchema,
+});
+
 // Complete Form Schema
 export const artistFormSchema = z.object({
   artistInfo: artistInfoSchema,
   analytics: analyticsSchema,
   youtubeVideos: z.array(youtubeVideoSchema),
   spotifyTracks: z.array(spotifyTrackSchema),
+  similarArtists: z.array(similarArtistSchema),
 });
 
 // Infer types from schemas
@@ -85,7 +92,7 @@ export type ArtistInfo = z.infer<typeof artistInfoSchema>;
 export type Analytics = z.infer<typeof analyticsSchema>;
 export type YoutubeVideo = z.infer<typeof youtubeVideoSchema>;
 export type SpotifyTrack = z.infer<typeof spotifyTrackSchema>;
-
+export type SimilarArtist = z.infer<typeof similarArtistSchema>;
 // Validation function
 export async function validateArtistForm(data: unknown) {
   try {

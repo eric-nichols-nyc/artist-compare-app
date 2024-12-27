@@ -8,9 +8,9 @@ import { SpotifyArtist } from '@/types'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useArtistFormStore } from '@/stores/artist-form-store'
-
+import { SimilarArtist } from '@/validations/artist-form-schema'
 interface SimilarArtistsProps {
-  artist: SpotifyArtist
+  artist: SimilarArtist
 }
 
 export function SimilarArtists({ artist }: SimilarArtistsProps) {
@@ -25,7 +25,7 @@ export function SimilarArtists({ artist }: SimilarArtistsProps) {
         setIsLoading(true)
         const response = await fetch(`/api/admin/similar-artists?name=${artist.name}`)
         const data = await response.json()
-        dispatch({ type: 'UPDATE_SIMILAR_ARTISTS', payload: data.similarArtists || [] })
+        dispatch({ type: 'UPDATE_SIMILAR_ARTISTS', payload: data.artists || [] })
       } catch (error) {
         setError('Failed to load similar artists')
       } finally {
@@ -54,16 +54,16 @@ export function SimilarArtists({ artist }: SimilarArtistsProps) {
       <ScrollArea className="h-[400px] rounded-md border">
         <div className="p-4">
           {similarArtists.slice(0, 15).map((artist) => (
-            <Card key={artist.id} className="p-3 mb-3">
+            <Card key={artist.name} className="p-3 mb-3">
               <div className="flex gap-3">
                 <div className="flex items-center">
                   <Checkbox
-                    checked={selectedArtists.includes(artist.id)}
+                    checked={selectedArtists.includes(artist.name)}
                     onCheckedChange={(checked) => {
                       setSelectedArtists(prev =>
                         checked
-                          ? [...prev, artist.id]
-                          : prev.filter(id => id !== artist.id)
+                          ? [...prev, artist.name]
+                          : prev.filter(id => id !== artist.name)
                       )
                     }}
                   />

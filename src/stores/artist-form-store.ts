@@ -4,6 +4,7 @@ import { ArtistFormState, FormAction } from '@/types'
 interface ArtistFormStore extends ArtistFormState {
   dispatch: (action: FormAction) => void;
   refreshYoutubeVideos: (channelId: string) => Promise<void>;
+  refreshYoutubeAnalytics: (channelId: string) => Promise<void>;
 }
 
 export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
@@ -95,6 +96,22 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
       set({ youtubeVideos: data.videos || [] });
     } catch (error) {
       console.error('Error fetching videos:', error);
+    }
+  },
+
+  refreshYoutubeAnalytics: async (channelId: string) => {
+    try {
+      const response = await fetch(`/api/admin/youtube-analytics?channelId=${encodeURIComponent(channelId)}`);
+      const data = await response.json();
+      set((state) => ({
+        analytics: {
+          ...state.analytics,
+          youtubeSubscribers: data.subscriberCount,
+          youtubeTotalViews: data.viewCount,
+        }
+      }));
+    } catch (error) {
+      console.error('Error fetching YouTube analytics:', error);
     }
   },
 })); 
