@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Card } from '@/components/ui/card'
+import { Card, CardTitle, CardHeader, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -47,15 +47,19 @@ export function SimilarArtists({ artist }: SimilarArtistsProps) {
 
 
   return (
-    <div className="mt-4">
-      <h4 className="font-semibold mb-3">Similar Artists</h4>
-      <Button onClick={() => refreshSimilarArtists(artist.name)}>Refresh</Button>
+    <Card className="mt-4 flex-grow">
+      <CardHeader>
+        <CardTitle>Similar Artists</CardTitle>
+        <CardDescription>
+          <Button onClick={() => refreshSimilarArtists(artist.name)}>Refresh</Button>
+        </CardDescription>
+      </CardHeader>
       {
         !artistList.length && (
           <div className="p-4">No similar artists found</div>
         )
       }
-      <ScrollArea className="h-[400px] rounded-md border">
+      <ScrollArea className="h-[500px] rounded-md border">
         <div className="p-4">
           {artistList.map((similarArtist: any) => (
             <Card key={similarArtist.id} className="p-3 mb-3">
@@ -105,6 +109,6 @@ export function SimilarArtists({ artist }: SimilarArtistsProps) {
           ))}
         </div>
       </ScrollArea>
-    </div>
+    </Card>
   )
 } 

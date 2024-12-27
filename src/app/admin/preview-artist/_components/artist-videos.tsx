@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Card } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { SpotifyArtist } from '@/types'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { Button } from '@/components/ui/button'
@@ -47,9 +47,9 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
   }
 
   return (
-    <div className="mt-4">
-      <div className="flex justify-between items-center mb-3">
-        <h4 className="font-semibold">Top Videos</h4>
+    <Card className="mt-4 flex-grow">
+      <CardHeader>
+        <CardTitle>Top Videos</CardTitle>
         {artistInfo.youtubeChannelId && (
           <Button 
             variant="outline" 
@@ -63,7 +63,7 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
             Refresh Videos
           </Button>
         )}
-      </div>
+      </CardHeader>
 
       {error && (
         <div className="p-4 text-red-500 mb-4">{error}</div>
@@ -99,6 +99,6 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
           ))}
         </div>
       )}
-    </div>
+    </Card>
   )
 } 

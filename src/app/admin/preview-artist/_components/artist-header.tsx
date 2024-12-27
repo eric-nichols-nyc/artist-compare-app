@@ -50,7 +50,7 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
 
   return (
     <Card className="p-6">
-      <div className="flex gap-6">
+      <div className="flex flex-col gap-6">
         {artistInfo.imageUrl && (
           <div className="relative w-32 h-32 rounded-full overflow-hidden flex-shrink-0">
             <Image
@@ -153,7 +153,7 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
           {/* Social Links Section */}
           <div className="space-y-4">
             <h3 className="font-medium text-sm text-gray-500">Social Links</h3>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="spotify">Spotify</Label>
                 <Input 

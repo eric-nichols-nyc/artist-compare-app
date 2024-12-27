@@ -65,8 +65,8 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
   }
 
   return (
-    <div className="mt-4">
-      <h4 className="font-semibold mb-3">Top Tracks</h4>
+    <Card className="mt-4 flex-grow">
+      <h4 className="font-semibold mb-3 p-2">Top Tracks</h4>
       <ScrollArea className="h-[600px] rounded-md border">
         <div className="p-4">
           {spotifyTracks.map((track: SpotifyTrack, index:number) => (
@@ -130,6 +130,6 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
           ))}
         </div>
       </ScrollArea>
-    </div>
+    </Card>
   )
 } 
