@@ -2,16 +2,17 @@
 'use client'
 
 import { Card } from '@/components/ui/card'
-import { useArtistForm } from '@/providers/artist-form-provider'
+import { useArtistFormStore } from '@/stores/artist-form-store'
 import Image from 'next/image'
 import { useEffect } from 'react'
 import { SpotifyArtist } from '@/types'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { RefreshCw } from 'lucide-react'
 
 export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
-  const { state, dispatch } = useArtistForm()
-  const { artistInfo, analytics } = state
+  const { artistInfo, analytics, dispatch } = useArtistFormStore()
 
   // Update artistInfo when selectedArtists changes
   useEffect(() => {
@@ -38,15 +39,25 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
     console.log('analytics', analytics)
   }, [artistInfo, analytics, artist])
 
+  const handleChange = (field: keyof typeof artistInfo, value: string) => {
+    dispatch({
+      type: 'UPDATE_ARTIST_INFO',
+      payload: {
+        ...artistInfo,
+        [field]: value
+      }
+    })
+  }
+
   if (!artistInfo) {
     return <div className="p-4">No artist information available</div>
   }
 
   return (
-    <Card className="p-4">
-      <div className="flex items-center gap-4">
+    <Card className="p-6">
+      <div className="flex gap-6">
         {artistInfo.imageUrl && (
-          <div className="relative w-20 h-20 rounded-full overflow-hidden">
+          <div className="relative w-32 h-32 rounded-full overflow-hidden flex-shrink-0">
             <Image
               src={artistInfo.imageUrl}
               alt={artistInfo.name}
@@ -55,115 +66,144 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
             />
           </div>
         )}
-        <div className="space-y-2 flex-1">
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="name">Artist Name</Label>
-            <Input 
-              id="name"
-              value={artistInfo.name}
-              readOnly
-              className="bg-gray-50"
-            />
+        <div className="space-y-6 flex-1">
+          {/* Basic Info Section */}
+          <div className="space-y-4">
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="name">Artist Name</Label>
+              <Input 
+                id="name"
+                defaultValue={artistInfo.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="gender">Gender</Label>
+                <Input 
+                  id="gender"
+                  defaultValue={artistInfo.gender || ''}
+                  onChange={(e) => handleChange('gender', e.target.value)}
+                  className="bg-gray-50"
+                />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="country">Country</Label>
+                <Input 
+                  id="country"
+                  defaultValue={artistInfo.country || ''}
+                  onChange={(e) => handleChange('country', e.target.value)}
+                  className="bg-gray-50"
+                />
+              </div>
+            </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="genres">Genres</Label>
+              <Input 
+                id="genres"
+                defaultValue={artistInfo.genres.slice(0, 3).join(', ')}
+                className="bg-gray-50"
+              />
+            </div>
           </div>
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="genres">Genres</Label>
-            <Input 
-              id="genres"
-              value={artistInfo.genres.slice(0, 3).join(', ')}
-              readOnly
-              className="bg-gray-50"
-            />
+
+          {/* Platform IDs Section */}
+          <div className="space-y-4">
+            <h3 className="font-medium text-sm text-gray-500">Platform IDs</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="spotifyId">Spotify ID</Label>
+                <Input 
+                  id="spotifyId"
+                  value={artistInfo.spotifyId || 'N/A'}
+                  readOnly
+                  className="bg-gray-50"
+                />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="musicbrainzId">MusicBrainz ID</Label>
+                <Input 
+                  id="musicbrainzId"
+                  defaultValue={artistInfo.musicbrainzId || ''}
+                  onChange={(e) => handleChange('musicbrainzId', e.target.value)}
+                  className="bg-gray-50"
+                />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="youtubeChannelId">Youtube Channel ID</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    id="youtubeChannelId"
+                    defaultValue={artistInfo.youtubeChannelId || ''}
+                    onChange={(e) => handleChange('youtubeChannelId', e.target.value)}
+                    className="bg-gray-50"
+                  />
+                  {artistInfo.youtubeChannelId && (
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => {
+                        useArtistFormStore.getState().refreshYoutubeVideos(artistInfo.youtubeChannelId!);
+                      }}
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="gender">Gender</Label>
-              <Input 
-                id="gender"
-                value={artistInfo.gender || 'N/A'}
-                readOnly
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="country">Country</Label>
-              <Input 
-                id="country"
-                value={artistInfo.country || 'N/A'}
-                readOnly
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="country">Spotify ID</Label>
-              <Input 
-                id="spotifyId"
-                value={artistInfo.spotifyId || 'N/A'}
-                readOnly
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="country">Spotify URL</Label>
-              <Input 
-                id="spotifyUrl"
-                value={artistInfo.spotifyUrl || 'N/A'}
-                readOnly
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="musicbrainzId">MusicBrainz ID</Label>
-              <Input 
-                id="musicbrainzId"
-                value={artistInfo.musicbrainzId || 'N/A'}
-                readOnly
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="youtubeChannelId">Youtube Channel ID</Label>
-              <Input 
-                id="youtubeChannelId"
-                value={artistInfo.youtubeChannelId || 'N/A'}
-                readOnly
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="youtube">Youtube URL</Label>
-              <Input 
-                id="youtube"
-                value={artistInfo.youtubeUrl || 'N/A'}
-                readOnly
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="tiktok">Tiktok URL</Label>
-              <Input 
-                id="tiktok"
-                value={artistInfo.tiktokUrl || 'N/A'}
-                readOnly
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="instagram">Instagram URL</Label>
-              <Input 
-                id="instagram"
-                value={artistInfo.instagramUrl || 'N/A'}
-                readOnly
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="viberate">Viberate URL</Label>
-              <Input 
-                id="viberate"
-                value={artistInfo.viberateUrl || 'N/A'}
-                readOnly
-                className="bg-gray-50"
-              />
+
+          {/* Social Links Section */}
+          <div className="space-y-4">
+            <h3 className="font-medium text-sm text-gray-500">Social Links</h3>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="spotify">Spotify</Label>
+                <Input 
+                  id="spotifyUrl"
+                  defaultValue={artistInfo.spotifyUrl || ''}
+                  onChange={(e) => handleChange('spotifyUrl', e.target.value)}
+                  className="bg-gray-50"
+                />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="youtube">YouTube</Label>
+                <Input 
+                  id="youtube"
+                  defaultValue={artistInfo.youtubeUrl || ''}
+                  onChange={(e) => handleChange('youtubeUrl', e.target.value)}
+                  className="bg-gray-50"
+                />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="instagram">Instagram</Label>
+                <Input 
+                  id="instagram"
+                  defaultValue={artistInfo.instagramUrl || ''}
+                  onChange={(e) => handleChange('instagramUrl', e.target.value)}
+                  className="bg-gray-50"
+                />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="tiktok">TikTok</Label>
+                <Input 
+                  id="tiktok"
+                  defaultValue={artistInfo.tiktokUrl || ''}
+                  onChange={(e) => handleChange('tiktokUrl', e.target.value)}
+                  className="bg-gray-50"
+                />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="viberate">Viberate</Label>
+                <Input 
+                  id="viberate"
+                  defaultValue={artistInfo.viberateUrl || ''}
+                  onChange={(e) => handleChange('viberateUrl', e.target.value)}
+                  className="bg-gray-50"
+                />
+              </div>
             </div>
           </div>
         </div>

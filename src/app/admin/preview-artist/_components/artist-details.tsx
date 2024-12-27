@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { SpotifyArtist } from "@/types";
-import { useArtistForm } from "@/providers/artist-form-provider";
+import { useArtistFormStore } from "@/stores/artist-form-store";
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
@@ -11,7 +11,7 @@ interface ArtistDetailsProps {
 }
 
 export function ArtistDetails({ artist }: ArtistDetailsProps) {
-    const { state, dispatch } = useArtistForm()
+  const { artistInfo, dispatch } = useArtistFormStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +20,6 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
       try {
         const response = await fetch(`/api/admin/ingest-artist?name=${artist.name}`);
         const data = await response.json();
-        console.log('dataaaaaaaaa', data.musicbrainzId);
         dispatch({
           type: 'UPDATE_ARTIST_INFO',
           payload: {
@@ -46,9 +45,8 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
           }
         });
       } catch (error) {
-        console.error("Error fetching artist info:", error);
         setError("Error fetching artist info");
-      }finally{
+      } finally {
         setIsLoading(false);
       }
     };
@@ -65,18 +63,18 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
     return <div className="p-4 text-red-500">{error}</div>;
   }
 
-  if (!state.artistInfo.bio) {
+  if (!artistInfo.bio) {
     return <div className="p-4">No artist bio is available</div>;
   }
 
   return (
     <div className="mt-4">
-      {state.artistInfo.bio && (
+      {artistInfo.bio && (
         <div className="space-y-2">
           <Label htmlFor="bio">Artist Biography</Label>
           <Textarea
             id="bio"
-            value={state.artistInfo.bio}
+            value={artistInfo.bio}
             readOnly
             className="min-h-[200px] bg-gray-50"
           />

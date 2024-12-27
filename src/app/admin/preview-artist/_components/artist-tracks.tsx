@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card'
 import { SpotifyArtist } from '@/types'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { useArtistForm } from '@/providers/artist-form-provider'
+import { useArtistFormStore } from '@/stores/artist-form-store'
 import { SpotifyTrack } from '@/validations/artist-form-schema'
 import { Button } from '@/components/ui/button'
 import { ExternalLinkIcon } from 'lucide-react'
@@ -17,8 +17,7 @@ interface ArtistTracksProps {
 }
 
 export function ArtistTracks({ artist }: ArtistTracksProps) {
-  const { state, dispatch } = useArtistForm();
-  const [tracks, setTracks] = useState<SpotifyTrack[]>([])
+  const { spotifyTracks, dispatch } = useArtistFormStore();
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -28,11 +27,8 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
         setIsLoading(true)
         const response = await fetch(`/api/admin/artist-tracks?spotifyId=${artist.spotifyId}`)
         const data = await response.json()
-        console.log("spotifyTracks", data.tracks);
-        setTracks(data.tracks || [])
         dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: data.tracks || [] })
       } catch (error) {
-        console.error('Error fetching tracks:', error)
         setError('Failed to load tracks')
       } finally {
         setIsLoading(false)
@@ -40,7 +36,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
     }
 
     fetchTracks()
-  }, [artist.spotifyId])
+  }, [artist.spotifyId, dispatch])
 
   if (isLoading) {
     return <div className="p-4">Loading tracks...</div>
@@ -50,7 +46,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
     return <div className="p-4 text-red-500">{error}</div>
   }
 
-  if (!tracks.length) {
+  if (!spotifyTracks.length) {
     return <div className="p-4">No tracks available</div>
   }
 
@@ -58,7 +54,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
     <div className="mt-4">
       <h4 className="font-semibold mb-3">Top Tracks</h4>
       <div className="grid grid-cols-1 gap-4">
-        {state.spotifyTracks.slice(0, 5).map((track: SpotifyTrack) => (
+        {spotifyTracks.slice(0, 5).map((track: SpotifyTrack) => (
           <Card key={track.id} className="p-3">
             <div className="flex gap-3">
               {track.imageUrl && (

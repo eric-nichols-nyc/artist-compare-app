@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import { SpotifyService } from "@/services/spotify-service"
 import { ArtistIngestionService } from "@/services/artist-ingestion-service"
 
 const artistIngestionService = new ArtistIngestionService()

@@ -1,26 +1,20 @@
 import { NextResponse } from "next/server"
-import { ArtistIngestionService } from "@/services/artist-ingestion-service"
+import { YoutubeService } from "@/services/youtube-service"
 
-const artistIngestionService = new ArtistIngestionService()
+const youtubeService = new YoutubeService()
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
-  const name = searchParams.get('name')
+  const channelId = searchParams.get('channelId')
 
-  if (!name) {
+  if (!channelId) {
     return NextResponse.json({ error: 'Name is required' }, { status: 400 })
   }
 
   try {
-    // First get the channel ID from artist info
-    const artistInfo = await artistIngestionService.getArtistInfo(name)
-    
-    if (!artistInfo.youtubeChannelId) {
-      return NextResponse.json({ videos: [] })
-    }
 
     // Then get the videos using the channel ID
-    const videos = await artistIngestionService.getYoutubeVideos(artistInfo.youtubeChannelId)
+    const videos = await youtubeService.getChannelTopVideos(channelId)
     
     return NextResponse.json({ videos })
   } catch (error) {

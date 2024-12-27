@@ -356,3 +356,23 @@ export interface YoutubeChannelInfo {
     };
     topVideos?: YoutubeVideo[];
 }
+
+export interface ArtistFormState {
+    artistInfo: ArtistInfo;
+    analytics: Analytics;
+    youtubeVideos: YoutubeVideo[];
+    spotifyTracks: SpotifyTrack[];
+    similarArtists: SimilarArtist[];
+    isSubmitting: boolean;
+    errors: Record<string, string>;
+  }
+
+  export type FormAction =
+  | { type: 'UPDATE_ARTIST_INFO'; payload: Partial<ArtistInfo> }
+  | { type: 'UPDATE_ANALYTICS'; payload: Partial<Analytics> }
+  | { type: 'UPDATE_YOUTUBE_VIDEOS'; payload: YoutubeVideo[] }
+  | { type: 'UPDATE_SPOTIFY_TRACKS'; payload: SpotifyTrack[] }
+  | { type: 'SET_SUBMITTING'; payload: boolean }
+  | { type: 'SET_ERRORS'; payload: Record<string, string> }
+  | { type: 'UPDATE_SIMILAR_ARTISTS'; payload: SimilarArtist[] }
+  | { type: 'RESET_FORM' };

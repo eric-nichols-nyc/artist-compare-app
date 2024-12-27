@@ -121,7 +121,7 @@ export class ArtistIngestionService {
             }
         );
         const data = await response.json() as any;
-        console.log('musicbrainz data', data);
+        // console.log('musicbrainz data', data);
         return data.mbid;
     }, ['artist-musicbrainz-info'], { tags: ['artist-musicbrainz-info'], revalidate: 60 * 60 * 24 });
 

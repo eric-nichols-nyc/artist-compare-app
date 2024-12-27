@@ -52,10 +52,9 @@
  */
 
 import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
-import { artistFormSchema, YoutubeVideo,SpotifyTrack } from '@/validations/artist-form-schema';
+import { artistFormSchema } from '@/validations/artist-form-schema';
 // Types for each section
-import { ArtistInfo, Analytics } from '@/types';
-
+import { ArtistFormState, FormAction } from '@/types';
 
 /**
  * ArtistFormState Structure
@@ -103,14 +102,7 @@ import { ArtistInfo, Analytics } from '@/types';
  * isSubmitting: boolean    // Form submission status
  * errors: Record<string, string>  // Validation errors by field path
  */
-export interface ArtistFormState {
-  artistInfo: ArtistInfo;
-  analytics: Analytics;
-  youtubeVideos: YoutubeVideo[];
-  spotifyTracks: SpotifyTrack[];
-  isSubmitting: boolean;
-  errors: Record<string, string>;
-}
+
 
 /**
  * Form Actions
@@ -153,14 +145,6 @@ export interface ArtistFormState {
  * - No payload required
  * - Example: dispatch({ type: 'RESET_FORM' })
  */
-type FormAction =
-  | { type: 'UPDATE_ARTIST_INFO'; payload: Partial<ArtistInfo> }
-  | { type: 'UPDATE_ANALYTICS'; payload: Partial<Analytics> }
-  | { type: 'UPDATE_YOUTUBE_VIDEOS'; payload: YoutubeVideo[] }
-  | { type: 'UPDATE_SPOTIFY_TRACKS'; payload: SpotifyTrack[] }
-  | { type: 'SET_SUBMITTING'; payload: boolean }
-  | { type: 'SET_ERRORS'; payload: Record<string, string> }
-  | { type: 'RESET_FORM' };
 
 // Initial state
 const initialState: ArtistFormState = {
@@ -199,6 +183,7 @@ const initialState: ArtistFormState = {
   },
   youtubeVideos: [],
   spotifyTracks: [],
+  similarArtists: [],
   isSubmitting: false,
   errors: {},
 };
@@ -232,6 +217,11 @@ function formReducer(state: ArtistFormState, action: FormAction): ArtistFormStat
         ...state,
         spotifyTracks: action.payload,
       };
+    case 'UPDATE_SIMILAR_ARTISTS':
+      return {
+        ...state,
+        similarArtists: action.payload,
+      };
     case 'SET_SUBMITTING':
       return {
         ...state,
@@ -255,13 +245,19 @@ const ArtistFormContext = createContext<{
   dispatch: React.Dispatch<FormAction>;
 } | null>(null);
 
+interface ArtistFormProviderProps {
+  children: ReactNode;
+  onChange?: (state: ArtistFormState) => void;
+}
+
 // Provider component
-export function ArtistFormProvider({ children }: { children: ReactNode }) {
+export function ArtistFormProvider({ children, onChange }: ArtistFormProviderProps) {
   const [state, dispatch] = useReducer(formReducer, initialState);
 
   useEffect(() => {
-    // console.log('artistProvider state', JSON.stringify(state, null, 2));
-  }, [state]);
+    // Call onChange handler whenever state changes
+    onChange?.(state);
+  }, [state, onChange]);
 
   return (
     <ArtistFormContext.Provider value={{ state, dispatch }}>
@@ -323,8 +319,8 @@ export function prepareFormData(state: ArtistFormState) {
     },
     youtubeVideos: state.youtubeVideos.map(video => ({
       ...video,
-      likeCount: Number(video.likeCount),
-      commentCount: Number(video.commentCount),
+      likeCount: Number(video.statistics.likeCount),
+      commentCount: Number(video.statistics.commentCount),
     })),
     spotifyTracks: state.spotifyTracks.map(track => ({
       ...track,

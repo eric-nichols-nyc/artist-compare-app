@@ -52,9 +52,11 @@ export const analyticsSchema = z.object({
 export const youtubeVideoSchema = z.object({
   title: z.string().min(1, "Video title is required"),
   videoId: z.string().min(1, "Video ID is required"),
-  viewCount: z.number().min(0, "View count must be positive"),
-  likeCount: z.number().min(0, "Like count must be positive"),
-  commentCount: z.number().min(0, "Comment count must be positive"),
+  statistics: z.object({
+    viewCount: z.number().min(0, "View count must be positive"),
+    likeCount: z.number().min(0, "Like count must be positive"),
+    commentCount: z.number().min(0, "Comment count must be positive"),
+  }),
   thumbnail: urlSchema,
   publishedAt: z.string().datetime(),
 });

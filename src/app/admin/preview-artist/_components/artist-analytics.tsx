@@ -2,24 +2,25 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { useArtistForm } from "@/providers/artist-form-provider";
+import { useArtistFormStore } from "@/stores/artist-form-store";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { parseCompactNumber } from "@/lib/utils/number-format";
 
 export function ArtistAnalytics() {
-  const { state, dispatch } = useArtistForm();
+  const { analytics, dispatch } = useArtistFormStore();
   const [error, setError] = useState<string | null>(null);
 
   const formatNumber = (num: number | null | undefined) => {
     if (!num) return "N/A";
-    return new Intl.NumberFormat("en-US", { notation: "compact" }).format(num);
+    return new Intl.NumberFormat("en-US", { notation: "compact" }).format(num).toString();
   };
 
   if (error) {
     return <div className="p-4 text-red-500">{error}</div>;
   }
 
-  if (!state.analytics) {
+  if (!analytics) {
     return <div className="p-4">No analytics available</div>;
   }
 
@@ -29,15 +30,15 @@ export function ArtistAnalytics() {
       stats: [
         {
           label: "Followers",
-          value: formatNumber(state.analytics.spotifyFollowers),
+          value: formatNumber(analytics.spotifyFollowers),
         },
         {
           label: "Popularity",
-          value: state.analytics.spotifyPopularity || "N/A",
+          value: analytics.spotifyPopularity || "N/A",
         },
         {
           label: "Monthly Listeners",
-          value: state.analytics.spotifyMonthlyListeners || "N/A",
+          value: analytics.spotifyMonthlyListeners || "N/A",
         },
       ],
       bgColor: "bg-green-50",
@@ -47,11 +48,11 @@ export function ArtistAnalytics() {
       stats: [
         {
           label: "Subscribers",
-          value: formatNumber(state.analytics.youtubeSubscribers),
+          value: parseCompactNumber(analytics.youtubeSubscribers),
         },
         {
           label: "Total Views",
-          value: formatNumber(state.analytics.youtubeTotalViews),
+          value: parseCompactNumber(analytics.youtubeTotalViews),
         },
       ],
       bgColor: "bg-red-50",
@@ -61,11 +62,11 @@ export function ArtistAnalytics() {
       stats: [
         {
           label: "Listeners",
-          value: formatNumber(state.analytics.lastfmListeners),
+          value: parseCompactNumber(analytics.lastfmListeners),
         },
         {
           label: "Play Count",
-          value: formatNumber(state.analytics.lastfmPlayCount),
+          value: parseCompactNumber(analytics.lastfmPlayCount),
         },
       ],
       bgColor: "bg-blue-50",
@@ -85,7 +86,7 @@ export function ArtistAnalytics() {
                   <div key={stat.label} className="space-y-1">
                     <Label>{stat.label}</Label>
                     <Input 
-                      value={stat.value}
+                      value={stat.value || 'N/A'}
                       readOnly
                       className="bg-white/50"
                     />
@@ -99,10 +100,10 @@ export function ArtistAnalytics() {
       <Card className="p-4 mt-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Instagram', value: state.analytics?.instagramFollowers },
-            { label: 'Facebook', value: state.analytics?.facebookFollowers },
-            { label: 'TikTok', value: state.analytics?.tiktokFollowers },
-            { label: 'SoundCloud', value: state.analytics?.soundcloudFollowers },
+            { label: 'Instagram', value: analytics?.instagramFollowers },
+            { label: 'Facebook', value: analytics?.facebookFollowers },
+            { label: 'TikTok', value: analytics?.tiktokFollowers },
+            { label: 'SoundCloud', value: analytics?.soundcloudFollowers },
           ].map((social) => (
             <div key={social.label} className="space-y-1">
               <Label>{social.label}</Label>
