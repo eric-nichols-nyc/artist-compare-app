@@ -147,9 +147,9 @@ export class YoutubeService {
                 thumbnail: video.snippet?.thumbnails?.high?.url ?? '',
                 publishedAt: video.snippet?.publishedAt ?? '',
                 statistics: {
-                    viewCount: video.statistics?.viewCount ?? undefined,
-                    likeCount: video.statistics?.likeCount ?? undefined,
-                    commentCount: video.statistics?.commentCount ?? undefined
+                    viewCount: parseInt(video.statistics?.viewCount ?? '0'),
+                    likeCount: parseInt(video.statistics?.likeCount ?? '0'),
+                    commentCount: parseInt(video.statistics?.commentCount ?? '0')
                 },
                 duration: video.contentDetails?.duration ?? ''
             }));

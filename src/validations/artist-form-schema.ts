@@ -53,9 +53,9 @@ export const youtubeVideoSchema = z.object({
   title: z.string().min(1, "Video title is required"),
   videoId: z.string().min(1, "Video ID is required"),
   statistics: z.object({
-    viewCount: z.number().min(0, "View count must be positive"),
-    likeCount: z.number().min(0, "Like count must be positive"),
-    commentCount: z.number().min(0, "Comment count must be positive"),
+    viewCount: z.number(),
+    likeCount: z.number(),
+    commentCount: z.number(),
   }),
   thumbnail: urlSchema,
   publishedAt: z.string().datetime(),

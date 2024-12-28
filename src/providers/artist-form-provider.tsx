@@ -217,7 +217,7 @@ function formReducer(state: ArtistFormState, action: FormAction): ArtistFormStat
         ...state,
         spotifyTracks: action.payload,
       };
-    case 'UPDATE_SIMILAR_ARTISTS':
+    case 'UPDATE_SIMILAR_ARTIST_SELECTION':
       return {
         ...state,
         similarArtists: action.payload,

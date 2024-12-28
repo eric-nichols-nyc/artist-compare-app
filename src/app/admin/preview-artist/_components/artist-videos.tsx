@@ -7,6 +7,7 @@ import { SpotifyArtist } from '@/types'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { Button } from '@/components/ui/button'
 import { RefreshCw } from 'lucide-react'
+import { DataSourceSelector } from '@/components/data-source-selector'
 
 interface ArtistVideosProps {
   artist: SpotifyArtist

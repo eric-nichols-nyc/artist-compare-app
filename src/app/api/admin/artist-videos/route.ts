@@ -14,8 +14,8 @@ export async function GET(req: Request) {
   try {
 
     // Then get the videos using the channel ID
-    const videos = await youtubeService.getTopPlaylistVideos('OLAK5uy_kOjcMYd-zFhGK7iPzOb1m2-3ituAZSNe0')
-    console.log('videos ', videos)
+    const videos = await youtubeService.getChannelTopVideos(channelId)
+    
     return NextResponse.json({ videos })
   } catch (error) {
     console.error('Error fetching videos:', error)

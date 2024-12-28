@@ -1,10 +1,28 @@
 import { NextResponse } from 'next/server';
 import { chromium } from 'playwright';
+import { useScrapedDataStore } from '@/stores/scraped-data-store'
 
 async function delay() {
   // Random delay between .45-1.25 minutes
   const delayTime = Math.random() * 5000 + 20000;
   await new Promise(resolve => setTimeout(resolve, delayTime));
+}
+
+// Helper function to parse follower counts
+function parseFollowerCount(count: string | null | undefined): number | undefined {
+  if (!count) return undefined;
+  
+  // Remove any non-numeric characters except K, M, B
+  const normalized = count.replace(/[^0-9KMB.]/gi, '');
+  
+  // Convert to number
+  let multiplier = 1;
+  if (normalized.endsWith('K')) multiplier = 1000;
+  if (normalized.endsWith('M')) multiplier = 1000000;
+  if (normalized.endsWith('B')) multiplier = 1000000000;
+  
+  const number = parseFloat(normalized.replace(/[KMB]/gi, ''));
+  return number * multiplier;
 }
 
 export const GET = async (req: Request) => {
@@ -17,7 +35,7 @@ export const GET = async (req: Request) => {
 
   let browser = null;
 
-   try{
+  try {
     await delay();
 
     // Launch browser with stealth options
@@ -51,6 +69,35 @@ export const GET = async (req: Request) => {
           platform: li.querySelector('div')?.className.split(' ')[3],
           followers: li.querySelector('strong')?.textContent
         }));
+    });
+
+    // Parse social stats into structured data
+    const parsedStats = {
+      facebook: undefined,
+      instagram: undefined,
+      youtube: undefined,
+      spotify: undefined,
+      tiktok: undefined,
+      soundcloud: undefined
+    };
+
+    socialStats.forEach(stat => {
+      if (!stat.platform || !stat.followers) return;
+      
+      // Map Viberate's class names to our platform names
+      const platformMap: Record<string, keyof typeof parsedStats> = {
+        'facebook': 'facebook',
+        'instagram': 'instagram',
+        'youtube': 'youtube',
+        'spotify': 'spotify',
+        'tiktok': 'tiktok',
+        'soundcloud': 'soundcloud'
+      };
+
+      const platform = platformMap[stat.platform];
+      if (platform) {
+        parsedStats[platform] = parseFollowerCount(stat.followers);
+      }
     });
 
     // click View Top Songs
@@ -96,8 +143,23 @@ export const GET = async (req: Request) => {
     console.log('socialStats   ======= ', {socialStats, topSongs, topVideos}); 
     //console.log(content);
     await browser.close();
-    return NextResponse.json({ socialStats, topSongs, topVideos });
-   } catch (error) {
-    return NextResponse.json({ error: 'Failed to scrape YouTube page' }, { status: 500 });
-   }
+
+    // Store the scraped data
+    useScrapedDataStore.getState().setViberateVideos(topVideos)
+    useScrapedDataStore.getState().setViberateTracks(topSongs)
+    useScrapedDataStore.getState().setSocialStats(parsedStats)
+
+    return NextResponse.json({ 
+      socialStats: parsedStats, 
+      topSongs, 
+      topVideos 
+    });
+  } catch (error) {
+    console.error('Scraping error:', error);
+    return NextResponse.json({ error: 'Failed to scrape data' }, { status: 500 });
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
 }
