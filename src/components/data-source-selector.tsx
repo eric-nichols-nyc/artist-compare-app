@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { useScrapedDataStore } from '@/stores/scraped-data-store'
-import { useArtistForm } from '@/providers/artist-form-provider'
+import { useArtistFormStore } from '@/stores/artist-form-store'
+import { JsonInputDialog } from './json-input-dialog'
+import { YoutubeVideo, SpotifyTrack } from '@/validations/artist-form-schema'
 
 interface DataSourceSelectorProps {
   type: 'videos' | 'tracks'
@@ -8,23 +10,39 @@ interface DataSourceSelectorProps {
 
 export function DataSourceSelector({ type }: DataSourceSelectorProps) {
   const { youtubeVideos, spotifyTracks, viberateVideos, viberateTracks } = useScrapedDataStore()
-  const { form } = useArtistForm()
+  const { dispatch } = useArtistFormStore()
 
   const handleLoadSource = (source: 'youtube' | 'spotify' | 'viberate') => {
     if (type === 'videos') {
       const videos = source === 'youtube' ? youtubeVideos : viberateVideos
-      form.setValue('youtubeVideos', videos)
+      dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos })
     } else {
       const tracks = source === 'spotify' ? spotifyTracks : viberateTracks
-      form.setValue('spotifyTracks', tracks)
+      dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: tracks })
     }
   }
 
   const handleClear = () => {
     if (type === 'videos') {
-      form.setValue('youtubeVideos', [])
+      dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: [] })
     } else {
-      form.setValue('spotifyTracks', [])
+      dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: [] })
+    }
+  }
+
+  const handleJsonImport = (data: any) => {
+    try {
+      if (type === 'videos') {
+        // Validate the data matches YoutubeVideo schema
+        const videos = Array.isArray(data) ? data : [data]
+        dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos as YoutubeVideo[] })
+      } else {
+        // Validate the data matches SpotifyTrack schema
+        const tracks = Array.isArray(data) ? data : [data]
+        dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: tracks as SpotifyTrack[] })
+      }
+    } catch (error) {
+      console.error('Error importing JSON:', error)
     }
   }
 
@@ -33,6 +51,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
       <Button variant="outline" onClick={handleClear}>
         Clear
       </Button>
+      
       {type === 'videos' && (
         <>
           <Button 
@@ -51,6 +70,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
           </Button>
         </>
       )}
+      
       {type === 'tracks' && (
         <>
           <Button 
@@ -69,6 +89,11 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
           </Button>
         </>
       )}
+
+      <JsonInputDialog 
+        onSubmit={handleJsonImport}
+        title={`Import ${type === 'videos' ? 'Videos' : 'Tracks'} from JSON`}
+      />
     </div>
   )
 } 

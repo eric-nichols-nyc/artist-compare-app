@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
 import { YoutubeVideo, SpotifyTrack } from '@/validations/artist-form-schema'
 
 interface SocialStats {
@@ -35,21 +36,26 @@ interface ScrapedDataStore {
   setSocialStats: (stats: SocialStats) => void
 }
 
-export const useScrapedDataStore = create<ScrapedDataStore>((set) => ({
-  youtubeVideos: [],
-  spotifyTracks: [],
-  viberateVideos: [],
-  viberateTracks: [],
-  socialStats: {},
+export const useScrapedDataStore = create<ScrapedDataStore>()(
+  devtools(
+    (set) => ({
+      youtubeVideos: [],
+      spotifyTracks: [],
+      viberateVideos: [],
+      viberateTracks: [],
+      socialStats: {},
 
-  setYoutubeVideos: (videos) => set({ youtubeVideos: videos }),
-  setSpotifyTracks: (tracks) => set({ spotifyTracks: tracks }),
-  setViberateVideos: (videos) => set({ viberateVideos: videos }),
-  setViberateTracks: (tracks) => set({ viberateTracks: tracks }),
-  setSocialStats: (stats) => set({ socialStats: stats }),
+      setYoutubeVideos: (videos) => set({ youtubeVideos: videos }),
+      setSpotifyTracks: (tracks) => set({ spotifyTracks: tracks }),
+      setViberateVideos: (videos) => set({ viberateVideos: videos }),
+      setViberateTracks: (tracks) => set({ viberateTracks: tracks }),
+      setSocialStats: (stats) => set({ socialStats: stats }),
 
-  clearYoutubeVideos: () => set({ youtubeVideos: [] }),
-  clearSpotifyTracks: () => set({ spotifyTracks: [] }),
-  clearViberateData: () => set({ viberateVideos: [], viberateTracks: [] }),
-  clearSocialStats: () => set({ socialStats: {} }),
-})) 
+      clearYoutubeVideos: () => set({ youtubeVideos: [] }),
+      clearSpotifyTracks: () => set({ spotifyTracks: [] }),
+      clearViberateData: () => set({ viberateVideos: [], viberateTracks: [] }),
+      clearSocialStats: () => set({ socialStats: {} }),
+    }),
+    { name: 'Scraped Data Store' }
+  )
+) 

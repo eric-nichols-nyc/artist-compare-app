@@ -40,7 +40,7 @@ export const SocialLinks = ({ artist, onChange }: SocialLinksProps) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-2 gap-4">
       {defaultLinks.map((link) => (
         <div key={link.platform} className="space-y-2">
           <Label htmlFor={`${link.platform}-url`}>{link.platform}</Label>

@@ -8,6 +8,7 @@ import { useArtistFormStore } from '@/stores/artist-form-store'
 import { Button } from '@/components/ui/button'
 import { RefreshCw } from 'lucide-react'
 import { DataSourceSelector } from '@/components/data-source-selector'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface ArtistVideosProps {
   artist: SpotifyArtist
@@ -37,7 +38,6 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
     if (!num) return 'N/A'
     return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num)
   }
-
 
   if (isLoading) {
     return <div className="p-4">Loading videos...</div>
@@ -73,32 +73,34 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
       {!youtubeVideos.length ? (
         <div className="p-4">No videos available</div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {youtubeVideos.map((video) => (
-            <Card key={video.videoId} className="p-3">
-              <div className="flex gap-3">
-                {video.thumbnail && (
-                  <div className="flex-shrink-0">
-                    <Image
-                      src={video.thumbnail}
-                      alt={video.title || ''}
-                      width={120}
-                      height={68}
-                      className="rounded"
-                    />
-                  </div>
-                )}
-                <div className="flex-grow">
-                  <h5 className="font-medium text-sm line-clamp-2">{video.title}</h5>
-                  <div className="flex gap-4 mt-2 text-sm text-gray-500">
-                    <span>{formatNumber(video.statistics.viewCount)} views</span>
-                    <span>{formatNumber(video.statistics.likeCount)} likes</span>
+        <ScrollArea className="h-[600px] rounded-md border">
+          <div className="p-4">
+            {youtubeVideos.map((video) => (
+              <Card key={video.videoId} className="p-3 mb-4">
+                <div className="flex gap-3">
+                  {video.thumbnail && (
+                    <div className="flex-shrink-0">
+                      <Image
+                        src={video.thumbnail}
+                        alt={video.title || ''}
+                        width={120}
+                        height={68}
+                        className="rounded"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-grow">
+                    <h5 className="font-medium text-sm line-clamp-2">{video.title}</h5>
+                    <div className="flex gap-4 mt-2 text-sm text-gray-500">
+                      <span>{formatNumber(video.statistics.viewCount)} views</span>
+                      <span>{formatNumber(video.statistics.likeCount)} likes</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
       )}
     </Card>
   )

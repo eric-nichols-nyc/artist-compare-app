@@ -11,6 +11,8 @@ import { SimilarArtists } from "./similar-artists";
 import { useArtistForm, validateForm } from "@/providers/artist-form-provider";
 import { HeaderSkeleton } from "./skeletons";
 import { RefreshCw } from "lucide-react";
+import { ScrapeOptionsPanel } from '@/components/scrape-options-panel'
+import { StoreInspector } from '@/components/store-inspector'
 
 interface ArtistCardProps {
   artist: SpotifyArtist;
@@ -32,20 +34,32 @@ export function ArtistCard({ artist }: ArtistCardProps) {
   };
   return (
     <>
-      <Card className="flex gap-3 relative p-4">
+      <Card className="flex flex-col gap-3 relative p-4">
         <div className="flex-grow">
+        <ScrapeOptionsPanel 
+            artistName={artist.name}
+            spotifyId={artist.spotifyId}
+            youtubeChannelId={state.artistInfo.youtubeChannelId}
+          />
           <ArtistHeader artist={artist} />
           <Suspense fallback={<HeaderSkeleton />}>
             <ArtistDetails artist={artist} />
           </Suspense>
+          </div>
+          <div className="flex gap-3">
+          <div className="flex-1">
           <Suspense fallback={<HeaderSkeleton />}>
             <ArtistVideos artist={artist} />
           </Suspense>
-        </div>
-        <div className="flex-grow">
+          </div>
+          <div className="flex-1">
           <Suspense fallback={<HeaderSkeleton />}>
             <ArtistTracks artist={artist} />
           </Suspense>
+
+          </div>
+          </div>
+          <div className="flex-grow">
           <ArtistAnalytics />
           <Suspense fallback={<HeaderSkeleton />}>
             <SimilarArtists artist={artist} />
@@ -66,6 +80,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
           'Submit Artist'
         )}
       </Button>
+      {process.env.NODE_ENV === 'development' && <StoreInspector />}
     </>
   );
 }
