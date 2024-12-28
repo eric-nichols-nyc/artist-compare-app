@@ -24,6 +24,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/compare", "src/services/artist-ingestion-service.ts", "src/services/ingest-top-artists.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/compare", "src/services/artist-ingestion-service.ts", "src/services/ingest-top-artists.ts", "src/app/api/admin/get-top-videos"],
   "exclude": ["node_modules"]
 }

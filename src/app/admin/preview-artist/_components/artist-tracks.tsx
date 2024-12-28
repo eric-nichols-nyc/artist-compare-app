@@ -11,6 +11,8 @@ import { SpotifyTrack } from '@/validations/artist-form-schema'
 import { Button } from '@/components/ui/button'
 import { ExternalLinkIcon, Music2Icon } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
+import { TracksSkeleton } from './skeletons'
 
 interface ArtistTracksProps {
   artist: SpotifyArtist
@@ -52,8 +54,8 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
     dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: updatedTracks });
   };
 
-  if (isLoading) {
-    return <div className="p-4">Loading tracks...</div>
+  if (!isLoading) {
+    return <TracksSkeleton />
   }
 
   if (error) {

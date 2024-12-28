@@ -1,6 +1,7 @@
 import { google } from 'googleapis';
 import { unstable_cache } from 'next/cache';
-import { YoutubeChannelInfo, YoutubeVideo, YoutubeVideoStatistics } from '@/types';
+import { YoutubeChannelInfo, YoutubeVideoStatistics } from '@/types';
+import { YoutubeVideo } from '@/validations/artist-form-schema';
 if (!process.env.NEXT_PUBLIC_YOUTUBE_API) {
     throw new Error('Missing YOUTUBE_API_KEY environment variable');
 }
@@ -45,6 +46,8 @@ export class YoutubeService {
                         part: ['id'],
                         q: `${artistName} official`,
                         type: ['channel'],
+                        order: 'relevance',
+                        relevanceLanguage: 'en',
                         maxResults: 1
                     })
                 );
@@ -84,6 +87,30 @@ export class YoutubeService {
         }
     }, ['youtube-channel-info'], { tags: ['youtube-channel-info'], revalidate: 60 * 60 * 24 });
 
+    public getTopPlaylistVideos = unstable_cache(async (playlistId: string) => {
+        if(!playlistId){
+            throw new Error('PlaylistID is required')
+        }
+
+
+        try {
+            const playlistResponse = await this.rateLimitRequest(
+                this.youtube.playlistItems.list({
+                    key: this.API_KEY,
+                    part: ['snippet', 'contentDetails'],
+                    playlistId: playlistId,
+                    maxResults: 50
+                })
+            );
+
+            return playlistResponse.data.items;
+        } catch (error) {
+            console.error('Error fetching YouTube playlist:', error);
+            return [];
+        }
+
+    }, ['youtube-playlist-videos'], { tags: ['youtube-playlist-videos'], revalidate: 60 * 60 * 24 });
+
     public getChannelTopVideos = unstable_cache(async (channelId: string): Promise<YoutubeVideo[]> => {
         if(!channelId){
             throw new Error('ChannelID is required')
@@ -96,7 +123,7 @@ export class YoutubeService {
                     channelId: channelId,
                     type: ['video'],
                     order: 'viewCount',
-                    maxResults: 5
+                    maxResults: 20
                 })
             );
 

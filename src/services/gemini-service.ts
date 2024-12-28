@@ -92,4 +92,23 @@ export class GeminiService {
             // Ensure proper spacing after periods
             .replace(/\.(?=[A-Z])/g, '. ');
     }
+
+    public  async generateSocialMediaLinks(artistInfo: ArtistBioInfo): Promise<string> {
+        const { name } = artistInfo;
+        const links = {
+            spotify: `https://open.spotify.com/artist/${name}`,
+            youtube: `https://www.youtube.com/channel/${name}`,
+            instagram: `https://www.instagram.com/${name}`,
+            facebook: `https://www.facebook.com/${name}`,
+            tiktok: `https://www.tiktok.com/${name}`,
+            soundcloud: `https://soundcloud.com/${name}`,
+        }
+        const prompt = `Generate the social media links ${JSON.stringify(links)} for the music artist ${artistInfo.name}. in JSON format.`;
+        const result = await this.model.generateContent(prompt);
+        const response = await result.response;
+        const bio = response.text();
+        return bio;
+    }
+
+
 } 

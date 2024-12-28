@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { RefreshCw } from 'lucide-react'
+import { SocialLinks } from '@/components/SocialLinks'
 
 export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
   const { artistInfo, analytics, dispatch } = useArtistFormStore()
@@ -153,7 +154,7 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
           {/* Social Links Section */}
           <div className="space-y-4">
             <h3 className="font-medium text-sm text-gray-500">Social Links</h3>
-            <div className="grid grid-cols-1 gap-4">
+            {/* <div className="grid grid-cols-1 gap-4">
               <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="spotify">Spotify</Label>
                 <Input 
@@ -199,7 +200,8 @@ export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
                   className="bg-gray-50"
                 />
               </div>
-            </div>
+            </div> */}
+            <SocialLinks artist={artist} />
           </div>
         </div>
       </div>
