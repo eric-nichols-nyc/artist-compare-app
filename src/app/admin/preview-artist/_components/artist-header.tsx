@@ -34,18 +34,41 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
             )}
           </div>
           <div>
-            <h1 className="text-2xl font-bold">{artist.name}</h1>
-            <div className="flex flex-wrap gap-1 mt-2">
-              {artist.genres?.map((genre) => (
-                <Badge key={genre} variant="secondary">
-                  {genre}
-                </Badge>
-              ))}
+            <h1 className="text-2xl font-bold mb-2">{artist.name}</h1>
+            <div className="top-info flex flex-col gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span className="country flex items-center gap-1.5" title={artistInfo.country || 'Unknown'}>
+                  {artistInfo.country && (
+                    <Image
+                      src={`/flags/${artistInfo.country.toLowerCase()}.svg`}
+                      alt={artistInfo.country}
+                      width={16}
+                      height={12}
+                      className="inline-block"
+                    />
+                  )}
+                  <em>{artistInfo.country || 'Unknown'}</em>
+                </span>
+                <div className="genres" title={artist.genres?.join(', ')}>
+                {artist.genres?.join(', ')}
+              </div>
+              </div>
+  
+              <div className="flex items-center gap-1.5">
+                <span className="text-muted-foreground">Born:</span>
+                <span>
+                  {artistInfo.activeYears?.begin
+                    ? `${artistInfo.activeYears.begin} - ${
+                        artistInfo.activeYears.end || 'Present'
+                      }`
+                    : 'Unknown'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Column 2: Social Links and Additional Info */}
+        {/* Column 2: Social Links */}
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-3">Social Links</h3>
@@ -56,33 +79,14 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
               }}
             />
           </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Additional Info</h3>
-            <dl className="space-y-2 text-sm">
-              <div>
-                <dt className="text-muted-foreground">Country</dt>
-                <dd>{artistInfo.country || 'Unknown'}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Active Years</dt>
-                <dd>
-                  {artistInfo.activeYears?.begin
-                    ? `${artistInfo.activeYears.begin} - ${
-                        artistInfo.activeYears.end || 'Present'
-                      }`
-                    : 'Unknown'}
-                </dd>
-              </div>
-            </dl>
-          </div>
         </div>
 
         {/* Column 3: Bio */}
         <div>
           <h3 className="text-lg font-semibold mb-3">Biography</h3>
           <div className="flex-grow">
-          <Suspense fallback={<HeaderSkeleton />}>
-            <ArtistDetails artist={artist} />
+            <Suspense fallback={<HeaderSkeleton />}>
+              <ArtistDetails artist={artist} />
             </Suspense>
           </div>
         </div>

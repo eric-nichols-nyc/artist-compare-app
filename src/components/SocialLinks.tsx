@@ -73,7 +73,7 @@ export const SocialLinks = ({ artist, onChange }: SocialLinksProps) => {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4">
       {defaultLinks.map((link) => {
         const platform = SOCIAL_PLATFORMS.find(p => p.platform === link.platform)
         const Icon = platform?.icon || ExternalLink
@@ -82,7 +82,14 @@ export const SocialLinks = ({ artist, onChange }: SocialLinksProps) => {
           <div key={link.platform} className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor={`${link.platform}-url`}>{link.platform}</Label>
-              <Button
+            <Input
+              id={`${link.platform}-url`}
+              value={link.url}
+              onChange={(e) => handleUrlChange(link.platform, e.target.value)}
+              placeholder={`Enter ${link.platform} URL`}
+              className="max-w-md"
+            />
+                  <Button
                 size="icon"
                 variant="ghost"
                 asChild
@@ -97,14 +104,7 @@ export const SocialLinks = ({ artist, onChange }: SocialLinksProps) => {
                   <Icon className="h-4 w-4" />
                 </a>
               </Button>
-            </div>
-            <Input
-              id={`${link.platform}-url`}
-              value={link.url}
-              onChange={(e) => handleUrlChange(link.platform, e.target.value)}
-              placeholder={`Enter ${link.platform} URL`}
-              className="max-w-md"
-            />
+          </div>
           </div>
         )
       })}
