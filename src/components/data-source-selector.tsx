@@ -18,18 +18,19 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
       dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos })
     } else {
       const rawTracks = source === 'spotify' ? spotifyTracks : viberateTracks
-      const formattedTracks: SpotifyTrack[] = rawTracks.map(track => ({
-        id: track.id,
-        name: track.name,
+      const formattedTracks = rawTracks.map(track => ({
         trackId: track.id,
+        name: track.name,
         popularity: track.popularity,
         spotifyStreams: track.spotifyStreams,
-        imageUrl: track.imageUrl,
         albumImageUrl: track.imageUrl,
         previewUrl: null,
         preview_url: null,
-        externalUrl: track.externalUrl,
-        duration_ms: 0
+        external_urls: { spotify: track.externalUrl || '' },
+        duration_ms: 0,
+        album: {
+          images: [{ url: track.imageUrl || '' }]
+        }
       }))
       dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: formattedTracks })
     }
@@ -50,18 +51,19 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
         dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos as YoutubeVideo[] })
       } else {
         const rawTracks = Array.isArray(data) ? data : [data]
-        const formattedTracks: SpotifyTrack[] = rawTracks.map(track => ({
-          id: track.id,
-          name: track.name,
+        const formattedTracks = rawTracks.map(track => ({
           trackId: track.id,
+          name: track.name,
           popularity: track.popularity,
           spotifyStreams: track.spotifyStreams,
-          imageUrl: track.imageUrl,
           albumImageUrl: track.imageUrl,
           previewUrl: null,
           preview_url: null,
-          externalUrl: track.externalUrl,
-          duration_ms: 0
+          external_urls: { spotify: track.externalUrl || '' },
+          duration_ms: 0,
+          album: {
+            images: [{ url: track.imageUrl || '' }]
+          }
         }))
         dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: formattedTracks })
       }

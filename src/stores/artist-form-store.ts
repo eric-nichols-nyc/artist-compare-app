@@ -58,18 +58,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
     switch (action.type) {
       case 'SELECT_ARTIST':
         set((state) => ({
-          selectedArtists: [...state.selectedArtists, action.payload],
-          artistInfo: {
-            name: action.payload.name,
-            imageUrl: action.payload.imageUrl,
-            genres: action.payload.genres,
-            spotifyId: action.payload.spotifyId,
-          },
-          analytics: {
-            ...state.analytics,
-            spotifyFollowers: action.payload.followers,
-            spotifyPopularity: action.payload.popularity,
-          }
+         ...state,
         }));
         break;
 
