@@ -13,6 +13,7 @@ import { HeaderSkeleton } from "./skeletons";
 import { RefreshCw } from "lucide-react";
 import { ScrapeOptionsPanel } from '@/components/scrape-options-panel'
 import { StoreInspector } from '@/components/store-inspector'
+import { useStoreDebug } from '@/hooks/use-store-debug'
 
 interface ArtistCardProps {
   artist: SpotifyArtist;
@@ -20,6 +21,11 @@ interface ArtistCardProps {
 
 export function ArtistCard({ artist }: ArtistCardProps) {
   const { state, dispatch } = useArtistForm();
+
+  // Only enable in development
+  if (process.env.NODE_ENV === 'development') {
+    useStoreDebug()
+  }
 
   const handleSubmitArtist = async (state: any) => {
     try {

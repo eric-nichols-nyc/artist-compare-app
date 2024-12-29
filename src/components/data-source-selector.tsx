@@ -17,8 +17,21 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
       const videos = source === 'youtube' ? youtubeVideos : viberateVideos
       dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos })
     } else {
-      const tracks = source === 'spotify' ? spotifyTracks : viberateTracks
-      dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: tracks })
+      const rawTracks = source === 'spotify' ? spotifyTracks : viberateTracks
+      const formattedTracks: SpotifyTrack[] = rawTracks.map(track => ({
+        id: track.id,
+        name: track.name,
+        trackId: track.id,
+        popularity: track.popularity,
+        spotifyStreams: track.spotifyStreams,
+        imageUrl: track.imageUrl,
+        albumImageUrl: track.imageUrl,
+        previewUrl: null,
+        preview_url: null,
+        externalUrl: track.externalUrl,
+        duration_ms: 0
+      }))
+      dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: formattedTracks })
     }
   }
 
@@ -33,13 +46,24 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
   const handleJsonImport = (data: any) => {
     try {
       if (type === 'videos') {
-        // Validate the data matches YoutubeVideo schema
         const videos = Array.isArray(data) ? data : [data]
         dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos as YoutubeVideo[] })
       } else {
-        // Validate the data matches SpotifyTrack schema
-        const tracks = Array.isArray(data) ? data : [data]
-        dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: tracks as SpotifyTrack[] })
+        const rawTracks = Array.isArray(data) ? data : [data]
+        const formattedTracks: SpotifyTrack[] = rawTracks.map(track => ({
+          id: track.id,
+          name: track.name,
+          trackId: track.id,
+          popularity: track.popularity,
+          spotifyStreams: track.spotifyStreams,
+          imageUrl: track.imageUrl,
+          albumImageUrl: track.imageUrl,
+          previewUrl: null,
+          preview_url: null,
+          externalUrl: track.externalUrl,
+          duration_ms: 0
+        }))
+        dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: formattedTracks })
       }
     } catch (error) {
       console.error('Error importing JSON:', error)
