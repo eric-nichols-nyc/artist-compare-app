@@ -252,7 +252,7 @@ export interface ArtistIngestionResponse {
 
 export interface BasicArtistInfo {
     name: string;
-    spotifyId: string | null;
+    spotifyId: string | null | undefined;
     imageUrl: string | null;
     genres: string[];
 }

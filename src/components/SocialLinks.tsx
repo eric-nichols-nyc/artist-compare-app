@@ -5,7 +5,6 @@ import { SpotifyArtist } from "@/types"
 import { useMemo } from "react"
 import { 
   Globe, 
-  Spotify, 
   Instagram, 
   Youtube, 
   Facebook,
@@ -27,7 +26,7 @@ const SOCIAL_PLATFORMS = [
   { 
     platform: 'Spotify', 
     urlTemplate: 'https://open.spotify.com/artist/{id}',
-    icon: Spotify
+    icon: '/public/images/spotify.svg'
   },
   { 
     platform: 'Instagram', 
@@ -54,11 +53,11 @@ const SOCIAL_PLATFORMS = [
 export const SocialLinks = ({ artist, onChange }: SocialLinksProps) => {
   const defaultLinks = useMemo(() => {
     const handle = artist.name.toLowerCase().replace(/\s+/g, '')
-    
+
     return SOCIAL_PLATFORMS.map(({ platform, urlTemplate }) => ({
       platform,
       url: platform === 'Spotify' 
-        ? urlTemplate.replace('{id}', artist.id)
+        ? urlTemplate.replace('{id}', artist.spotifyId || '')
         : urlTemplate.replace('{handle}', handle)
     }))
   }, [artist])

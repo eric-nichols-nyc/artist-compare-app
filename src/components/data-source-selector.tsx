@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { useScrapedDataStore } from '@/stores/scraped-data-store'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { JsonInputDialog } from './json-input-dialog'
-import { YoutubeVideo, SpotifyTrack } from '@/validations/artist-form-schema'
+import { YoutubeVideo } from '@/validations/artist-form-schema'
 
 interface DataSourceSelectorProps {
   type: 'videos' | 'tracks'
@@ -20,6 +20,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
       const rawTracks = source === 'spotify' ? spotifyTracks : viberateTracks
       const formattedTracks = rawTracks.map(track => ({
         trackId: track.id,
+        id: track.id,
         name: track.name,
         popularity: track.popularity,
         spotifyStreams: track.spotifyStreams,
@@ -28,6 +29,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
         preview_url: null,
         external_urls: { spotify: track.externalUrl || '' },
         duration_ms: 0,
+        imageUrl: track.imageUrl || '',
         album: {
           images: [{ url: track.imageUrl || '' }]
         }
@@ -52,6 +54,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
       } else {
         const rawTracks = Array.isArray(data) ? data : [data]
         const formattedTracks = rawTracks.map(track => ({
+          id: track.id,
           trackId: track.id,
           name: track.name,
           popularity: track.popularity,
@@ -61,6 +64,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
           preview_url: null,
           external_urls: { spotify: track.externalUrl || '' },
           duration_ms: 0,
+          imageUrl: track.imageUrl || '',
           album: {
             images: [{ url: track.imageUrl || '' }]
           }
