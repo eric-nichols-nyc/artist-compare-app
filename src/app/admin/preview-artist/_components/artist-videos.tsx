@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { SpotifyArtist } from '@/types'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { Button } from '@/components/ui/button'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Upload } from 'lucide-react'
 import { DataSourceSelector } from '@/components/data-source-selector'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
@@ -14,63 +14,108 @@ interface ArtistVideosProps {
   artist: SpotifyArtist
 }
 
+type VideoSource = 'youtube' | 'viberate' | 'json'
+
 export function ArtistVideos({ artist }: ArtistVideosProps) {
-  const { youtubeVideos, refreshYoutubeVideos, artistInfo } = useArtistFormStore();
-  const [isLoading, setIsLoading] = useState(true)
+  const { youtubeVideos, refreshYoutubeVideos, artistInfo } = useArtistFormStore()
+  const [selectedSource, setSelectedSource] = useState<VideoSource>('youtube')
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchVideos = async () => {
-      setIsLoading(true);
-      try {
-        await refreshYoutubeVideos(artistInfo.youtubeChannelId!);
-      } catch (error) {
-        setError('Failed to load videos');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const handleSourceChange = async (source: VideoSource) => {
+    setSelectedSource(source)
+    setIsLoading(true)
+    setError(null)
 
-    fetchVideos();
-  }, [artistInfo.youtubeChannelId, refreshYoutubeVideos]);
+    try {
+      switch (source) {
+        case 'youtube':
+          await refreshYoutubeVideos(artistInfo.youtubeChannelId!)
+          break
+        case 'viberate':
+          // Add Viberate fetch logic
+          const viberateResponse = await fetch(`/api/scrape/viberate/videos?artistName=${encodeURIComponent(artist.name)}`)
+          if (!viberateResponse.ok) throw new Error('Failed to load Viberate videos')
+          break
+        case 'json':
+          // Add JSON upload logic here
+          break
+      }
+    } catch (error) {
+      setError(`Failed to load videos from ${source}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleJsonUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      const content = await file.text()
+      const jsonData = JSON.parse(content)
+      // Add logic to process and validate JSON data
+      // Update videos in store
+    } catch (error) {
+      setError('Failed to parse JSON file')
+    }
+  }
 
   const formatNumber = (num: number | null | undefined) => {
     if (!num) return 'N/A'
     return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num)
   }
 
-  if (isLoading) {
-    return <div className="p-4">Loading videos...</div>
-  }
-
-  if (!artistInfo.youtubeChannelId) {
-    return <div className="p-4">No YouTube channel ID found</div>
-  }
-
   return (
     <Card className="mt-4 flex-grow">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Top Videos</CardTitle>
-        {artistInfo.youtubeChannelId && (
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => {
-              refreshYoutubeVideos(artistInfo.youtubeChannelId!);
-            }}
-            disabled={isLoading}
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh Videos
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <DataSourceSelector
+            options={[
+              { value: 'youtube', label: 'YouTube API' },
+              { value: 'viberate', label: 'Viberate' },
+              { value: 'json', label: 'JSON' }
+            ]}
+            value={selectedSource}
+            onChange={(value) => handleSourceChange(value as VideoSource)}
+          />
+          
+          {selectedSource === 'json' ? (
+            <Button variant="outline" size="sm" asChild>
+              <label className="cursor-pointer">
+                <Upload className="w-4 h-4 mr-2" />
+                Upload JSON
+                <input
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={handleJsonUpload}
+                />
+              </label>
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handleSourceChange(selectedSource)}
+              disabled={isLoading}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh Videos
+            </Button>
+          )}
+        </div>
       </CardHeader>
 
       {error && (
         <div className="p-4 text-red-500 mb-4">{error}</div>
       )}
 
-      {!youtubeVideos.length ? (
+      {isLoading ? (
+        <div className="p-4">Loading videos...</div>
+      ) : !youtubeVideos.length ? (
         <div className="p-4">No videos available</div>
       ) : (
         <ScrollArea className="h-[600px] rounded-md border">
