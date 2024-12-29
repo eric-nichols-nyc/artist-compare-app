@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { useArtistFormStore } from "@/stores/artist-form-store";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Image from "next/image";
 
 interface ScrapeOptionsPanelProps {
   artistName: string;
-  spotifyId?: string | null;
+  spotifyId: string;
   youtubeChannelId?: string | null;
+  variant?: 'default' | 'compact';
 }
 
 type Source = "viberate" | "spotify" | "youtube";
@@ -22,9 +24,10 @@ interface SourceState {
 export function ScrapeOptionsPanel({
   artistName,
   spotifyId,
+  youtubeChannelId,
+  variant = 'default'
 }: ScrapeOptionsPanelProps) {
   const { artistInfo } = useArtistFormStore();
-  const youtubeChannelId = artistInfo.youtubeChannelId;
   const [sourceStates, setSourceStates] = useState<Record<Source, SourceState>>(
     {
       viberate: { isLoading: false, error: null, isLoaded: false },
@@ -139,7 +142,62 @@ export function ScrapeOptionsPanel({
     }
   };
 
-  return (
+  return variant === 'compact' ? (
+    <div className="flex items-center justify-end gap-2">
+      <Button 
+        size="sm" 
+        variant="outline"
+        onClick={handleScrapeViberate}
+        disabled={sourceStates.viberate.isLoading}
+        className="flex items-center gap-2"
+      >
+        <Image
+          src="/images/logo-viberate-new-red-white.svg"
+          alt="Viberate"
+          width={16}
+          height={16}
+          className="h-4 w-auto"
+        />
+        {sourceStates.viberate.isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : 'Scrape Viberate'}
+      </Button>
+      <Button 
+        size="sm" 
+        variant="outline"
+        onClick={handleScrapeSpotify}
+        disabled={sourceStates.spotify.isLoading}
+        className="flex items-center gap-2"
+      >
+        <Image
+          src="/images/icon-link-spotify-color.f8bf1b4d.svg"
+          alt="Spotify"
+          width={16}
+          height={16}
+        />
+        {sourceStates.spotify.isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : 'Scrape Spotify'}
+      </Button>
+      <Button 
+        size="sm" 
+        variant="outline"
+        onClick={handleScrapeYoutube}
+        disabled={sourceStates.youtube.isLoading}
+        className="flex items-center gap-2"
+      >
+        <Image
+          src="/images/youtube-alt.23d934c0.svg"
+          alt="YouTube"
+          width={16}
+          height={16}
+        />
+        {sourceStates.youtube.isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : 'Scrape YouTube'}
+      </Button>
+    </div>
+  ) : (
     <div className="space-y-4">
       <div className="flex gap-2">
         <Button

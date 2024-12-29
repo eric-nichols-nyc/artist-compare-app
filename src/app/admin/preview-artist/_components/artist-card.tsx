@@ -14,6 +14,7 @@ import { ScrapeOptionsPanel } from '@/components/scrape-options-panel'
 import { StoreInspector } from '@/components/store-inspector'
 import { useStoreDebug } from '@/hooks/use-store-debug'
 import { useArtistFormStore } from "@/stores/artist-form-store";
+import { DockableArtistHeader } from "./dockable-artist-header";
 
 interface ArtistCardProps {
   artist: SpotifyArtist;
@@ -47,6 +48,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
 
   return (
     <>
+      <DockableArtistHeader artist={artist} />
       <Card className="flex flex-col gap-3 relative p-4">
         <div className="flex justify-end mb-2">
           <Button
@@ -59,11 +61,6 @@ export function ArtistCard({ artist }: ArtistCardProps) {
           </Button>
         </div>
         <div className="flex-grow">
-          <ScrapeOptionsPanel 
-            artistName={artist.name}
-            spotifyId={artist.spotifyId}
-            youtubeChannelId={artistInfo.youtubeChannelId}
-          />
           <ArtistHeader artist={artist} />
           <Suspense fallback={<HeaderSkeleton />}>
             <ArtistDetails artist={artist} />
