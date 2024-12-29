@@ -4,204 +4,86 @@
 import { Card } from '@/components/ui/card'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import Image from 'next/image'
-import { useEffect } from 'react'
 import { SpotifyArtist } from '@/types'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { RefreshCw } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { SocialLinks } from '@/components/SocialLinks'
+import { HeaderSkeleton } from './skeletons'
+import { ArtistDetails } from './artist-details'
+import { Suspense } from 'react'
 
-export function ArtistHeader({artist}: {artist: SpotifyArtist}) {
-  const { artistInfo, analytics, dispatch } = useArtistFormStore()
+interface ArtistHeaderProps {
+  artist: SpotifyArtist
+}
 
-  // Update artistInfo when selectedArtists changes
-  useEffect(() => {
-      dispatch({
-        type: 'UPDATE_ARTIST_INFO',
-        payload: {
-          name: artist.name,
-          imageUrl: artist.imageUrl,
-          genres: artist.genres,
-          spotifyId: artist.spotifyId
-        }
-      })
-      dispatch({
-        type: 'UPDATE_ANALYTICS',
-        payload:{
-            spotifyFollowers: artist.followers,
-            spotifyPopularity: artist.popularity,
-        }
-      })
-  }, [dispatch, artist])
-
-  const handleChange = (field: keyof typeof artistInfo, value: string) => {
-    dispatch({
-      type: 'UPDATE_ARTIST_INFO',
-      payload: {
-        ...artistInfo,
-        [field]: value
-      }
-    })
-  }
-
-  if (!artistInfo) {
-    return <div className="p-4">No artist information available</div>
-  }
+export function ArtistHeader({ artist }: ArtistHeaderProps) {
+  const { artistInfo } = useArtistFormStore()
 
   return (
     <Card className="p-6">
-      <div className="flex flex-col gap-6">
-        {artistInfo.imageUrl && (
-          <div className="relative w-32 h-32 rounded-full overflow-hidden flex-shrink-0">
-            <Image
-              src={artistInfo.imageUrl}
-              alt={artistInfo.name}
-              fill
-              className="object-cover"
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Column 1: Image and Basic Info */}
+        <div className="space-y-4">
+          <div className="relative aspect-square w-full max-w-[300px] rounded-lg overflow-hidden">
+            {artist.imageUrl && (
+              <Image
+                src={artist.imageUrl}
+                alt={artist.name}
+                fill
+                className="object-cover"
+              />
+            )}
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">{artist.name}</h1>
+            <div className="flex flex-wrap gap-1 mt-2">
+              {artist.genres?.map((genre) => (
+                <Badge key={genre} variant="secondary">
+                  {genre}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Column 2: Social Links and Additional Info */}
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Social Links</h3>
+            <SocialLinks 
+              artist={artist} 
+              onChange={(links) => {
+                // Handle social links update
+              }}
             />
           </div>
-        )}
-        <div className="space-y-6 flex-1">
-          {/* Basic Info Section */}
-          <div className="space-y-4">
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="name">Artist Name</Label>
-              <Input 
-                id="name"
-                defaultValue={artistInfo.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="gender">Gender</Label>
-                <Input 
-                  id="gender"
-                  defaultValue={artistInfo.gender || ''}
-                  onChange={(e) => handleChange('gender', e.target.value)}
-                  className="bg-gray-50"
-                />
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Additional Info</h3>
+            <dl className="space-y-2 text-sm">
+              <div>
+                <dt className="text-muted-foreground">Country</dt>
+                <dd>{artistInfo.country || 'Unknown'}</dd>
               </div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="country">Country</Label>
-                <Input 
-                  id="country"
-                  defaultValue={artistInfo.country || ''}
-                  onChange={(e) => handleChange('country', e.target.value)}
-                  className="bg-gray-50"
-                />
+              <div>
+                <dt className="text-muted-foreground">Active Years</dt>
+                <dd>
+                  {artistInfo.activeYears?.begin
+                    ? `${artistInfo.activeYears.begin} - ${
+                        artistInfo.activeYears.end || 'Present'
+                      }`
+                    : 'Unknown'}
+                </dd>
               </div>
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="genres">Genres</Label>
-              <Input 
-                id="genres"
-                defaultValue={artistInfo.genres.slice(0, 3).join(', ')}
-                className="bg-gray-50"
-              />
-            </div>
+            </dl>
           </div>
+        </div>
 
-          {/* Platform IDs Section */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-sm text-gray-500">Platform IDs</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="spotifyId">Spotify ID</Label>
-                <Input 
-                  id="spotifyId"
-                  value={artistInfo.spotifyId || 'N/A'}
-                  readOnly
-                  className="bg-gray-50"
-                />
-              </div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="musicbrainzId">MusicBrainz ID</Label>
-                <Input 
-                  id="musicbrainzId"
-                  defaultValue={artistInfo.musicbrainzId || ''}
-                  onChange={(e) => handleChange('musicbrainzId', e.target.value)}
-                  className="bg-gray-50"
-                />
-              </div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="youtubeChannelId">Youtube Channel ID</Label>
-                <div className="flex gap-2">
-                  <Input 
-                    id="youtubeChannelId"
-                    defaultValue={artistInfo.youtubeChannelId || ''}
-                    onChange={(e) => handleChange('youtubeChannelId', e.target.value)}
-                    className="bg-gray-50"
-                  />
-                  {artistInfo.youtubeChannelId && (
-                    <Button 
-                      variant="outline" 
-                      size="icon"
-                      onClick={() => {
-                        useArtistFormStore.getState().refreshYoutubeVideos(artistInfo.youtubeChannelId!);
-                      }}
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Social Links Section */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-sm text-gray-500">Social Links</h3>
-            {/* <div className="grid grid-cols-1 gap-4">
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="spotify">Spotify</Label>
-                <Input 
-                  id="spotifyUrl"
-                  defaultValue={artistInfo.spotifyUrl || ''}
-                  onChange={(e) => handleChange('spotifyUrl', e.target.value)}
-                  className="bg-gray-50"
-                />
-              </div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="youtube">YouTube</Label>
-                <Input 
-                  id="youtube"
-                  defaultValue={artistInfo.youtubeUrl || ''}
-                  onChange={(e) => handleChange('youtubeUrl', e.target.value)}
-                  className="bg-gray-50"
-                />
-              </div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="instagram">Instagram</Label>
-                <Input 
-                  id="instagram"
-                  defaultValue={artistInfo.instagramUrl || ''}
-                  onChange={(e) => handleChange('instagramUrl', e.target.value)}
-                  className="bg-gray-50"
-                />
-              </div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="tiktok">TikTok</Label>
-                <Input 
-                  id="tiktok"
-                  defaultValue={artistInfo.tiktokUrl || ''}
-                  onChange={(e) => handleChange('tiktokUrl', e.target.value)}
-                  className="bg-gray-50"
-                />
-              </div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="viberate">Viberate</Label>
-                <Input 
-                  id="viberate"
-                  defaultValue={artistInfo.viberateUrl || ''}
-                  onChange={(e) => handleChange('viberateUrl', e.target.value)}
-                  className="bg-gray-50"
-                />
-              </div>
-            </div> */}
-            <SocialLinks artist={artist} />
+        {/* Column 3: Bio */}
+        <div>
+          <h3 className="text-lg font-semibold mb-3">Biography</h3>
+          <div className="flex-grow">
+          <Suspense fallback={<HeaderSkeleton />}>
+            <ArtistDetails artist={artist} />
+            </Suspense>
           </div>
         </div>
       </div>
