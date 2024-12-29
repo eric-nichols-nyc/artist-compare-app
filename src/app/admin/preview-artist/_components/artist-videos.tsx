@@ -32,7 +32,7 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
     };
 
     fetchVideos();
-  }, [artist.name, refreshYoutubeVideos]);
+  }, [artistInfo.youtubeChannelId, refreshYoutubeVideos]);
 
   const formatNumber = (num: number | null | undefined) => {
     if (!num) return 'N/A'

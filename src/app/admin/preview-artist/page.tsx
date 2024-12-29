@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { ArtistSearch } from "./_components/artist-search";
 import { SelectedArtists } from "./_components/selected-artists";
-import { ArtistFormProvider } from "@/providers/artist-form-provider";
 interface Artist {
   name: string;
   spotifyId: string;
@@ -26,13 +25,11 @@ export default function PreviewArtistPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <ArtistFormProvider>
         <ArtistSearch onArtistSelect={handleArtistSelect} />
         <SelectedArtists
           selectedArtists={selectedArtists}
           onRemoveArtist={handleRemoveArtist}
         />
-      </ArtistFormProvider>
     </div>
   );
 }

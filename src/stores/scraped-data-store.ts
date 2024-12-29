@@ -34,6 +34,9 @@ interface ScrapedDataStore {
 
   // Add social stats setter
   setSocialStats: (stats: SocialStats) => void
+
+  // Add social stats clearer
+  clearSocialStats: () => void
 }
 
 export const useScrapedDataStore = create<ScrapedDataStore>()(

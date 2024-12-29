@@ -4,7 +4,8 @@ import { debounce } from 'lodash';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
-import { useArtistForm } from '@/providers/artist-form-provider';
+import { useArtistFormStore } from '@/stores/artist-form-store';
+
 interface SpotifyArtist {
 spotifyId: string;
   name: string;
@@ -19,7 +20,7 @@ interface ArtistListCardProps {
 }
 
 export function ArtistSearch({ onArtistSelect }: ArtistListCardProps) {
-  const { state, dispatch } = useArtistForm()
+  const { dispatch } = useArtistFormStore()
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SpotifyArtist[]>([]);
   const [isSearching, setIsSearching] = useState(false);
