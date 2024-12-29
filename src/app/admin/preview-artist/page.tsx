@@ -1,35 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { ArtistSearch } from "./_components/artist-search";
-import { SelectedArtists } from "./_components/selected-artists";
-interface Artist {
-  name: string;
-  spotifyId: string;
-  imageUrl?: string;
-}
+import { ArtistSearch } from './_components/artist-search'
+import { ArtistCard } from './_components/artist-card'
+import { useArtistFormStore } from '@/stores/artist-form-store'
 
 export default function PreviewArtistPage() {
-  const [selectedArtists, setSelectedArtists] = useState<Artist[]>([]);
-
-  const handleArtistSelect = (artist: Artist) => {
-    console.log("artist", artist);
-    setSelectedArtists([...selectedArtists, artist]);
-  };
-
-  const handleRemoveArtist = (spotifyId: string) => {
-    setSelectedArtists(
-      selectedArtists.filter((a) => a.spotifyId !== spotifyId)
-    );
-  };
+  const selectedArtists = useArtistFormStore(state => state.selectedArtists)
+  const hasSelectedArtist = selectedArtists.length > 0
 
   return (
-    <div className="container mx-auto p-6">
-        <ArtistSearch onArtistSelect={handleArtistSelect} />
-        <SelectedArtists
-          selectedArtists={selectedArtists}
-          onRemoveArtist={handleRemoveArtist}
-        />
+    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+      {!hasSelectedArtist ? (
+        <ArtistSearch />
+      ) : (
+        <ArtistCard artist={selectedArtists[0]} />
+      )}
     </div>
-  );
+  )
 }

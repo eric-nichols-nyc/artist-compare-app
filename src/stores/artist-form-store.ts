@@ -1,15 +1,16 @@
 import { create } from 'zustand'
-import { ArtistFormState, FormAction } from '@/types'
+import { ArtistFormState, FormAction, SpotifyArtist } from '@/types'
 
 interface ArtistFormStore extends ArtistFormState {
+  selectedArtists: SpotifyArtist[];
   dispatch: (action: FormAction) => void;
   refreshYoutubeVideos: (channelId: string) => Promise<void>;
   refreshYoutubeAnalytics: (channelId: string) => Promise<void>;
   refreshSimilarArtists: (artistName: string) => Promise<void>;
 }
 
-export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
-  // Initial state
+const initialState = {
+  selectedArtists: [],
   artistInfo: {
     name: '',
     bio: null,
@@ -48,10 +49,40 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
   similarArtists: [],
   isSubmitting: false,
   errors: {},
+};
 
-  // Actions
+export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
+  ...initialState,
+
   dispatch: (action: FormAction) => {
     switch (action.type) {
+      case 'SELECT_ARTIST':
+        set((state) => ({
+          selectedArtists: [...state.selectedArtists, action.payload],
+          artistInfo: {
+            name: action.payload.name,
+            imageUrl: action.payload.imageUrl,
+            genres: action.payload.genres,
+            spotifyId: action.payload.spotifyId,
+          },
+          analytics: {
+            ...state.analytics,
+            spotifyFollowers: action.payload.followers,
+            spotifyPopularity: action.payload.popularity,
+          }
+        }));
+        break;
+
+      case 'CANCEL_ARTIST_SELECTION':
+        set((state) => ({
+          ...initialState,
+          dispatch: state.dispatch,
+          refreshYoutubeVideos: state.refreshYoutubeVideos,
+          refreshYoutubeAnalytics: state.refreshYoutubeAnalytics,
+          refreshSimilarArtists: state.refreshSimilarArtists,
+        }));
+        break;
+
       case 'UPDATE_ARTIST_INFO':
         set((state) => ({
           artistInfo: {

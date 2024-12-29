@@ -1,59 +1,51 @@
 "use client"
-import { useState, useEffect } from 'react';
-import { debounce } from 'lodash';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import Image from 'next/image';
-import { Input } from '@/components/ui/input';
-import { useArtistFormStore } from '@/stores/artist-form-store';
 
-interface SpotifyArtist {
-spotifyId: string;
-  name: string;
-  imageUrl?: string;
-  genres: string[];
-  popularity: number;
-  followers: number;
-}
+import { useState, useEffect } from 'react'
+import { debounce } from 'lodash'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import Image from 'next/image'
+import { Input } from '@/components/ui/input'
+import { useArtistFormStore } from '@/stores/artist-form-store'
+import { SpotifyArtist } from '@/types'
 
-interface ArtistListCardProps {
-  onArtistSelect?: (artist: SpotifyArtist) => void;
-}
+export function ArtistSearch() {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<SpotifyArtist[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const dispatch = useArtistFormStore(state => state.dispatch)
 
-export function ArtistSearch({ onArtistSelect }: ArtistListCardProps) {
-  const { dispatch } = useArtistFormStore()
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SpotifyArtist[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  
   const searchSpotify = debounce(async (query: string) => {
     if (!query) {
-      setSearchResults([]);
-      return;
+      setSearchResults([])
+      return
     }
 
-    setIsSearching(true);
+    setIsSearching(true)
     try {
-      const response = await fetch(`/api/spotify/search?q=${encodeURIComponent(query)}`);
-      const data = await response.json();
+      const response = await fetch(`/api/spotify/search?q=${encodeURIComponent(query)}`)
+      const data = await response.json()
 
       if (response.ok) {
-        console.log("data", data);
-        setSearchResults(data.artists);
-        dispatch({ type: 'UPDATE_ARTIST_INFO', payload: data.artists[0] });
-        //
+        setSearchResults(data.artists)
       } else {
-        console.error('Search failed:', data.error);
+        console.error('Search failed:', data.error)
       }
     } catch (error) {
-      console.error('Search error:', error);
+      console.error('Search error:', error)
     } finally {
-      setIsSearching(false);
+      setIsSearching(false)
     }
-  }, 300);
+  }, 300)
 
   useEffect(() => {
-    searchSpotify(searchQuery);
-  }, [searchQuery]);
+    searchSpotify(searchQuery)
+  }, [searchQuery])
+
+  const handleArtistSelect = (artist: SpotifyArtist) => {
+    dispatch({ type: 'SELECT_ARTIST', payload: artist })
+    setSearchQuery('')
+    setSearchResults([])
+  }
 
   return (
     <Card className="flex-1">
@@ -79,7 +71,7 @@ export function ArtistSearch({ onArtistSelect }: ArtistListCardProps) {
             {searchResults.map((artist) => (
               <div
                 key={artist.spotifyId}
-                onClick={() => {onArtistSelect?.(artist); setSearchQuery(''); setSearchResults([]);}}
+                onClick={() => handleArtistSelect(artist)}
                 className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
               >
                 {artist.imageUrl && (
@@ -111,5 +103,5 @@ export function ArtistSearch({ onArtistSelect }: ArtistListCardProps) {
         ) : null}
       </CardContent>
     </Card>
-  );
+  )
 }

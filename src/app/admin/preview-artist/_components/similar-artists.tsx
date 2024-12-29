@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Card, CardTitle, CardHeader, CardDescription } from '@/components/ui/card'
+import { Card, CardTitle, CardHeader, CardDescription, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useArtistFormStore } from '@/stores/artist-form-store'
-// import { SimilarArtist } from '@/validations/artist-form-schema'
 import { BasicArtistInfo, SimilarArtist } from '@/types'
 import { Button } from '@/components/ui/button'
+import { RefreshCw, Music2 } from 'lucide-react'
+
 interface SimilarArtistsProps {
   artist: BasicArtistInfo
 }
@@ -38,77 +39,141 @@ export function SimilarArtists({ artist }: SimilarArtistsProps) {
   }, [artist.name, dispatch])
 
   if (isLoading) {
-    return <div className="p-4">Loading similar artists...</div>
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Music2 className="h-5 w-5" />
+            Similar Artists
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-[400px] text-muted-foreground">
+            Loading similar artists...
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   if (error) {
-    return <div className="p-4 text-red-500">{error}</div>
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Music2 className="h-5 w-5" />
+            Similar Artists
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-[400px] text-red-500">
+            {error}
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
-
   return (
-    <Card className="mt-4 flex-grow">
+    <Card className="mt-4">
       <CardHeader>
-        <CardTitle>Similar Artists</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Music2 className="h-5 w-5" />
+            Similar Artists
+          </CardTitle>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => refreshSimilarArtists(artist.name)}
+            className="h-8"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
         <CardDescription>
-          <Button onClick={() => refreshSimilarArtists(artist.name)}>Refresh</Button>
+          Select artists that are similar to {artist.name}
         </CardDescription>
       </CardHeader>
-      {
-        !artistList.length && (
-          <div className="p-4">No similar artists found</div>
-        )
-      }
-      <ScrollArea className="h-[500px] rounded-md border">
-        <div className="p-4">
-          {artistList.map((similarArtist: any) => (
-            <Card key={similarArtist.id} className="p-3 mb-3">
-              <div className="flex gap-3">
-                <div className="flex items-center">
-                  <Checkbox
-                    checked={similarArtist.selected}
-                    onCheckedChange={(checked) => {
-                      dispatch({
-                        type: 'UPDATE_SIMILAR_ARTIST_SELECTION',
-                        payload: {
-                          ...similarArtist,
-                          selected: checked as boolean
-                        }
-                      })
-                    }}
-                  />
-                </div>
-                {similarArtist.imageUrl && (
-                  <div className="flex-shrink-0">
-                    <Image
-                      src={similarArtist.imageUrl}
-                      alt={similarArtist.name}
-                      width={48}
-                      height={48}
-                      className="rounded-full"
-                    />
-                  </div>
-                )}
-                <div className="flex-grow">
-                  <h5 className="font-medium text-sm">{similarArtist.name}</h5>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {similarArtist.genres?.slice(0, 2).map((genre: string) => (
-                      <Badge key={genre} variant="secondary" className="text-xs">
-                        {genre}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex gap-2 mt-1 text-xs text-gray-500">
-                    {similarArtist.match && (
-                      <span>Match: {Math.round(similarArtist.match * 100)}%</span>
+      <CardContent className="p-0">
+        {!artistList.length ? (
+          <div className="flex items-center justify-center h-[400px] text-muted-foreground">
+            No similar artists found
+          </div>
+        ) : (
+          <ScrollArea className="h-[500px] rounded-md">
+            <div className="p-4 grid gap-3">
+              {artistList.map((similarArtist: any) => (
+                <Card 
+                  key={similarArtist.id} 
+                  className={`p-4 transition-colors hover:bg-accent/50 ${
+                    similarArtist.selected ? 'bg-accent' : ''
+                  }`}
+                >
+                  <div className="flex gap-4">
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={similarArtist.selected}
+                        onCheckedChange={(checked) => {
+                          dispatch({
+                            type: 'UPDATE_SIMILAR_ARTIST_SELECTION',
+                            payload: {
+                              ...similarArtist,
+                              selected: checked as boolean
+                            }
+                          })
+                        }}
+                      />
+                    </div>
+                    {similarArtist.imageUrl ? (
+                      <div className="relative h-12 w-12 flex-shrink-0">
+                        <Image
+                          src={similarArtist.imageUrl}
+                          alt={similarArtist.name}
+                          fill
+                          className="rounded-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-12 w-12 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                        <Music2 className="h-6 w-6 text-muted-foreground" />
+                      </div>
                     )}
+                    <div className="flex-grow min-w-0">
+                      <h5 className="font-medium text-sm truncate">{similarArtist.name}</h5>
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {similarArtist.genres?.slice(0, 3).map((genre: string) => (
+                          <Badge 
+                            key={genre} 
+                            variant="secondary" 
+                            className="text-xs px-2 py-0.5"
+                          >
+                            {genre}
+                          </Badge>
+                        ))}
+                      </div>
+                      {similarArtist.match && (
+                        <div className="mt-2">
+                          <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden">
+                            <div 
+                              className="bg-primary h-full rounded-full transition-all"
+                              style={{ width: `${Math.round(similarArtist.match * 100)}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {Math.round(similarArtist.match * 100)}% match
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </ScrollArea>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+      </CardContent>
     </Card>
   )
 } 

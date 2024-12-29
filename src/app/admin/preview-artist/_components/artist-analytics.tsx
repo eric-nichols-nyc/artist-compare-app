@@ -36,7 +36,7 @@ export function ArtistAnalytics() {
   return (
     <div className="mt-4">
       <h4 className="font-semibold mb-3">Platform Analytics</h4>
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <SpotifyAnalytics analytics={analytics} />
         <YoutubeAnalytics 
           analytics={analytics}
