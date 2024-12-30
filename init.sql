@@ -1,4 +1,4 @@
--- Only create role if it doesn't exist
+-- Create roles
 DO $$ 
 BEGIN
   CREATE ROLE supabase_admin;
@@ -7,10 +7,10 @@ BEGIN
 END
 $$;
 
--- Make sure the role has the right permissions
 ALTER ROLE supabase_admin WITH SUPERUSER CREATEDB CREATEROLE;
 
--- Now create extensions
+-- Create extensions
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+CREATE EXTENSION IF NOT EXISTS vector;
 
 -- Add any other initialization SQL here
