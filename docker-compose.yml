@@ -2,7 +2,7 @@ version: '3.8'
 services:
   web:
     env_file:
-      - .env
+      - .env.local
     build:
       context: .
     ports:
@@ -10,33 +10,36 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres?schema=public
       - NODE_ENV=development
-    depends_on:
-      postgres:
-        condition: service_healthy
-      kong:
-        condition: service_started
+    #depends_on:
+      # postgres:
+      #   condition: service_healthy
     volumes:
       - .:/app
       - /app/node_modules
       - /app/.next
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        while ! nc -z -v postgres 5432; do
+          echo 'Waiting for postgres...'
+          sleep 5
+        done &&
+        echo 'Database is ready!' &&
+        echo 'Starting development server...' &&
+        npm run dev
+      "
+    restart: unless-stopped
 
   postgres:
-    image: supabase/postgres:15.1.1.13
-    command: >
-      postgres 
-      -c shared_preload_libraries=vectors.so
+    image: supabase/postgres:15.1.0.148
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=en"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -45,15 +48,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   studio:
     image: supabase/studio:latest
     ports:
       - "3001:3000"
     environment:
-      SUPABASE_URL: http://127.0.0.1:54321
+      SUPABASE_URL: http://kong:8000
       STUDIO_PG_META_URL: http://meta:8080
-      POSTGRES_PASSWORD: postgres
+      SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+      SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU"
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: postgres
+      PG_META_DB_PASSWORD: postgres
 
   kong:
     image: kong:2.1

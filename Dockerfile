@@ -2,6 +2,10 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Add necessary build tools and dependencies for npm install
+RUN apk add --no-cache python3 make g++ \
+    && rm -rf /var/cache/apk/*
+
 COPY package*.json ./
 COPY prisma ./prisma/
 
@@ -40,7 +44,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_SHARP_PATH=/tmp/node_modules/sharp
 ENV OUTPUT_STANDALONE=true
 
-RUN npm install
+# Install dependencies with cleanup
+RUN npm install --production=false \
+    && npm cache clean --force \
+    && rm -rf /root/.npm/_cacache
+
+# Generate Prisma client
 RUN npx prisma generate
 
 COPY . .
