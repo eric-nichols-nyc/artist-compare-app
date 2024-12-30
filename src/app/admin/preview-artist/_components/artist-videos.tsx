@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { SpotifyArtist } from '@/types'
@@ -55,6 +55,7 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
     try {
       const content = await file.text()
       const jsonData = JSON.parse(content)
+      console.log(jsonData)
       // Add logic to process and validate JSON data
       // Update videos in store
     } catch (error) {

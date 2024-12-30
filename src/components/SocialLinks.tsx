@@ -26,7 +26,7 @@ const SOCIAL_PLATFORMS = [
   { 
     platform: 'Spotify', 
     urlTemplate: 'https://open.spotify.com/artist/{id}',
-    icon: '/public/images/spotify.svg'
+    icon: ExternalLink
   },
   { 
     platform: 'Instagram', 

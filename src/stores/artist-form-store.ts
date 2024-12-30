@@ -1,5 +1,11 @@
 import { create } from 'zustand'
-import { ArtistFormState, FormAction, SpotifyArtist } from '@/types'
+import { 
+  ArtistFormState, 
+  FormAction, 
+  SpotifyArtist, 
+  ArtistInfo,
+  Analytics 
+} from '@/types'
 
 interface ArtistFormStore extends ArtistFormState {
   selectedArtists: SpotifyArtist[];
@@ -9,7 +15,7 @@ interface ArtistFormStore extends ArtistFormState {
   refreshSimilarArtists: (artistName: string) => Promise<void>;
 }
 
-const initialState = {
+const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 'refreshYoutubeAnalytics' | 'refreshSimilarArtists'> = {
   selectedArtists: [],
   artistInfo: {
     name: '',
@@ -57,9 +63,26 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
   dispatch: (action: FormAction) => {
     switch (action.type) {
       case 'SELECT_ARTIST':
-        set((state) => ({
-         ...state,
-        }));
+        if ('followers' in action.payload) {
+          // Handle SpotifyArtist
+          set((state) => ({
+            ...state,
+            selectedArtists: [...state.selectedArtists, action.payload as SpotifyArtist],
+            artistInfo: {
+              ...state.artistInfo,
+              name: action.payload.name || '',
+              imageUrl: action.payload.imageUrl || '',
+              genres: action.payload.genres || [],
+              spotifyId: action.payload.spotifyId || null,
+              spotifyUrl: action.payload.spotifyId ? `https://open.spotify.com/artist/${action.payload.spotifyId}` : null,
+            },
+            analytics: {
+              ...state.analytics,
+              spotifyFollowers: action.payload.followers,
+              spotifyPopularity: action.payload.popularity,
+            }
+          }));
+        }
         break;
 
       case 'CANCEL_ARTIST_SELECTION':
@@ -74,6 +97,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
 
       case 'UPDATE_ARTIST_INFO':
         set((state) => ({
+          ...state,
           artistInfo: {
             ...state.artistInfo,
             ...action.payload,
@@ -82,6 +106,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
         break;
       case 'UPDATE_ANALYTICS':
         set((state) => ({
+          ...state,
           analytics: {
             ...state.analytics,
             ...action.payload,
@@ -89,22 +114,37 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
         }));
         break;
       case 'UPDATE_YOUTUBE_VIDEOS':
-        set({ youtubeVideos: action.payload });
+        set((state) => ({
+          ...state,
+          youtubeVideos: action.payload,
+        }));
         break;
       case 'UPDATE_SPOTIFY_TRACKS':
-        set({ spotifyTracks: action.payload });
+        set((state) => ({
+          ...state,
+          spotifyTracks: action.payload,
+        }));
         break;
       case 'UPDATE_SIMILAR_ARTIST_SELECTION':
-        set({ similarArtists: action.payload });
+        set((state) => ({
+          ...state,
+          similarArtists: action.payload,
+        }));
         break;
       case 'SET_SUBMITTING':
-        set({ isSubmitting: action.payload });
+        set((state) => ({
+          ...state,
+          isSubmitting: action.payload,
+        }));
         break;
       case 'SET_ERRORS':
-        set({ errors: action.payload });
+        set((state) => ({
+          ...state,
+          errors: action.payload,
+        }));
         break;
       case 'RESET_FORM':
-        set(get()); // Reset to initial state
+        set(initialState);
         break;
     }
   },

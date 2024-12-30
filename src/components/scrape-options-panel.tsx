@@ -8,7 +8,7 @@ import Image from "next/image";
 
 interface ScrapeOptionsPanelProps {
   artistName: string;
-  spotifyId: string;
+  spotifyId: string | null | undefined;
   youtubeChannelId?: string | null;
   variant?: 'default' | 'compact';
 }
