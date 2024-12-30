@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 import { unstable_cache } from 'next/cache';
 import { YoutubeChannelInfo, YoutubeVideoStatistics } from '@/types';
 import { YoutubeVideo } from '@/validations/artist-form-schema';
+
 if (!process.env.NEXT_PUBLIC_YOUTUBE_API) {
     throw new Error('Missing YOUTUBE_API_KEY environment variable');
 }

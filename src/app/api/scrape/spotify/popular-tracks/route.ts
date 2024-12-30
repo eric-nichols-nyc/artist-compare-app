@@ -11,7 +11,7 @@ export const GET = async () => {
     let browser = null;
     try {
       // Add natural delay before starting
-      await delay();
+      // await delay();
 
       // Launch browser with stealth options
       browser = await chromium.launch({

@@ -4,8 +4,8 @@ import { Database } from '@/types';
 
 // Initialize environment variables
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const SUPABASE_URL = process.env.SUPABASE_URL!;
-const SUPABASE_KEY = process.env.SUPABASE_KEY!;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
 
 if (!OPENAI_API_KEY || !SUPABASE_URL || !SUPABASE_KEY) {
     throw new Error('Missing required environment variables');

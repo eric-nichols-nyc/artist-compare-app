@@ -4,8 +4,8 @@ import { Database } from '../../../../types';
 import { NextResponse } from 'next/server';
 
 const supabase = createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_KEY!
 );
 
 export async function GET(

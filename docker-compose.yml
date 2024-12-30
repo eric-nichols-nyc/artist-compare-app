@@ -1,29 +1,79 @@
 version: '3.8'
 services:
   web:
-    build: .
+    env_file:
+      - .env
+    build:
+      context: .
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mydb?schema=public
-      - GOOGLE_GEMINI_API_KEY=${GOOGLE_GEMINI_API_KEY}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres?schema=public
+      - NODE_ENV=development
     depends_on:
-      - db
+      postgres:
+        condition: service_healthy
+      kong:
+        condition: service_started
     volumes:
       - .:/app
       - /app/node_modules
       - /app/.next
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  db:
-    image: postgres:15
+  postgres:
+    image: supabase/postgres:15.1.1.13
+    command: >
+      postgres 
+      -c shared_preload_libraries=vectors.so
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=mydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  studio:
+    image: supabase/studio:latest
+    ports:
+      - "3001:3000"
+    environment:
+      SUPABASE_URL: http://127.0.0.1:54321
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: postgres
+
+  kong:
+    image: kong:2.1
+    ports:
+      - "8000:8000/tcp"
+      - "8443:8443/tcp"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl
+    volumes:
+      - ./kong.yml:/var/lib/kong/kong.yml
+
+  meta:
+    image: supabase/postgres-meta:v0.85.0
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: postgres
+      PG_META_DB_PASSWORD: postgres
 
 volumes:
   postgres_data:

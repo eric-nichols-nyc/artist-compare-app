@@ -3,8 +3,6 @@ import {
   ArtistFormState, 
   FormAction, 
   SpotifyArtist, 
-  ArtistInfo,
-  Analytics 
 } from '@/types'
 
 interface ArtistFormStore extends ArtistFormState {
