@@ -75,6 +75,8 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
               genres: action.payload.genres || [],
               spotifyId: action.payload.spotifyId || null,
               spotifyUrl: action.payload.spotifyId ? `https://open.spotify.com/artist/${action.payload.spotifyId}` : null,
+              youtubeChannelId: null, // Will be updated later via API
+              youtubeUrl: null, // Will be updated when youtubeChannelId is available
             },
             analytics: {
               ...state.analytics,
@@ -101,6 +103,9 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
           artistInfo: {
             ...state.artistInfo,
             ...action.payload,
+            youtubeUrl: action.payload.youtubeChannelId 
+              ? `https://youtube.com/channel/${action.payload.youtubeChannelId}`
+              : state.artistInfo.youtubeUrl,
           },
         }));
         break;

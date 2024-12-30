@@ -16,7 +16,14 @@ interface ArtistHeaderProps {
 }
 
 export function ArtistHeader({ artist }: ArtistHeaderProps) {
-  const { artistInfo } = useArtistFormStore()
+  const { artistInfo, dispatch } = useArtistFormStore()
+
+  const handleSocialLinkChange = (field: keyof ArtistInfo, value: string | null) => {
+    dispatch({
+      type: 'UPDATE_ARTIST_INFO',
+      payload: { [field]: value }
+    });
+  };
 
   return (
     <Card className="p-6">
@@ -72,6 +79,28 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-3">Social Links</h3>
+            <div className="space-y-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Spotify ID</label>
+                <input
+                  type="text"
+                  value={artistInfo.spotifyId || ''}
+                  onChange={(e) => handleSocialLinkChange('spotifyId', e.target.value)}
+                  className="w-full p-2 border rounded"
+                  placeholder="Enter Spotify ID"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">YouTube Channel ID</label>
+                <input
+                  type="text"
+                  value={artistInfo.youtubeChannelId || ''}
+                  onChange={(e) => handleSocialLinkChange('youtubeChannelId', e.target.value)}
+                  className="w-full p-2 border rounded"
+                  placeholder="Enter YouTube Channel ID"
+                />
+              </div>
+            </div>
             <SocialLinks 
               artist={artist} 
               onChange={(links) => {
