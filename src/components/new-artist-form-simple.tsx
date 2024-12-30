@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Loader2, Search, Music, ExternalLink, RefreshCw } from "lucide-react"
+import { useState } from "react"
+import { Loader2, Search, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card"
-import type { PreviewArtistResponse } from "@/types/api"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function NewArtistFormSimple() {

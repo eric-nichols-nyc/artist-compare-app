@@ -74,13 +74,7 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
         <CardTitle>Top Videos</CardTitle>
         <div className="flex items-center gap-2">
           <DataSourceSelector
-            options={[
-              { value: 'youtube', label: 'YouTube API' },
-              { value: 'viberate', label: 'Viberate' },
-              { value: 'json', label: 'JSON' }
-            ]}
-            value={selectedSource}
-            onChange={(value) => handleSourceChange(value as VideoSource)}
+            type="videos"
           />
           
           {selectedSource === 'json' ? (

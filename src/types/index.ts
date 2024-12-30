@@ -381,7 +381,7 @@ export interface ArtistFormState {
 
 export type FormAction =
   | { type: 'UPDATE_ARTIST_INFO'; payload: Partial<ArtistInfo> }
-  | { type: 'SELECT_ARTIST'; payload: SpotifyArtist | Partial<ArtistInfo> }
+  | { type: 'SELECT_ARTIST'; payload: SpotifyArtist }
   | { type: 'UPDATE_ANALYTICS'; payload: Partial<Analytics> }
   | { type: 'UPDATE_YOUTUBE_VIDEOS'; payload: YoutubeVideo[] }
   | { type: 'UPDATE_SPOTIFY_TRACKS'; payload: SpotifyTrack[] }
