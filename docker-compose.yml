@@ -10,9 +10,9 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres?schema=public
       - NODE_ENV=development
-    #depends_on:
-      # postgres:
-      #   condition: service_healthy
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - .:/app
       - /app/node_modules
@@ -32,13 +32,17 @@ services:
 
   postgres:
     image: ankane/pgvector:latest
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_stat_statements,vector
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.max=10000
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
-      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=en"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
