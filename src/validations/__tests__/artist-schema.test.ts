@@ -18,9 +18,40 @@ describe('artistSchema', () => {
       spotifyUrl: "https://open.spotify.com/artist/123",
       tiktokUrl: null,
       instagramUrl: "https://instagram.com/taylorswift",
+      viberateUrl: null,
     }
 
     const result = artistSchema.safeParse(validArtist)
+    if (!result.success) {
+      console.log('Valid artist validation failed:', result.error.format())
+    }
+    expect(result.success).toBe(true)
+  })
+
+  it('allows null values for optional fields', () => {
+    const artistWithNulls = {
+      name: "Taylor Swift",
+      genres: ["pop"],
+      bio: null,
+      spotifyId: null,
+      musicbrainzId: null,
+      youtubeChannelId: null,
+      gender: null,
+      country: null,
+      age: null,
+      imageUrl: null,
+      youtubeUrl: null,
+      spotifyUrl: null,
+      tiktokUrl: null,
+      instagramUrl: null,
+      viberateUrl: null,
+    }
+
+    console.log('Testing artist with nulls:', artistWithNulls)
+    const result = artistSchema.safeParse(artistWithNulls)
+    if (!result.success) {
+      console.log('Validation errors:', result.error.format())
+    }
     expect(result.success).toBe(true)
   })
 
@@ -46,27 +77,5 @@ describe('artistSchema', () => {
         })
       )
     }
-  })
-
-  it('allows null values for optional fields', () => {
-    const artistWithNulls = {
-      name: "Taylor Swift",
-      genres: ["pop"],
-      spotifyId: null,
-      musicbrainzId: null,
-      youtubeChannelId: null,
-      bio: null,
-      gender: null,
-      country: null,
-      age: null,
-      imageUrl: null,
-      youtubeUrl: null,
-      spotifyUrl: null,
-      tiktokUrl: null,
-      instagramUrl: null,
-    }
-
-    const result = artistSchema.safeParse(artistWithNulls)
-    expect(result.success).toBe(true)
   })
 }) 

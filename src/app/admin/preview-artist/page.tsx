@@ -1,7 +1,7 @@
 "use client";
 
 import { ArtistSearch } from './_components/artist-search'
-import { ArtistCard } from './_components/artist-card'
+import { ArtistCard } from './_components/new-artist-card'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 
 export default function PreviewArtistPage() {

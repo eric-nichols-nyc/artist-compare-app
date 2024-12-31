@@ -1,21 +1,22 @@
 import { create } from 'zustand'
 import { 
-  ArtistFormState, 
   FormAction, 
   SpotifyArtist, 
 } from '@/types'
-import { Analytics } from '@/types/analytics' 
+import { ArtistFormFull, Analytics } from '@/validations/artist-schema'
+import { ValidationService } from '@/services/validation-service'
 
-interface ArtistFormStore extends ArtistFormState {
+interface ArtistFormStore extends ArtistFormFull {
   selectedArtists: SpotifyArtist[];
   analytics: Analytics;
   dispatch: (action: FormAction) => void;
   refreshYoutubeVideos: (channelId: string) => Promise<void>;
   refreshYoutubeAnalytics: (channelId: string) => Promise<void>;
   refreshSimilarArtists: (artistName: string) => Promise<void>;
+  validateForm: () => Promise<boolean>;  // Add this
 }
 
-const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 'refreshYoutubeAnalytics' | 'refreshSimilarArtists'> = {
+const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 'refreshYoutubeAnalytics' | 'refreshSimilarArtists' | 'validateForm'> = {
   selectedArtists: [],
   artistInfo: {
     name: '',
@@ -32,10 +33,7 @@ const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 
     country: null,
     gender: null,
     viberateUrl: null,
-    activeYears: {
-      begin: null,
-      end: null,
-    },
+    age: null,
   },
   analytics: {
     spotifyMonthlyListeners: null,
@@ -50,8 +48,8 @@ const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 
     tiktokFollowers: null,
     soundcloudFollowers: null,
   },
-  youtubeVideos: [],
-  spotifyTracks: [],
+  videos: [],
+  tracks: [],
   similarArtists: [],
   isSubmitting: false,
   errors: {},
@@ -138,6 +136,8 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
           ...state,
           isSubmitting: action.payload,
         }));
+        get().validateForm()
+        
         break;
       case 'SET_ERRORS':
         set((state) => ({
@@ -151,12 +151,26 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
     }
   },
 
+  validateForm: async () => {
+    const state = get();
+    const result = await ValidationService.validateForm({
+      artistInfo: state.artistInfo,
+      analytics: state.analytics,
+      videos: state.videos,
+      tracks: state.tracks,
+      similarArtists: state.similarArtists
+    });
+    set({ errors: result.errors || {} });
+    console.log('Validation result:', result.isValid)
+    return result.isValid;
+  },
+
   // Custom actions
   refreshYoutubeVideos: async (channelId: string) => {
     try {
       const response = await fetch(`/api/admin/artist-videos?channelId=${encodeURIComponent(channelId)}`);
       const data = await response.json();
-      set({ youtubeVideos: data.videos || [] });
+      set({ videos: data.videos || [] });
     } catch (error) {
       console.error('Error fetching videos:', error);
     }

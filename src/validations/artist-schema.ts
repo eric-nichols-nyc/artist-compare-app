@@ -18,7 +18,7 @@ export interface Analytics {
 
 export interface BasicArtistInfo {
     name: string;
-    spotifyId: string | null | undefined;
+    spotifyId: string | null;
     imageUrl: string | null;
     genres: string[];
 }
@@ -57,10 +57,10 @@ export interface ArtistFull extends BasicArtistInfo {
   export interface SimilarArtist {
     id: string;
     name: string;
-    popularity?: number | null;
+    popularity: number | null;
     imageUrl: string | null;
     genres: string[];
-    match?: number | null;
+    match: number | null;
     selected?: boolean | null;
 }
 // Basic artist info
@@ -144,8 +144,8 @@ export const SimilarArtistSchema = z.object({
   id: z.string(),
   genres: z.array(z.string()),
   match: z.number().nullable(),
-  popularity: z.number().optional(),
-  selected: z.boolean().optional(),
+  popularity: z.number().nullable(),
+  selected: z.boolean().optional().nullable(),
 }) satisfies z.Schema<SimilarArtist>;
 
 export interface ArtistFormFull {

@@ -23,7 +23,7 @@ interface ArtistCardProps {
 export function ArtistCard({ artist }: ArtistCardProps) {
   const isSubmitting = useArtistFormStore(state => state.isSubmitting)
   const dispatch = useArtistFormStore(state => state.dispatch)
-  const artistInfo = useArtistFormStore(state => state.artistInfo)
+  const validateForm = useArtistFormStore()
 
   // Only enable in development
   if (process.env.NODE_ENV === 'development') {
@@ -33,6 +33,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
   const handleSubmitArtist = async () => {
     try {
       dispatch({ type: "SET_SUBMITTING", payload: true });
+      
       // Add your form validation and submission logic here
       console.log("Submitting artist...");
     } catch (error) {

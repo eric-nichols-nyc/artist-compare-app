@@ -1,8 +1,6 @@
 import { artistFormSchema } from "@/validations/artist-form-schema";
-import { ArtistFormState, fullArtistSchema, artistSchema, videoSchema } from "@/validations/artist-schema";
-import { z } from "zod";    
-import { analyticsSchema } from "@/validations/artist-form-schema";
-
+import { ArtistFormState, analyticsSchema, fullArtistSchema, artistSchema, videoSchema } from "@/validations/artist-schema";
+import { z } from "zod";        
 // validate the form and send back boolean and errors
 
 interface ValidationResult {

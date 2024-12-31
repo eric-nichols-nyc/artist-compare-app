@@ -4,7 +4,7 @@ import { SpotifyArtist } from "@/types";
 import {
   ArtistFormProvider,
 } from "@/providers/artist-form-provider";
-import { ArtistCard } from "./artist-card";
+import { ArtistCard } from "./new-artist-card";
 
 interface SearchedhArtistProps {
   selectedArtists: SpotifyArtist[];

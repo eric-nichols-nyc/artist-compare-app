@@ -1,5 +1,6 @@
 import { YoutubeVideo } from "@/validations/artist-form-schema";
 import { Analytics } from "@/types/analytics";
+import { SimilarArtist } from '@/validations/artist-schema';
 export interface Database {
     public: {
         Tables: {
@@ -188,10 +189,7 @@ export interface Database {
     };
 };
 
-export interface SimilarArtist {
-    name: string;
-    match: string;
-}
+export type { SimilarArtist };
 
 export interface LastFmArtistInfo extends Array<SimilarArtist> {}
 
@@ -253,7 +251,7 @@ export interface ArtistIngestionResponse {
 
 export interface BasicArtistInfo {
     name: string;
-    spotifyId: string | null | undefined;
+    spotifyId: string | null;
     imageUrl: string | null;
     genres: string[];
 }
@@ -269,10 +267,7 @@ export interface ArtistInfo extends BasicArtistInfo {
     musicbrainzId: string | null;
     country: string | null;
     gender: string | null;
-    activeYears: {
-        begin: string | null;
-        end: string | null;
-    };
+    age: string | null;
     youtubeChannelId: string | null;
     imageUrl: string | null;
     spotifyUrl: string | null;

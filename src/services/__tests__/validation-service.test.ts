@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { ValidationService } from '../validation-service';
 import { ArtistFormState } from '@/validations/artist-schema';
+import { fullArtistSchema } from '@/validations/artist-schema';
 
 describe('ValidationService', () => {
   it('should validate a valid form submission', async () => {
@@ -59,13 +60,23 @@ describe('ValidationService', () => {
       }]
     };
 
+    console.log('Testing with data:', JSON.stringify(validFormData, null, 2));
+    
+    const parsed = await fullArtistSchema.safeParseAsync(validFormData);
+    if (!parsed.success) {
+      console.log('Schema validation errors:', parsed.error.errors);
+      parsed.error.errors.forEach(error => {
+        console.log(`Error at path ${error.path.join('.')}: ${error.message}`);
+      });
+    }
+
     const result = await ValidationService.validateForm(validFormData);
     expect(result.isValid).toBe(true);
     expect(result.errors).toBeNull();
   });
 
   it('should return validation errors for invalid form data', async () => {
-    const invalidFormData: Partial<ArtistFormState> = {
+    const invalidFormData: ArtistFormState = {
       artistInfo: {
         name: "", // Invalid: empty name
         spotifyId: null,
@@ -83,7 +94,19 @@ describe('ValidationService', () => {
         instagramUrl: null,
         viberateUrl: null
       },
-      analytics: {},
+      analytics: {
+        spotifyFollowers: null,
+        spotifyPopularity: null,
+        spotifyMonthlyListeners: null,
+        youtubeSubscribers: null,
+        youtubeTotalViews: null,
+        lastfmListeners: null,
+        lastfmPlayCount: null,
+        instagramFollowers: null,
+        facebookFollowers: null,
+        tiktokFollowers: null,
+        soundcloudFollowers: null
+      },
       videos: [],
       tracks: [],
       similarArtists: []
