@@ -7,7 +7,7 @@ import { SpotifyArtist } from '@/types'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { useArtistFormStore } from '@/stores/artist-form-store'
-import { SpotifyTrack } from '@/validations/artist-form-schema'
+import { SpotifyTrackInfo } from '@/validations/artist-schema'
 import { Button } from '@/components/ui/button'
 import { ExternalLinkIcon, Music2Icon } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -19,7 +19,7 @@ interface ArtistTracksProps {
 }
 
 export function ArtistTracks({ artist }: ArtistTracksProps) {
-  const { spotifyTracks, dispatch } = useArtistFormStore();
+  const { tracks, dispatch } = useArtistFormStore();
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -46,8 +46,8 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
   }
 
   const handleStreamUpdate = (trackId: string, streams: string) => {
-    const updatedTracks = spotifyTracks.map(track => 
-      track.id === trackId 
+    const updatedTracks = tracks.map(track => 
+      track.trackId === trackId 
         ? { ...track, spotifyStreams: streams ? parseInt(streams) : null }
         : track
     );
@@ -62,7 +62,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
     return <div className="p-4 text-red-500">{error}</div>
   }
 
-  if (!spotifyTracks.length) {
+  if (!tracks.length) {
     return <div className="p-4">No tracks available</div>
   }
 
@@ -73,13 +73,13 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
         <h4 className="font-semibold mb-3 p-2">Top Tracks</h4>
         <ScrollArea className="h-[600px] rounded-md border">
           <div className="p-4">
-            {spotifyTracks.map((track: SpotifyTrack, index:number) => (
-              <Card key={track.id} className="p-4 mb-4">
+            {tracks.map((track: SpotifyTrackInfo) => (
+              <Card key={track.trackId} className="p-4 mb-4">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0">
-                    {track.imageUrl ? (
+                    {track.albumImageUrl ? (
                       <Image
-                        src={track.imageUrl}
+                        src={track.albumImageUrl}
                         alt={track.name}
                         width={80}
                         height={80}
@@ -94,7 +94,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
                   <div className="flex-grow space-y-3">
                     <div>
                       <h5 className="font-medium text-sm">{track.name}</h5>
-                      <div className="text-xs text-gray-500">ID: {track.id}</div>
+                      <div className="text-xs text-gray-500">ID: {track.trackId}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -108,7 +108,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
                         <Input
                           type="text"
                           value={track.spotifyStreams?.toString() || ''}
-                          onChange={(e) => handleStreamUpdate(track.id, e.target.value)}
+                          onChange={(e) => handleStreamUpdate(track.trackId, e.target.value)}
                           className="h-8 text-sm"
                           placeholder="Enter streams"
                         />

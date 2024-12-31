@@ -46,6 +46,7 @@ describe('ValidationService', () => {
         platform: "spotify",
         popularity: 80,
         previewUrl: "https://example.com/preview",
+        externalUrl: "https://example.com/track",
         albumImageUrl: "https://example.com/album.jpg",
         spotifyStreams: 1000000
       }],

@@ -17,7 +17,7 @@ interface ArtistVideosProps {
 type VideoSource = 'youtube' | 'viberate' | 'json'
 
 export function ArtistVideos({ artist }: ArtistVideosProps) {
-  const { youtubeVideos, refreshYoutubeVideos, artistInfo } = useArtistFormStore()
+  const { videos, refreshYoutubeVideos, artistInfo } = useArtistFormStore()
   const [selectedSource, setSelectedSource] = useState<VideoSource>('youtube')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -110,19 +110,19 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
 
       {isLoading ? (
         <div className="p-4">Loading videos...</div>
-      ) : !youtubeVideos.length ? (
+      ) : !videos.length ? (
         <div className="p-4">No videos available</div>
       ) : (
         <ScrollArea className="h-[600px] rounded-md border">
           <div className="p-4">
-            {youtubeVideos.map((video) => (
+            {videos.map((video) => (
               <Card key={video.videoId} className="p-3 mb-4">
                 <div className="flex gap-3">
                   {video.thumbnail && (
                     <div className="flex-shrink-0">
                       <Image
                         src={video.thumbnail}
-                        alt={video.title || ''}
+                        alt={video.name || ''}
                         width={120}
                         height={68}
                         className="rounded"
@@ -130,10 +130,10 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
                     </div>
                   )}
                   <div className="flex-grow">
-                    <h5 className="font-medium text-sm line-clamp-2">{video.title}</h5>
+                    <h5 className="font-medium text-sm line-clamp-2">{video.name}</h5>
                     <div className="flex gap-4 mt-2 text-sm text-gray-500">
-                      <span>{formatNumber(video.statistics.viewCount)} views</span>
-                      <span>{formatNumber(video.statistics.likeCount)} likes</span>
+                      <span>{formatNumber(video.viewCount)} views</span>
+                      <span>{formatNumber(video.likeCount)} likes</span>
                     </div>
                   </div>
                 </div>

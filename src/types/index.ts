@@ -287,6 +287,7 @@ export interface SpotifyTrack {
     previewUrl: string | null;
     albumImageUrl: string | null;
     spotifyStreams: number | null;
+    externalUrl: string | null;
   }
   
 
