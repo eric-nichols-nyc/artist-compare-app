@@ -1,6 +1,5 @@
 import { ArtistTopTrack, ArtistVideo, ArtistSimilarity } from "@prisma/client";
 import { Analytics } from "@/validations/artist-form-schema";
-
 import { ArtistInfo } from "@/validations/artist-form-schema";
 
 
