@@ -3,11 +3,12 @@ import {
   ArtistFormState, 
   FormAction, 
   SpotifyArtist, 
-  Analytics 
 } from '@/types'
+import { Analytics } from '@/types/analytics' 
 
 interface ArtistFormStore extends ArtistFormState {
   selectedArtists: SpotifyArtist[];
+  analytics: Analytics;
   dispatch: (action: FormAction) => void;
   refreshYoutubeVideos: (channelId: string) => Promise<void>;
   refreshYoutubeAnalytics: (channelId: string) => Promise<void>;
@@ -61,9 +62,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
 
   dispatch: (action: FormAction) => {
     switch (action.type) {
-      case 'SELECT_ARTIST':
-        if ('followers' in action.payload) {
-          // Handle SpotifyArtist
+      case 'SELECT_ARTIST':          // Handle SpotifyArtist
           set((state) => ({
             ...state,
             selectedArtists: [...state.selectedArtists, action.payload as SpotifyArtist],
@@ -79,11 +78,10 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
             },
             analytics: {
               ...state.analytics,
-              spotifyFollowers: action.payload.followers,
-              spotifyPopularity: action.payload.popularity,
+              spotifyFollowers: action.payload.followers || null,
+              spotifyPopularity: action.payload.popularity ||  null,
             }
           }));
-        }
         break;
 
       case 'CANCEL_ARTIST_SELECTION':

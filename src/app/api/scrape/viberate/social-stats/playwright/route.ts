@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { chromium } from 'playwright';
 import { useScrapedDataStore } from '@/stores/scraped-data-store'
@@ -25,141 +26,166 @@ function parseFollowerCount(count: string | null | undefined): number | undefine
   return number * multiplier;
 }
 
-export const GET = async (req: Request) => {
-  const {searchParams} = new URL(req.url)
-  const artistName = searchParams.get('artistName')
+// Cache key generator function
+const getViberateCacheKey = (artistName: string) => `viberate-${artistName}`;
 
-  if(!artistName){
+// Wrap the scraping logic in a cached function
+const getViberateData = unstable_cache(
+  async (artistName: string) => {
+    let browser = null;
+
+    try {
+      await delay();
+      
+      browser = await chromium.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--disable-gpu',
+          '--lang=en-US,en'
+        ]
+      });
+
+      const context = await browser.newContext({
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        viewport: { width: 1920, height: 1080 },
+        locale: 'en-US',
+        deviceScaleFactor: 1,
+        isMobile: false,
+      });
+      const page = await context.newPage();
+      await page.goto(`https://www.viberate.com/artist/${artistName}`, { waitUntil: 'networkidle' });
+      await page.waitForTimeout(3000);
+      const socialStats = await page.evaluate(() => {
+        // gets all the li elements in the class .header-stats   
+          const socialStats = document.querySelectorAll('.header-socials li');
+          return Array.from(socialStats).map(li => ({
+            // select the fourth class of the li element
+            platform: li.querySelector('div')?.className.split(' ')[3],
+            followers: li.querySelector('strong')?.textContent
+          }));
+      });
+
+      // Parse social stats into structured data
+      const parsedStats = {
+        facebook: undefined,
+        instagram: undefined,
+        youtube: undefined,
+        spotify: undefined,
+        tiktok: undefined,
+        soundcloud: undefined
+      };
+
+      socialStats.forEach(stat => {
+        if (!stat.platform || !stat.followers) return;
+        
+        // Map Viberate's class names to our platform names
+        const platformMap: Record<string, keyof typeof parsedStats> = {
+          'facebook': 'facebook',
+          'instagram': 'instagram',
+          'youtube': 'youtube',
+          'spotify': 'spotify',
+          'tiktok': 'tiktok',
+          'soundcloud': 'soundcloud'
+        };
+
+        const platform = platformMap[stat.platform];
+        if (platform) {
+          parsedStats[platform] = parseFollowerCount(stat.followers);
+        }
+      });
+
+      // click View Top Songs
+      await page.click('.pro-section-channel-top-tracks a');
+      // wait for .chart-module.spotify
+      await page.waitForSelector('.chart-module.spotify');
+
+      // consol loge the content of the page
+
+      const topSongs = await page.evaluate(() => {
+        return Array.from(document.querySelectorAll('.chart-module.spotify tbody tr')).map(row => ({
+          title: row?.querySelector('h3 a')?.textContent,
+          imageUrl: row?.querySelector('figure')?.style?.backgroundImage
+            ?.replace('url("', '')
+            .replace('")', ''),
+          monthlyStreams: row.querySelectorAll('.stats strong')[0].textContent,
+          totalStreams: row.querySelectorAll('.stats strong')[1].textContent,
+          spotifyUrl: row?.querySelector('h3 a')?.getAttribute('href')
+        }));
+      });
+
+      // scroll 300px
+      await page.evaluate(() => {
+        window.scrollBy(0, 1000);
+      }); 
+
+      await page.waitForSelector('.chart-module.youtube');
+
+      const topVideos = await page.evaluate(() => {
+        return Array.from(document.querySelectorAll('.chart-module.youtube tbody tr')).map(row => ({
+          title: row?.querySelector('h3 a')?.textContent,
+          imageUrl: row?.querySelector('figure')?.style?.backgroundImage
+            ?.replace('url("', '')
+            .replace('")', ''),
+          monthlyStreams: row.querySelectorAll('.stats strong')[0].textContent,
+          totalStreams: row.querySelectorAll('.stats strong')[1].textContent,
+          youtubeUrl: row?.querySelector('h3 a')?.getAttribute('href')
+        }));
+      });
+
+
+      // Optionally, you can grab the result after submitting
+      console.log('socialStats   ======= ', {socialStats, topSongs, topVideos}); 
+      //console.log(content);
+      await browser.close();
+
+      // Store the scraped data
+      useScrapedDataStore.getState().setViberateVideos(topVideos)
+      useScrapedDataStore.getState().setViberateTracks(topSongs)
+      useScrapedDataStore.getState().setSocialStats(parsedStats)
+
+      return { 
+        socialStats: parsedStats, 
+        topSongs, 
+        topVideos 
+      };
+    } finally {
+      if (browser) {
+        await browser.close();
+      }
+    }
+  },
+  // Cache key configuration
+  [getViberateCacheKey],
+  {
+    revalidate: 86400, // Cache for 24 hours
+    tags: ['viberate-data'], // Optional: for manual revalidation
+  }
+);
+
+export const GET = async (req: Request) => {
+  const {searchParams} = new URL(req.url);
+  const artistName = searchParams.get('artistName');
+
+  if(!artistName) {
     return NextResponse.json({ error: 'Artist name is required' }, { status: 400 });
   }
 
-  let browser = null;
-
   try {
-    await delay();
-
-    // Launch browser with stealth options
-    browser = await chromium.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--disable-gpu',
-        '--lang=en-US,en'
-      ]
-    });    
-    
-    const context = await browser.newContext({
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      viewport: { width: 1920, height: 1080 },
-      locale: 'en-US',
-      deviceScaleFactor: 1,
-      isMobile: false,
-    });
-    const page = await context.newPage();
-    await page.goto(`https://www.viberate.com/artist/${artistName}`, { waitUntil: 'networkidle' });
-    await page.waitForTimeout(3000);
-    const socialStats = await page.evaluate(() => {
-      // gets all the li elements in the class .header-stats   
-        const socialStats = document.querySelectorAll('.header-socials li');
-        return Array.from(socialStats).map(li => ({
-          // select the fourth class of the li element
-          platform: li.querySelector('div')?.className.split(' ')[3],
-          followers: li.querySelector('strong')?.textContent
-        }));
-    });
-
-    // Parse social stats into structured data
-    const parsedStats = {
-      facebook: undefined,
-      instagram: undefined,
-      youtube: undefined,
-      spotify: undefined,
-      tiktok: undefined,
-      soundcloud: undefined
-    };
-
-    socialStats.forEach(stat => {
-      if (!stat.platform || !stat.followers) return;
-      
-      // Map Viberate's class names to our platform names
-      const platformMap: Record<string, keyof typeof parsedStats> = {
-        'facebook': 'facebook',
-        'instagram': 'instagram',
-        'youtube': 'youtube',
-        'spotify': 'spotify',
-        'tiktok': 'tiktok',
-        'soundcloud': 'soundcloud'
-      };
-
-      const platform = platformMap[stat.platform];
-      if (platform) {
-        parsedStats[platform] = parseFollowerCount(stat.followers);
-      }
-    });
-
-    // click View Top Songs
-    await page.click('.pro-section-channel-top-tracks a');
-    // wait for .chart-module.spotify
-    await page.waitForSelector('.chart-module.spotify');
-
-    // consol loge the content of the page
-
-    const topSongs = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll('.chart-module.spotify tbody tr')).map(row => ({
-        title: row?.querySelector('h3 a')?.textContent,
-        imageUrl: row?.querySelector('figure')?.style?.backgroundImage
-          ?.replace('url("', '')
-          .replace('")', ''),
-        monthlyStreams: row.querySelectorAll('.stats strong')[0].textContent,
-        totalStreams: row.querySelectorAll('.stats strong')[1].textContent,
-        spotifyUrl: row?.querySelector('h3 a')?.getAttribute('href')
-      }));
-    });
-
-    // scroll 300px
-    await page.evaluate(() => {
-      window.scrollBy(0, 1000);
-    }); 
-
-    await page.waitForSelector('.chart-module.youtube');
-
-    const topVideos = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll('.chart-module.youtube tbody tr')).map(row => ({
-        title: row?.querySelector('h3 a')?.textContent,
-        imageUrl: row?.querySelector('figure')?.style?.backgroundImage
-          ?.replace('url("', '')
-          .replace('")', ''),
-        monthlyStreams: row.querySelectorAll('.stats strong')[0].textContent,
-        totalStreams: row.querySelectorAll('.stats strong')[1].textContent,
-        youtubeUrl: row?.querySelector('h3 a')?.getAttribute('href')
-      }));
-    });
-
-
-    // Optionally, you can grab the result after submitting
-    console.log('socialStats   ======= ', {socialStats, topSongs, topVideos}); 
-    //console.log(content);
-    await browser.close();
+    // Use the cached function
+    const data = await getViberateData(artistName);
 
     // Store the scraped data
-    useScrapedDataStore.getState().setViberateVideos(topVideos)
-    useScrapedDataStore.getState().setViberateTracks(topSongs)
-    useScrapedDataStore.getState().setSocialStats(parsedStats)
+    useScrapedDataStore.getState().setViberateVideos(data.topVideos);
+    useScrapedDataStore.getState().setViberateTracks(data.topSongs);
+    useScrapedDataStore.getState().setSocialStats(data.socialStats);
 
-    return NextResponse.json({ 
-      socialStats: parsedStats, 
-      topSongs, 
-      topVideos 
-    });
+    return NextResponse.json(data);
   } catch (error) {
     console.error('Scraping error:', error);
     return NextResponse.json({ error: 'Failed to scrape data' }, { status: 500 });
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
   }
-}
+};

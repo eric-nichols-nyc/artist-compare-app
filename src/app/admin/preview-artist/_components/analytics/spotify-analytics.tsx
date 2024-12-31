@@ -7,13 +7,10 @@ import { useScrapedDataStore } from "@/stores/scraped-data-store";
 import { parseCompactNumber } from "@/lib/utils/number-format";
 import { useArtistFormStore } from "@/stores/artist-form-store";
 
-interface SpotifyAnalyticsProps {
-  analytics: Analytics;
-}
 
-export function SpotifyAnalytics({ analytics }: SpotifyAnalyticsProps) {
+export function SpotifyAnalytics() {
   const { spotifyTracks } = useScrapedDataStore();
-  const { dispatch } = useArtistFormStore();
+  const { dispatch, analytics } = useArtistFormStore();
 
   const formatNumber = (num: number | null | undefined) => {
     if (!num) return "N/A";
@@ -37,7 +34,7 @@ export function SpotifyAnalytics({ analytics }: SpotifyAnalyticsProps) {
       if (monthlyListeners) {
         dispatch({
           type: 'UPDATE_ANALYTICS',
-          payload: { spotifyMonthlyListeners: monthlyListeners }
+          payload: { spotifyMonthlyListeners: parseInt(monthlyListeners) }
         });
       }
     }

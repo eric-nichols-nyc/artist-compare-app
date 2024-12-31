@@ -91,7 +91,7 @@ export function ArtistSearch() {
                   </div>
                 </div>
                 <div className="text-sm text-gray-500">
-                  {artist.followers.toLocaleString()} followers
+                  {artist.followers?.toLocaleString()} followers
                 </div>
               </div>
             ))}

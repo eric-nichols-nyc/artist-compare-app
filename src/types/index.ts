@@ -1,4 +1,5 @@
 import { YoutubeVideo } from "@/validations/artist-form-schema";
+import { Analytics } from "@/types/analytics";
 export interface Database {
     public: {
         Tables: {
@@ -280,21 +281,7 @@ export interface ArtistInfo extends BasicArtistInfo {
     instagramUrl: string | null;
     viberateUrl: string | null;
   }
-  
 
-export interface Analytics {
-    spotifyMonthlyListeners: number | null;
-    youtubeSubscribers: number | null;
-    youtubeTotalViews: number | null;
-    lastfmListeners: number | null;
-    lastfmPlayCount: number | null;
-    spotifyFollowers: number | null;
-    spotifyPopularity: number | null;
-    instagramFollowers: number | null;
-    facebookFollowers: number | null;
-    tiktokFollowers: number | null;
-    soundcloudFollowers: number | null;
-  }
 
   
 export interface SpotifyTrack {

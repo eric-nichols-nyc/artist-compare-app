@@ -1,13 +1,13 @@
 export interface Analytics {
-  spotifyFollowers?: number;
-  spotifyPopularity?: number;
-  spotifyMonthlyListeners?: number;
-  youtubeSubscribers?: number;
-  youtubeTotalViews?: number;
-  lastfmListeners?: number;
-  lastfmPlayCount?: number;
-  instagramFollowers?: number;
-  facebookFollowers?: number;
-  tiktokFollowers?: number;
-  soundcloudFollowers?: number;
+  spotifyFollowers?: number | null;
+  spotifyPopularity?: number | null;
+  spotifyMonthlyListeners?: number | null;
+  youtubeSubscribers?: number | null;
+  youtubeTotalViews?: number | null;
+  lastfmListeners?: number | null;
+  lastfmPlayCount?: number | null;
+  instagramFollowers?: number | null;
+  facebookFollowers?: number | null;
+  tiktokFollowers?: number | null;
+  soundcloudFollowers?: number | null;
 } 

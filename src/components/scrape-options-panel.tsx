@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-// import { useScrapedDataStore } from "@/stores/scraped-data-store";
+import { useScrapedDataStore } from "@/stores/scraped-data-store";
 import { useArtistFormStore } from "@/stores/artist-form-store";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -28,6 +28,7 @@ export function ScrapeOptionsPanel({
   variant = 'default'
 }: ScrapeOptionsPanelProps) {
   const { artistInfo } = useArtistFormStore();
+  const { setViberateSocialStats } = useScrapedDataStore();
   const [sourceStates, setSourceStates] = useState<Record<Source, SourceState>>(
     {
       viberate: { isLoading: false, error: null, isLoaded: false },
@@ -50,15 +51,20 @@ export function ScrapeOptionsPanel({
     updateSourceState("viberate", { isLoading: true, error: null });
 
     try {
+      const formattedArtistName = artistName
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+
       const response = await fetch(
-        `/api/scrape/viberate/social-stats/playwright?artistName=${encodeURIComponent(
-          artistName
-        )}`
+        `/api/scrape/viberate/social-stats/playwright?artistName=${formattedArtistName}`
       );
       if (!response.ok) throw new Error("Failed to scrape Viberate");
 
       const data = await response.json();
       if (data.error) throw new Error(data.error);
+
+      setViberateSocialStats(data);
 
       updateSourceState("viberate", {
         isLoading: false,

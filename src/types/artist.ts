@@ -1,13 +1,13 @@
-export interface Analytics {
-  spotifyFollowers?: number;
-  spotifyPopularity?: number;
-  spotifyMonthlyListeners?: number;
-  youtubeSubscribers?: number;
-  youtubeTotalViews?: number;
-  lastfmListeners?: number;
-  lastfmPlayCount?: number;
-  instagramFollowers?: number;
-  facebookFollowers?: number;
-  tiktokFollowers?: number;
-  soundcloudFollowers?: number;
-} 
+import { ArtistTopTrack, ArtistVideo, ArtistSimilarity } from "@prisma/client";
+import { Analytics } from "@/validations/artist-form-schema";
+
+import { ArtistInfo } from "@/validations/artist-form-schema";
+
+
+export interface ArtistFormState {
+  artistInfo:   ArtistInfo;
+  analytics: Analytics;
+  videos: ArtistVideo[];
+  tracks: ArtistTopTrack[];
+  similarArtists: ArtistSimilarity[];
+}

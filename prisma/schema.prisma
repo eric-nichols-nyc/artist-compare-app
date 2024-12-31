@@ -12,15 +12,18 @@ model Artist {
   id                String    @id @default(uuid()) @db.Uuid
   name              String
   spotifyId         String?   @unique @map("spotify_id")
-  musicbrainzId          String?   @unique @map("last_fm_id")
+  musicbrainzId     String?   @unique @map("last_fm_id")
   youtubeChannelId  String?   @unique @map("youtube_channel_id")
   bio               String?   @db.Text
   genres            String[]
   gender            String?
   country           String?
-  age          String?
+  age               String?
   imageUrl          String?   @map("image_url") @db.Text
   youtubeUrl        String?   @map("youtube_url") @db.Text
+  spotifyUrl        String?   @map("spotify_url") @db.Text
+  tiktokUrl         String?   @map("tiktok_url") @db.Text
+  instagramUrl      String?   @map("instagram_url") @db.Text
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
@@ -28,7 +31,7 @@ model Artist {
   analytics         ArtistAnalytics[]
   videos           ArtistVideo[]
   geography        ArtistGeography[]
-  topTracks        ArtistTopTrack[]
+  topTracks        ArtistTrack[]
   comparisonsAsArtist1 ArtistComparison[] @relation("Artist1")
   comparisonsAsArtist2 ArtistComparison[] @relation("Artist2")
   similarToArtists ArtistSimilarity[]     @relation("SimilarTo")
@@ -127,7 +130,7 @@ model ArtistSimilarity {
   @@map("artist_similarities")
 }
 
-model ArtistTopTrack {
+model ArtistTrack {
   id              String   @id @default(uuid()) @db.Uuid
   artistId        String   @map("artist_id") @db.Uuid
   platformTrackId String?  @map("platform_track_id")

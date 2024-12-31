@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   web:
+    container_name: artist-compare-web
     env_file:
       - .env.local
     build:
@@ -10,6 +11,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres?schema=public
       - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+      - NEXT_DEVELOPMENT_LOGGING=1
     depends_on:
       postgres:
         condition: service_healthy
@@ -26,9 +29,10 @@ services:
         done &&
         echo 'Database is ready!' &&
         echo 'Starting development server...' &&
-        npm run dev
-      "
+        npm run dev -- -H 0.0.0.0"
     restart: unless-stopped
+    tty: true
+    stdin_open: true
 
   postgres:
     image: ankane/pgvector:latest

@@ -1,6 +1,6 @@
-export const parseCompactNumber = (value: string | number | null): number | null => {
+export const parseCompactNumber = (value: string | null | undefined): number | null => {
   if (value === null || value === "N/A") return null;
-  if (typeof value === "number") return value;
+  if (typeof value === "undefined") return null;
   
   const multipliers: { [key: string]: number } = {
     'K': 1000,

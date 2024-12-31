@@ -2,9 +2,9 @@ import * as z from "zod"
 
 export const artistSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  spotifyId: z.string().nullable().optional(),
+  spotifyId: z.string().min(1, "Spotify ID is required"),
   lastFmId: z.string().nullable().optional(),
-  youtubeChannelId: z.string().nullable().optional(),
+  youtubeChannelId: z.string().min(1, "YouTube Channel ID is required"),
   bio: z.string().nullable().optional(),
   genres: z.array(z.string()).default([]),
   imageUrl: z.string().url().nullable().optional(),
