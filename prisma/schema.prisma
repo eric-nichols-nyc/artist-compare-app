@@ -24,6 +24,7 @@ model Artist {
   spotifyUrl        String?   @map("spotify_url") @db.Text
   tiktokUrl         String?   @map("tiktok_url") @db.Text
   instagramUrl      String?   @map("instagram_url") @db.Text
+  viberateUrl       String?   @map("viberate_url") @db.Text
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 

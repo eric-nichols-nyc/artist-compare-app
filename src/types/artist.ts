@@ -6,5 +6,7 @@ export interface ArtistFormState {
   analytics: Analytics;
   videos: YoutubeVideoInfo[];
   tracks: SpotifyTrackInfo[];
-  similarArtists: ArtistSimilarity[];
+  similarArtists: SimilarArtist[];
+  isSubmitting: boolean;
+  errors: Record<string, string>;
 }

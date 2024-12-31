@@ -87,6 +87,7 @@ export const artistSocialSchema = z.object({
   spotifyUrl: z.string().nullable(),
   tiktokUrl: z.string().nullable(),
   instagramUrl: z.string().nullable(),
+  viberateUrl: z.string().nullable(),
 }) satisfies z.Schema<Pick<ArtistFull, "imageUrl" | "youtubeUrl" | "spotifyUrl" | "tiktokUrl" | "instagramUrl">>;
 
 // Combined schema for full artist validation
@@ -147,6 +148,25 @@ export const SimilarArtistSchema = z.object({
   selected: z.boolean().optional(),
 }) satisfies z.Schema<SimilarArtist>;
 
+export interface ArtistFormFull {
+    artistInfo:   ArtistInfo;
+    analytics: Analytics;
+    videos: YoutubeVideoInfo[];
+    tracks: SpotifyTrackInfo[];
+    similarArtists: SimilarArtist[];
+    isSubmitting?: boolean;
+    errors?: Record<string, string>;
+  }
+
+
+export const fullArtistSchema = z.object({
+  artistInfo: artistSchema,
+  analytics: analyticsSchema,
+  videos: z.array(videoSchema),
+  tracks: z.array(spotifyTrackSchema),
+  similarArtists: z.array(SimilarArtistSchema),
+}) satisfies z.Schema<ArtistFormFull>;
+
 // Infer types from schemas
 export type ArtistBasic = z.infer<typeof artistBasicSchema>;
 export type ArtistPlatform = z.infer<typeof artistPlatformSchema>;
@@ -155,3 +175,4 @@ export type ArtistInfo = z.infer<typeof artistSchema>;
 export type ArtistAnalytics = z.infer<typeof analyticsSchema>;
 export type SpotifyTrackInfo = z.infer<typeof spotifyTrackSchema>;
 export type YoutubeVideoInfo = z.infer<typeof videoSchema>;
+export type ArtistFormState = z.infer<typeof fullArtistSchema>;
