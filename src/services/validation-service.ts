@@ -1,11 +1,11 @@
-import { z } from "zod";    
 import { ArtistFormState } from "@/types/artist";
-import { artistInfoSchema } from "@/validations/artist-form-schema";
+import { artistSchema, analyticsSchema, spotifyTrackSchema, videoSchema } from "@/validations/artist-schema";
+import { z } from "zod";    
 
 
 export class ValidationService{
     static async validateForm(data: ArtistFormState){
-        const artistInfo = artistInfoSchema.parse(data.artistInfo);
+        const artistInfo = artistSchema.parse(data.artistInfo);
         const analytics = analyticsSchema.parse(data.analytics);
     }
 }

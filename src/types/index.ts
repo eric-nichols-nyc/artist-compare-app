@@ -288,6 +288,7 @@ export interface SpotifyTrack {
     name: string;
     trackId: string;
     popularity: number;
+    platform: string;
     previewUrl: string | null;
     albumImageUrl: string | null;
     spotifyStreams: number | null;
@@ -312,7 +313,7 @@ export interface SpotifyTrack {
     end: string | null;
   }
 
-  export interface SpotifyTrack {
+  export interface SpotifyApiTrack {
     id: string
     name: string
     imageUrl: string
