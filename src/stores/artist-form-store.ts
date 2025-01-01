@@ -119,10 +119,10 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
           youtubeVideos: action.payload,
         }));
         break;
-      case 'UPDATE_SPOTIFY_TRACKS':
+      case 'UPDATE_TRACKS':
         set((state) => ({
           ...state,
-          spotifyTracks: action.payload,
+          tracks: action.payload,
         }));
         break;
       case 'UPDATE_SIMILAR_ARTIST_SELECTION':

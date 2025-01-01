@@ -1,6 +1,23 @@
 import { NextResponse } from "next/server"
 import { SpotifyService } from "@/services/spotify-service"
-import { SpotifyTrack } from "@/types"
+import {SpotifyTrackInfo} from "@/validations/artist-schema"
+
+interface SpotifyApiTrack {
+  id: string
+  name: string
+  imageUrl: string
+  popularity: number
+  preview_url: string | null
+  external_urls: {
+    spotify: string
+  }
+  album:{
+    images: {
+      url: string
+    }[]
+  }
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const spotifyId = searchParams.get('spotifyId')
@@ -11,14 +28,16 @@ export async function GET(req: Request) {
 
   try {
     const tracks = await SpotifyService.getArtistTopTracks(spotifyId)
+    console.log('Tracks:', tracks)
     // Transform the tracks data to include only what we need
-    const formattedTracks: SpotifyTrack[] = tracks.map((track: SpotifyTrack) => ({
-      id: track.id,
+    const formattedTracks: SpotifyTrackInfo[] = tracks.map((track: SpotifyApiTrack) => ({
+      trackId: track.id,
       name: track.name,
       imageUrl: track.album?.images?.[0]?.url,
       popularity: track.popularity,
       previewUrl: track.preview_url || null,
-      externalUrl: track.external_urls?.spotify || null
+      externalUrl: track.external_urls?.spotify || null,
+      spotifyStreams: null
     }))    
     return NextResponse.json({ tracks: formattedTracks })
   } catch (error) {

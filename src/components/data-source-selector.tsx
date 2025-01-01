@@ -34,7 +34,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
           images: [{ url: track.imageUrl || '' }]
         }
       }))
-      dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: formattedTracks })
+      dispatch({ type: 'UPDATE_TRACKS', payload: formattedTracks })
     }
   }
 
@@ -42,7 +42,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
     if (type === 'videos') {
       dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: [] })
     } else {
-      dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: [] })
+      dispatch({ type: 'UPDATE_TRACKS', payload: [] })
     }
   }
 
@@ -69,7 +69,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
             images: [{ url: track.imageUrl || '' }]
           }
         }))
-        dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: formattedTracks })
+        dispatch({ type: 'UPDATE_TRACKS', payload: formattedTracks })
       }
     } catch (error) {
       console.error('Error importing JSON:', error)

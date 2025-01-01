@@ -125,10 +125,10 @@ import { ArtistFormState, FormAction } from '@/types';
  * - Requires complete video objects
  * - Example: dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: newVideosArray })
  * 
- * UPDATE_SPOTIFY_TRACKS:
+ * UPDATE_TRACKS:
  * - Replaces entire tracks array
  * - Requires complete track objects
- * - Example: dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: newTracksArray })
+ * - Example: dispatch({ type: 'UPDATE_TRACKS', payload: newTracksArray })
  * 
  * SET_SUBMITTING:
  * - Updates form submission status
@@ -212,7 +212,7 @@ function formReducer(state: ArtistFormState, action: FormAction): ArtistFormStat
         ...state,
         youtubeVideos: action.payload,
       };
-    case 'UPDATE_SPOTIFY_TRACKS':
+    case 'UPDATE_TRACKS':
       return {
         ...state,
         spotifyTracks: action.payload,

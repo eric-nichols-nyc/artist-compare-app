@@ -29,7 +29,8 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
         setIsLoading(true)
         const response = await fetch(`/api/admin/artist-tracks?spotifyId=${artist.spotifyId}`)
         const data = await response.json()
-        dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: data.tracks || [] })
+        console.log('track data = ', data)
+        dispatch({ type: 'UPDATE_TRACKS', payload: data.tracks || [] })
       } catch (error) {
         setError('Failed to load tracks')
       } finally {
@@ -51,7 +52,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
         ? { ...track, spotifyStreams: streams ? parseInt(streams) : null }
         : track
     );
-    dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: updatedTracks });
+    dispatch({ type: 'UPDATE_TRACKS', payload: updatedTracks });
   };
 
   if (isLoading) {
@@ -77,9 +78,9 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
               <Card key={track.trackId} className="p-4 mb-4">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0">
-                    {track.albumImageUrl ? (
+                    {track.imageUrl ? (
                       <Image
-                        src={track.albumImageUrl}
+                        src={track.imageUrl}
                         alt={track.name}
                         width={80}
                         height={80}

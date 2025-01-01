@@ -285,7 +285,7 @@ export interface SpotifyTrack {
     popularity: number;
     platform: string;
     previewUrl: string | null;
-    albumImageUrl: string | null;
+    imageUrl: string | null;
     spotifyStreams: number | null;
     externalUrl: string | null;
   }
@@ -368,7 +368,7 @@ export type FormAction =
   | { type: 'SELECT_ARTIST'; payload: SpotifyArtist }
   | { type: 'UPDATE_ANALYTICS'; payload: Partial<Analytics> }
   | { type: 'UPDATE_YOUTUBE_VIDEOS'; payload: YoutubeVideo[] }
-  | { type: 'UPDATE_SPOTIFY_TRACKS'; payload: SpotifyTrack[] }
+  | { type: 'UPDATE_TRACKS'; payload: SpotifyTrack[] }
   | { type: 'SET_SUBMITTING'; payload: boolean }
   | { type: 'SET_ERRORS'; payload: Record<string, string> }
   | { type: 'UPDATE_SIMILAR_ARTIST_SELECTION'; payload: SimilarArtist[] }
