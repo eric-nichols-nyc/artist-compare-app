@@ -19,14 +19,15 @@ export function YoutubeAnalytics({
   onRefresh,
   isRefreshing 
 }: YoutubeAnalyticsProps) {
+    console.log('analytics = ', analytics)
   const stats = [
     {
       label: "Subscribers",
-      value: parseCompactNumber(analytics.youtubeSubscribers),
+      value: analytics.youtubeSubscribers,
     },
     {
       label: "Total Views",
-      value: parseCompactNumber(analytics.youtubeTotalViews),
+      value: analytics.youtubeTotalViews,
     },
   ];
 

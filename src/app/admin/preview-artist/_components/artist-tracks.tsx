@@ -41,10 +41,6 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
     fetchTracks()
   }, [artist.spotifyId, dispatch])
 
-  const formatNumber = (num: number | null | undefined) => {
-    if (!num) return 'N/A'
-    return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num)
-  }
 
   const handleStreamUpdate = (trackId: string, streams: string) => {
     const updatedTracks = tracks.map(track => 
@@ -69,9 +65,11 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
 
   return (
     <div>
-      <DataSourceSelector type="tracks" />
       <Card className="mt-4">
-        <h4 className="font-semibold mb-3 p-2">Top Tracks</h4>
+      <h4 className="font-semibold mb-3 p-2">Top Tracks</h4>
+
+      <DataSourceSelector type="tracks" />
+
         <ScrollArea className="h-[600px] rounded-md border">
           <div className="p-4">
             {tracks.map((track: SpotifyTrackInfo) => (

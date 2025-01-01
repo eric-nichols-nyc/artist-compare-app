@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { YoutubeVideo, SpotifyTrack } from '@/validations/artist-form-schema'
+import {YoutubeVideoInfo, SpotifyTrackInfo} from "@/validations/artist-schema"
 
 interface SocialStats {
   facebook?: number
@@ -13,20 +13,20 @@ interface SocialStats {
 
 interface ScrapedDataStore {
   // YouTube Data
-  youtubeVideos: YoutubeVideo[]
-  setYoutubeVideos: (videos: YoutubeVideo[]) => void
+  youtubeVideos: YoutubeVideoInfo[]
+  setYoutubeVideos: (videos: YoutubeVideoInfo[]) => void
   clearYoutubeVideos: () => void
 
   // Spotify Data
-  spotifyTracks: SpotifyTrack[]
-  setSpotifyTracks: (tracks: SpotifyTrack[]) => void
+  spotifyTracks: SpotifyTrackInfo[]
+  setSpotifyTracks: (tracks: SpotifyTrackInfo[]) => void
   clearSpotifyTracks: () => void
 
   // Viberate Data
-  viberateVideos: YoutubeVideo[]
-  viberateTracks: SpotifyTrack[]
-  setViberateVideos: (videos: YoutubeVideo[]) => void
-  setViberateTracks: (tracks: SpotifyTrack[]) => void
+  viberateVideos: YoutubeVideoInfo[]
+  viberateTracks: SpotifyTrackInfo[]
+  setViberateVideos: (videos: YoutubeVideoInfo[]) => void
+  setViberateTracks: (tracks: SpotifyTrackInfo[]) => void
   clearViberateData: () => void
 
   // Add social stats

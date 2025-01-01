@@ -40,7 +40,6 @@ export function ArtistAnalytics() {
         <SpotifyAnalytics />
         <YoutubeAnalytics 
           analytics={analytics}
-          youtubeChannelId={artistInfo.youtubeChannelId}
           onRefresh={handleRefreshYoutube}
           isRefreshing={isRefreshing}
         />

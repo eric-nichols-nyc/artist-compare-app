@@ -73,9 +73,9 @@ export class YoutubeService {
             return {
                 id: channelId,
                 statistics: {
-                    viewCount: channelStats.viewCount ?? '0',
-                    subscriberCount: channelStats.subscriberCount ?? undefined,
-                    videoCount: channelStats.videoCount ?? undefined
+                    viewCount: parseInt(channelStats.viewCount ?? '0').toLocaleString() ?? '0',
+                    subscriberCount: parseInt(channelStats.subscriberCount ?? '0').toLocaleString() ?? '0',
+                    videoCount: parseInt(channelStats.videoCount ?? '0').toLocaleString() ?? '0'
                 },
             };
         } catch (error) {
@@ -120,7 +120,7 @@ export class YoutubeService {
                     channelId: channelId,
                     type: ['video'],
                     order: 'viewCount',
-                    maxResults: 20
+                    maxResults: 5
                 })
             );
 

@@ -1,17 +1,47 @@
 import { unstable_cache } from 'next/cache';
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-import { Database } from '@/types';
 import { SpotifyService } from './spotify-service';
 import { MusicBrainzService } from './music-brainz-service';
 import OpenAI from 'openai';
 import type { PreviewArtistResponse } from "@/types"
 import { ArtistFormValues } from '@/lib/validations/artist';
-import { LastFmArtistInfo, LastFmResponse } from '@/types';
+import { LastFmResponse } from '@/types';
 import { YoutubeService } from './youtube-service';
 // Initialize environment variables
 if (typeof window === 'undefined') {
     config();
+}
+
+export interface LastFmArtistInfo {
+    name: string;
+    mbid: string;
+    url: string;
+    stats: {
+        listeners: string;
+        playcount: string;
+    }
+    bio: {
+        links: {
+            link: {
+                href: string;
+            }
+        }
+        summary:string;
+        content:string;
+    };
+    match: number | null;
+    selected?: boolean | null;
+}
+
+
+export interface SimilarArtist {
+    id: string;
+    name: string;
+    imageUrl: string | null;
+    genres: string[];
+    match: number | null;
+    selected?: boolean | null;
 }
 
 const LASTFM_API_KEY = process.env.NEXT_PUBLIC_LASTFM_API_KEY;
@@ -34,7 +64,7 @@ export class ArtistIngestionService {
 
     constructor() {
         this.youtubeService = new YoutubeService();
-        this.supabase = createClient<Database>(SUPABASE_URL, SUPABASE_KEY);
+        this.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
         this.musicBrainzService = new MusicBrainzService();
     }
 
@@ -61,7 +91,7 @@ export class ArtistIngestionService {
             const response = await fetch(
                 `http://ws.audioscrobbler.com/2.0/?method=artist.getInfo&artist=${encodeURIComponent(artistName)}&api_key=${LASTFM_API_KEY}&format=json`
             );
-            const data = await response.json() as LastFmResponse;
+            const data = await response.json();
             return data.artist;
         } catch (error) {
             console.error('Error fetching Last.fm artist info:', error);
@@ -146,8 +176,9 @@ export class ArtistIngestionService {
 
         return {
             musicbrainzId,
-            lastfmPlayCount: lastfm.stats?.playcount,
-            lastfmListeners: lastfm.stats?.listeners,
+            lastFmUrl: lastfm.url,
+            lastfmPlayCount: parseInt(lastfm.stats?.playcount),
+            lastfmListeners: parseInt(lastfm.stats?.listeners),
             youtubeChannelId,
             youtubeChannelStats: youtubeChannel?.statistics,
             biography: lastfm.bio?.summary,

@@ -28,10 +28,7 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
             bio: data.biography,
             country: data.country,
             gender: data.gender,
-            activeYears: {
-              begin: data.begin,
-              end: data.end,
-            },
+            age: data.age,
             youtubeChannelId: data.youtubeChannelId,
           }
         });

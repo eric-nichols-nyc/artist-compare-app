@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { useScrapedDataStore } from '@/stores/scraped-data-store'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { JsonInputDialog } from './json-input-dialog'
-import { YoutubeVideo } from '@/validations/artist-form-schema'
+import { YoutubeVideoInfo } from '@/validations/artist-schema'
 
 interface DataSourceSelectorProps {
   type: 'videos' | 'tracks'
@@ -18,23 +18,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
       dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos })
     } else {
       const rawTracks = source === 'spotify' ? spotifyTracks : viberateTracks
-      const formattedTracks = rawTracks.map(track => ({
-        trackId: track.id,
-        id: track.id,
-        name: track.name,
-        popularity: track.popularity,
-        spotifyStreams: track.spotifyStreams,
-        albumImageUrl: track.imageUrl,
-        previewUrl: null,
-        preview_url: null,
-        external_urls: { spotify: track.externalUrl || '' },
-        duration_ms: 0,
-        imageUrl: track.imageUrl || '',
-        album: {
-          images: [{ url: track.imageUrl || '' }]
-        }
-      }))
-      dispatch({ type: 'UPDATE_TRACKS', payload: formattedTracks })
+      dispatch({ type: 'UPDATE_TRACKS', payload: rawTracks })
     }
   }
 
@@ -50,26 +34,10 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
     try {
       if (type === 'videos') {
         const videos = Array.isArray(data) ? data : [data]
-        dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos as YoutubeVideo[] })
+        dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos as YoutubeVideoInfo[] })
       } else {
         const rawTracks = Array.isArray(data) ? data : [data]
-        const formattedTracks = rawTracks.map(track => ({
-          id: track.id,
-          trackId: track.id,
-          name: track.name,
-          popularity: track.popularity,
-          spotifyStreams: track.spotifyStreams,
-          albumImageUrl: track.imageUrl,
-          previewUrl: null,
-          preview_url: null,
-          external_urls: { spotify: track.externalUrl || '' },
-          duration_ms: 0,
-          imageUrl: track.imageUrl || '',
-          album: {
-            images: [{ url: track.imageUrl || '' }]
-          }
-        }))
-        dispatch({ type: 'UPDATE_TRACKS', payload: formattedTracks })
+        dispatch({ type: 'UPDATE_TRACKS', payload: rawTracks })
       }
     } catch (error) {
       console.error('Error importing JSON:', error)

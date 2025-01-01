@@ -1,22 +1,21 @@
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { parseCompactNumber } from "@/lib/utils/number-format";
-import { Analytics } from "@/types/analytics";
+import { ArtistAnalytics } from "@/validations/artist-schema";
 
 interface LastFMAnalyticsProps {
-  analytics: Analytics;
+  analytics: ArtistAnalytics;
 }
 
 export function LastFMAnalytics({ analytics }: LastFMAnalyticsProps) {
   const stats = [
     {
       label: "Listeners",
-      value: parseCompactNumber(analytics.lastfmListeners),
+      value: analytics.lastfmListeners,
     },
     {
       label: "Play Count",
-      value: parseCompactNumber(analytics.lastfmPlayCount),
+      value: analytics.lastfmPlayCount
     },
   ];
 

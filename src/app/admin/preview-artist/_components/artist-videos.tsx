@@ -21,7 +21,7 @@ export function ArtistVideos() {
   useEffect(() => {
     async function fetchVideos() {
       if (!artistInfo.youtubeChannelId) return;
-      
+      setIsLoading(true)
       try {
         const response = await fetch(`/api/admin/artist-videos?channelId=${artistInfo.youtubeChannelId}`);
         if (!response.ok) throw new Error('Failed to fetch videos');
@@ -32,9 +32,11 @@ export function ArtistVideos() {
       } catch (error) {
         console.error('Error fetching videos:', error);
         setError('Failed to fetch videos');
+      }finally{
+        setIsLoading(false)
       }
     }
-    
+
     fetchVideos();
   }, [artistInfo.youtubeChannelId, dispatch]);
 
@@ -86,7 +88,7 @@ export function ArtistVideos() {
 
   return (
     <Card className="mt-4">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader>
         <CardTitle>Top Videos</CardTitle>
         <div className="flex items-center gap-2">
           <DataSourceSelector

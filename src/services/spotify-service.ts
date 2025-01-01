@@ -127,7 +127,8 @@ export class SpotifyService {
             );
 
             const data = await response.json();
-            return data.tracks || [];
+            //return first 5 tracks
+            return data.tracks.slice(0, 5) || [];
         },
         ['spotify-top-tracks'],
         { tags: ['spotify-top-tracks'], revalidate: 60 * 60 * 24 }

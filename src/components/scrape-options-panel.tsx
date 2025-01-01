@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useScrapedDataStore } from "@/stores/scraped-data-store";
-import { useArtistFormStore } from "@/stores/artist-form-store";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
@@ -27,7 +26,6 @@ export function ScrapeOptionsPanel({
   youtubeChannelId,
   variant = 'default'
 }: ScrapeOptionsPanelProps) {
-  const { artistInfo } = useArtistFormStore();
   const { setViberateSocialStats } = useScrapedDataStore();
   const [sourceStates, setSourceStates] = useState<Record<Source, SourceState>>(
     {

@@ -22,7 +22,7 @@ export async function GET(req: Request): Promise<NextResponse> {
             match: artist.match
         })) as SimilarArtist[];
 
-        console.log('similarSpotifyArtistsWithGenres', similarSpotifyArtistsWithGenres);
+        // console.log('similarSpotifyArtistsWithGenres', similarSpotifyArtistsWithGenres);
 
         return NextResponse.json(similarSpotifyArtistsWithGenres);
     } catch (error) {

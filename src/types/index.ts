@@ -207,6 +207,7 @@ export interface PreviewArtistResponse {
     youtubeChannelId: string | null
     bio: string | null
     genres: string[]
+    age:number | null
     imageUrl: string | null
     youtubeUrl?: string | null
     spotifyUrl?: string | null
@@ -239,6 +240,7 @@ export interface ArtistIngestionResponse {
     youtubeChannelId: string | undefined
     youtubeChannelStats: any
     biography: string | null
+    age?:number | null
     genres?: string[]
     imageUrl?: string | null
     gender?: string | null

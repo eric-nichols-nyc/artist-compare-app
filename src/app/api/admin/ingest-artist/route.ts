@@ -11,7 +11,21 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
     const artist: ArtistIngestionResponse = await artistIngestionService.getArtistInfo(name);
+    // function to format the artists age from the active years
+    function formatAge(activeYears: { begin: string | null; end: string | null }): number | null {
+        if (!activeYears.begin) return null;
+        
+        const beginDate = new Date(activeYears.begin);
+        const endDate = activeYears.end ? new Date(activeYears.end) : new Date();
+        
+        return Math.floor((endDate.getTime() - beginDate.getTime()) / (1000 * 60 * 60 * 24 * 365));
+    }
+
+    artist.age = artist.activeYears ? formatAge(artist.activeYears) : null
+    artist.youtubeChannelStats.viewCount = parseFormattedNumber(artist.youtubeChannelStats.viewCount)
+    artist.youtubeChannelStats.subscriberCount = parseFormattedNumber(artist.youtubeChannelStats.subscriberCount)
     // if artist biographySummary is null, generate it
+
     if(!artist.biography) {
         const geminiService = new GeminiService();
         const summaryBio = await geminiService.generateArtistBio({
@@ -22,5 +36,13 @@ export async function GET(req: Request) {
         }, 'summary');
         artist.biography = summaryBio;
     }
+
+    console.log('artist ============= ', artist)
+
     return NextResponse.json(artist);
+}
+
+function parseFormattedNumber(str: string | null | undefined): number {
+  if (!str) return 0;
+  return parseInt(str.replace(/,/g, ''));
 }

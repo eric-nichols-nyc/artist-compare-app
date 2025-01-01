@@ -61,13 +61,9 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
               </div>
   
               <div className="flex items-center gap-1.5">
-                <span className="text-muted-foreground">Born:</span>
+                <span className="text-muted-foreground">Age:</span>
                 <span>
-                  {artistInfo.activeYears?.begin
-                    ? `${artistInfo.activeYears.begin} - ${
-                        artistInfo.activeYears.end || 'Present'
-                      }`
-                    : 'Unknown'}
+                  {artistInfo.age}
                 </span>
               </div>
             </div>
