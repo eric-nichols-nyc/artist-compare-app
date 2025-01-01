@@ -184,8 +184,7 @@ export class ArtistIngestionService {
             biography: lastfm.bio?.summary,
             gender,
             country,
-            begin,
-            end
+            activeYears
         }
     }
 
