@@ -2,6 +2,19 @@ import z from "zod";
 import { Prisma } from "@prisma/client"
 import { SpotifyTrack } from "@/types";
 
+export type FormAction =
+  | { type: 'UPDATE_ARTIST_INFO'; payload: Partial<ArtistInfo> }
+  | { type: 'SELECT_ARTIST'; payload: SpotifyArtist }
+  | { type: 'UPDATE_ANALYTICS'; payload: Partial<Analytics> }
+  | { type: 'UPDATE_YOUTUBE_VIDEOS'; payload: YoutubeVideoInfo[] }
+  | { type: 'UPDATE_TRACKS'; payload: SpotifyTrack[] }
+  | { type: 'SET_SUBMITTING'; payload: boolean }
+  | { type: 'SET_ERRORS'; payload: Record<string, string> }
+  | { type: 'UPDATE_SIMILAR_ARTIST_SELECTION'; payload: SimilarArtist[] }
+  | { type: 'RESET_FORM' }
+  | { type: 'CANCEL_ARTIST_SELECTION' };
+
+
 export interface Analytics {
     spotifyFollowers?: number | null;
     spotifyPopularity?: number | null;

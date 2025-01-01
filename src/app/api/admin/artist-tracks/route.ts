@@ -28,7 +28,6 @@ export async function GET(req: Request) {
 
   try {
     const tracks = await SpotifyService.getArtistTopTracks(spotifyId)
-    console.log('Tracks:', tracks)
     // Transform the tracks data to include only what we need
     const formattedTracks: SpotifyTrackInfo[] = tracks.map((track: SpotifyApiTrack) => ({
       trackId: track.id,

@@ -13,15 +13,35 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 type VideoSource = 'youtube' | 'viberate' | 'json'
 
 export function ArtistVideos() {
-  const { videos, refreshYoutubeVideos, artistInfo } = useArtistFormStore()
+  const { dispatch, videos, refreshYoutubeVideos, artistInfo } = useArtistFormStore()
   const [selectedSource, setSelectedSource] = useState<VideoSource>('youtube')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    console.log('artistInfo = ', artistInfo.youtubeChannelId)
-    refreshYoutubeVideos(artistInfo.youtubeChannelId!)
-  }, [artistInfo.youtubeChannelId])
+    async function fetchVideos() {
+      if (!artistInfo.youtubeChannelId) return;
+      
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/admin/artist-videos?channelId=${artistInfo.youtubeChannelId}`);
+        if (!response.ok) throw new Error('Failed to fetch videos');
+        
+        const data = await response.json();
+        console.log('video response = ', data);
+        
+        dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: data });
+        
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+        setError('Failed to fetch videos');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchVideos();
+  }, [artistInfo.youtubeChannelId, dispatch]);
 
   const handleSourceChange = async (source: VideoSource) => {
     setSelectedSource(source)
@@ -70,7 +90,7 @@ export function ArtistVideos() {
   }
 
   return (
-    <Card className="mt-4 flex-grow">
+    <Card className="mt-4 w-full">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Top Videos</CardTitle>
         <div className="flex items-center gap-2">

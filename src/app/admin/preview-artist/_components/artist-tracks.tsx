@@ -68,9 +68,9 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
   }
 
   return (
-    <div>
+    <div className="w-full">
       <DataSourceSelector type="tracks" />
-      <Card className="mt-4 flex-grow">
+      <Card className="mt-4">
         <h4 className="font-semibold mb-3 p-2">Top Tracks</h4>
         <ScrollArea className="h-[600px] rounded-md border">
           <div className="p-4">

@@ -1,9 +1,8 @@
 import { create } from 'zustand'
 import { 
-  FormAction, 
   SpotifyArtist, 
 } from '@/types'
-import { ArtistFormFull, Analytics } from '@/validations/artist-schema'
+import { ArtistFormFull, Analytics, FormAction } from '@/validations/artist-schema'
 import { ValidationService } from '@/services/validation-service'
 
 interface ArtistFormStore extends ArtistFormFull {
@@ -116,7 +115,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
       case 'UPDATE_YOUTUBE_VIDEOS':
         set((state) => ({
           ...state,
-          youtubeVideos: action.payload,
+          videos: action.payload
         }));
         break;
       case 'UPDATE_TRACKS':
@@ -170,7 +169,17 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
     try {
       const response = await fetch(`/api/admin/artist-videos?channelId=${encodeURIComponent(channelId)}`);
       const data = await response.json();
-      set({ videos: data.videos || [] });
+      const formattedVideos = (data.videos || []).map((video: any) => ({
+        name: video.title,
+        videoId: video.videoId,
+        platform: 'youtube',
+        viewCount: video.statistics.viewCount,
+        likeCount: video.statistics.likeCount,
+        commentCount: video.statistics.commentCount,
+        thumbnail: video.thumbnail,
+        publishedAt: video.publishedAt
+      }));
+      set({ videos: formattedVideos });
     } catch (error) {
       console.error('Error fetching videos:', error);
     }
