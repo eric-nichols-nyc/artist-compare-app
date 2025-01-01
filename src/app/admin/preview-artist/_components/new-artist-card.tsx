@@ -31,10 +31,48 @@ export function ArtistCard({ artist }: ArtistCardProps) {
     try {
       dispatch({ type: "SET_SUBMITTING", payload: true });
       
-      // Add your form validation and submission logic here
-      console.log("Submitting artist...");
+      // Get the current state from your store
+      const artistState = useArtistFormStore.getState();
+      const { artistInfo, analytics, youtubeVideos } = artistState;
+
+      // Format the data for submission
+      const artistData = {
+        ...artistInfo,
+        analytics: {
+          spotifyFollowers: analytics.spotifyFollowers,
+          spotifyPopularity: analytics.spotifyPopularity,
+          youtubeSubscribers: analytics.youtubeSubscribers,
+          youtubeTotalViews: analytics.youtubeTotalViews,
+          lastfmPlayCount: analytics.lastfmPlayCount,
+          monthlyListeners: analytics.monthlyListeners
+        },
+        artistVideos: youtubeVideos
+      };
+
+      // Submit the artist
+      const response = await fetch('/api/admin/add-artist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ artist: artistData }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to add artist');
+      }
+
+      // Handle success
+      const result = await response.json();
+      console.log('Artist added successfully:', result);
+      
+      // Clear the form or redirect
+      dispatch({ type: "CANCEL_ARTIST_SELECTION" });
+
     } catch (error) {
       console.error("Error submitting form", error);
+      // Handle error (show toast notification, etc.)
     } finally {
       dispatch({ type: "SET_SUBMITTING", payload: false });
     }
@@ -69,12 +107,12 @@ export function ArtistCard({ artist }: ArtistCardProps) {
             <ArtistTracks artist={artist} />
           </Suspense>
         </div>
-        <div className="flex-grow">
+        {/* <div className="flex-grow">
           <ArtistAnalytics />
           <Suspense fallback={<HeaderSkeleton />}>
             <SimilarArtists artist={artist} />
           </Suspense>
-        </div>
+        </div> */}
       </Card>
       <div className="flex gap-2 mt-4">
         <Button 

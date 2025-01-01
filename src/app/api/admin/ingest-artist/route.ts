@@ -37,8 +37,6 @@ export async function GET(req: Request) {
         artist.biography = summaryBio;
     }
 
-    console.log('artist ============= ', artist)
-
     return NextResponse.json(artist);
 }
 

@@ -74,7 +74,6 @@ export async function GET(request: Request) {
     }
 
     const previewData = await getPreviewData(artistName);
-    console.log('previewdata ====== ', previewData)
     return NextResponse.json(previewData);
 
   } catch (error) {

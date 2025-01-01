@@ -17,6 +17,7 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("ArtistDetails component mounted", artist.name);
     const fetchArtistInfo = async () => {
       try {
         const response = await fetch(`/api/admin/ingest-artist?name=${artist.name}`);

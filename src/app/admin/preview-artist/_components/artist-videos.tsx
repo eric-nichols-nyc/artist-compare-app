@@ -19,6 +19,7 @@ export function ArtistVideos() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    console.log("ArtistVideos component mounted", artistInfo.name);
     async function fetchVideos() {
       if (!artistInfo.youtubeChannelId) return;
       setIsLoading(true)
