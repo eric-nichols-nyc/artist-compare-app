@@ -117,8 +117,8 @@ export const spotifyTrackSchema = z.object({
   platform: z.string(),
   popularity: z.number(),
   previewUrl: z.string().nullable(),
-  externalUrl: z.string(),
-  imageUrl: z.string(),
+  externalUrl: z.string().nullable(),
+  imageUrl: z.string().nullable(),
   spotifyStreams: z.number().nullable(),
 }) satisfies z.Schema<SpotifyTrack>;
 

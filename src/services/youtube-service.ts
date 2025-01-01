@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import { unstable_cache } from 'next/cache';
-import { YoutubeChannelInfo, YoutubeVideoStatistics } from '@/types';
-import { YoutubeVideo } from '@/validations/artist-form-schema';
+import { YoutubeVideoStatistics, YoutubeChannelInfo } from '@/types';
+import {YoutubeVideoInfo} from "@/validations/artist-schema"
 
 if (!process.env.NEXT_PUBLIC_YOUTUBE_API) {
     throw new Error('Missing YOUTUBE_API_KEY environment variable');
@@ -70,9 +70,6 @@ export class YoutubeService {
             const channelStats = channelResponse.data.items?.[0]?.statistics;
             if (!channelStats) return null;
 
-            // Get top videos
-            const topVideos = await this.getChannelTopVideos(channelId);
-
             return {
                 id: channelId,
                 statistics: {
@@ -80,7 +77,6 @@ export class YoutubeService {
                     subscriberCount: channelStats.subscriberCount ?? undefined,
                     videoCount: channelStats.videoCount ?? undefined
                 },
-                topVideos
             };
         } catch (error) {
             console.error('Error fetching YouTube channel:', error);
@@ -112,7 +108,7 @@ export class YoutubeService {
 
     }, ['youtube-playlist-videos'], { tags: ['youtube-playlist-videos'], revalidate: 60 * 60 * 24 });
 
-    public getChannelTopVideos = unstable_cache(async (channelId: string): Promise<YoutubeVideo[]> => {
+    public getChannelTopVideos = unstable_cache(async (channelId: string): Promise<YoutubeVideoInfo[]> => {
         if(!channelId){
             throw new Error('ChannelID is required')
         }
@@ -143,16 +139,14 @@ export class YoutubeService {
             );
 
             return (videosResponse.data.items || []).map(video => ({
+                name: video.snippet?.title ?? '',
                 videoId: video.id ?? '',
-                title: video.snippet?.title ?? '',
+                platform: 'youtube',
                 thumbnail: video.snippet?.thumbnails?.high?.url ?? '',
                 publishedAt: video.snippet?.publishedAt ?? '',
-                statistics: {
-                    viewCount: parseInt(video.statistics?.viewCount ?? '0'),
-                    likeCount: parseInt(video.statistics?.likeCount ?? '0'),
-                    commentCount: parseInt(video.statistics?.commentCount ?? '0')
-                },
-                duration: video.contentDetails?.duration ?? ''
+                viewCount: parseInt(video.statistics?.viewCount ?? '0'),
+                likeCount: parseInt(video.statistics?.likeCount ?? '0'),
+                commentCount: parseInt(video.statistics?.commentCount ?? '0')
             }));
         } catch (error) {
             console.error('Error fetching YouTube videos:', error);

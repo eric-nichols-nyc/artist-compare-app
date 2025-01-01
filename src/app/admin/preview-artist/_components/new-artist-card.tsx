@@ -3,14 +3,12 @@ import { Card } from "@/components/ui/card";
 import { SpotifyArtist } from "@/types";
 import { Button } from "@/components/ui/button";
 import { ArtistHeader } from "./artist-header";
-import { ArtistDetails } from "./artist-details";
 import { ArtistTracks } from "./artist-tracks";
 import { ArtistVideos } from "./artist-videos";
 import { ArtistAnalytics } from "./artist-analytics";
 import { SimilarArtists } from "./similar-artists";
 import { HeaderSkeleton } from "./skeletons";
 import { RefreshCw, X } from "lucide-react";
-import { ScrapeOptionsPanel } from '@/components/scrape-options-panel'
 import { StoreInspector } from '@/components/store-inspector'
 import { useStoreDebug } from '@/hooks/use-store-debug'
 import { useArtistFormStore } from "@/stores/artist-form-store";
@@ -23,7 +21,6 @@ interface ArtistCardProps {
 export function ArtistCard({ artist }: ArtistCardProps) {
   const isSubmitting = useArtistFormStore(state => state.isSubmitting)
   const dispatch = useArtistFormStore(state => state.dispatch)
-  const validateForm = useArtistFormStore()
 
   // Only enable in development
   if (process.env.NODE_ENV === 'development') {
@@ -67,7 +64,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
         <div className="flex gap-3">
           <div className="flex-1">
             <Suspense fallback={<HeaderSkeleton />}>
-              <ArtistVideos artist={artist} />
+              <ArtistVideos />
             </Suspense>
           </div>
           <div className="flex-1">

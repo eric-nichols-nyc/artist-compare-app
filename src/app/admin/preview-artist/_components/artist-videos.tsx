@@ -1,26 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
-import { SpotifyArtist } from '@/types'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { Button } from '@/components/ui/button'
 import { RefreshCw, Upload } from 'lucide-react'
 import { DataSourceSelector } from '@/components/data-source-selector'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
-interface ArtistVideosProps {
-  artist: SpotifyArtist
-}
 
 type VideoSource = 'youtube' | 'viberate' | 'json'
 
-export function ArtistVideos({ artist }: ArtistVideosProps) {
+export function ArtistVideos() {
   const { videos, refreshYoutubeVideos, artistInfo } = useArtistFormStore()
   const [selectedSource, setSelectedSource] = useState<VideoSource>('youtube')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    console.log('artistInfo = ', artistInfo.youtubeChannelId)
+    refreshYoutubeVideos(artistInfo.youtubeChannelId!)
+  }, [artistInfo.youtubeChannelId])
 
   const handleSourceChange = async (source: VideoSource) => {
     setSelectedSource(source)
@@ -34,7 +35,7 @@ export function ArtistVideos({ artist }: ArtistVideosProps) {
           break
         case 'viberate':
           // Add Viberate fetch logic
-          const viberateResponse = await fetch(`/api/scrape/viberate/videos?artistName=${encodeURIComponent(artist.name)}`)
+          const viberateResponse = await fetch(`/api/scrape/viberate/videos?artistName=${encodeURIComponent(artistInfo.name)}`)
           if (!viberateResponse.ok) throw new Error('Failed to load Viberate videos')
           break
         case 'json':
