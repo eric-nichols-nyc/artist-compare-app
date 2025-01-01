@@ -37,6 +37,8 @@ export async function GET(req: Request) {
       popularity: track.popularity,
       previewUrl: track.preview_url || null,
       externalUrl: track.external_urls?.spotify || null,
+      spotifyStreams: null,
+      platform: 'spotify'
     }))    
     return NextResponse.json({ tracks: formattedTracks })
   } catch (error) {

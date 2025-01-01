@@ -1,5 +1,4 @@
-import { artistFormSchema } from "@/validations/artist-form-schema";
-import { ArtistFormState, analyticsSchema, fullArtistSchema, artistSchema, videoSchema } from "@/validations/artist-schema";
+import { ArtistFormState, analyticsSchema, fullArtistSchema, artistSchema, videoSchema, spotifyTrackSchema } from "@/validations/artist-schema";
 import { z } from "zod";        
 // validate the form and send back boolean and errors
 
@@ -72,7 +71,7 @@ export class ValidationService{
           case 'videos':
             return videoSchema;
           case 'tracks':
-            return artistFormSchema.shape.spotifyTracks;
+            return spotifyTrackSchema;
           default:
             throw new Error(`No schema defined for section: ${section}`);
         }

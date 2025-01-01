@@ -3,7 +3,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import { parseCompactNumber } from "@/lib/utils/number-format";
 import { Analytics } from "@/types/analytics";
 
 interface YoutubeAnalyticsProps {
@@ -19,7 +18,6 @@ export function YoutubeAnalytics({
   onRefresh,
   isRefreshing 
 }: YoutubeAnalyticsProps) {
-    console.log('analytics = ', analytics)
   const stats = [
     {
       label: "Subscribers",

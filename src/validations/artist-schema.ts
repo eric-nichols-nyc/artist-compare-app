@@ -1,5 +1,5 @@
 import z from "zod";
-import { Prisma } from "@prisma/client"
+// import { Prisma } from "@prisma/client"
 import { SpotifyTrack } from "@/types";
 
 export type FormAction =
@@ -47,7 +47,7 @@ export interface ArtistFull extends BasicArtistInfo {
     musicbrainzId: string | null;
     country: string | null;
     gender: string | null;
-    age: string | null;
+    age: number | null;
     youtubeChannelId: string | null;
     imageUrl: string | null;
     spotifyUrl: string | null;
@@ -83,7 +83,7 @@ export const artistBasicSchema = z.object({
   genres: z.array(z.string()).min(1, "At least one genre is required"),
   country: z.string().nullable(),
   gender: z.string().nullable(),
-  age: z.string().nullable(),
+  age: z.number().nullable(),
 }) satisfies z.Schema<Pick<ArtistFull, "name" | "bio" | "genres" | "country" | "gender" | "age">>;
 
 // Platform IDs
@@ -106,7 +106,7 @@ export const artistSocialSchema = z.object({
 // Combined schema for full artist validation
 export const artistSchema = artistBasicSchema
   .merge(artistPlatformSchema)
-  .merge(artistSocialSchema) satisfies z.Schema<Prisma.ArtistCreateInput>;
+  .merge(artistSocialSchema) satisfies z.Schema<ArtistFull>;
 
 // Analytics schema remains separate
 export const analyticsSchema = z.object({
@@ -127,12 +127,12 @@ export const analyticsSchema = z.object({
 export const spotifyTrackSchema = z.object({
   name: z.string(),
   trackId: z.string(),
-  platform: z.string(),
   popularity: z.number(),
+  platform: z.string(),
   previewUrl: z.string().nullable(),
   externalUrl: z.string().nullable(),
   imageUrl: z.string().nullable(),
-  spotifyStreams: z.number(),
+  spotifyStreams: z.number().nullable(),
 }) satisfies z.Schema<SpotifyTrack>;
 
 // Array of tracks schema with minimum 1 track

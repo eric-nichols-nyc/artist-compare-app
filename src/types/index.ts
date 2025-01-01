@@ -269,7 +269,7 @@ export interface ArtistInfo extends BasicArtistInfo {
     musicbrainzId: string | null;
     country: string | null;
     gender: string | null;
-    age: string | null;
+    age: number | null;
     youtubeChannelId: string | null;
     imageUrl: string | null;
     spotifyUrl: string | null;
