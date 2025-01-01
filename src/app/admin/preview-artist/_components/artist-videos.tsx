@@ -23,20 +23,15 @@ export function ArtistVideos() {
       if (!artistInfo.youtubeChannelId) return;
       
       try {
-        setIsLoading(true);
         const response = await fetch(`/api/admin/artist-videos?channelId=${artistInfo.youtubeChannelId}`);
         if (!response.ok) throw new Error('Failed to fetch videos');
         
         const data = await response.json();
-        console.log('video response = ', data);
-        
-        dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: data });
-        
+        console.log('video response = ', data.videos)
+        dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: data.videos || [] });
       } catch (error) {
         console.error('Error fetching videos:', error);
         setError('Failed to fetch videos');
-      } finally {
-        setIsLoading(false);
       }
     }
     
@@ -90,7 +85,7 @@ export function ArtistVideos() {
   }
 
   return (
-    <Card className="mt-4 w-full">
+    <Card className="mt-4">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Top Videos</CardTitle>
         <div className="flex items-center gap-2">

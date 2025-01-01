@@ -68,7 +68,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
   }
 
   return (
-    <div className="w-full">
+    <div>
       <DataSourceSelector type="tracks" />
       <Card className="mt-4">
         <h4 className="font-semibold mb-3 p-2">Top Tracks</h4>

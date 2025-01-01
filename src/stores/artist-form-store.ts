@@ -119,6 +119,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
         }));
         break;
       case 'UPDATE_TRACKS':
+        console.log('action.payload = ', action.payload)
         set((state) => ({
           ...state,
           tracks: action.payload,

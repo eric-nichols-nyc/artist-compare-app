@@ -61,17 +61,13 @@ export function ArtistCard({ artist }: ArtistCardProps) {
         <div className="flex-grow">
           <ArtistHeader artist={artist} />
         </div>
-        <div className="flex gap-3">
-          <div className="flex-1">
-            <Suspense fallback={<HeaderSkeleton />}>
-              <ArtistVideos />
-            </Suspense>
-          </div>
-          <div className="flex-1">
-            <Suspense fallback={<HeaderSkeleton />}>
-              <ArtistTracks artist={artist} />
-            </Suspense>
-          </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Suspense fallback={<HeaderSkeleton />}>
+            <ArtistVideos />
+          </Suspense>
+          <Suspense fallback={<HeaderSkeleton />}>
+            <ArtistTracks artist={artist} />
+          </Suspense>
         </div>
         <div className="flex-grow">
           <ArtistAnalytics />
