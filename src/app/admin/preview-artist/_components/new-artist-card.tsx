@@ -33,7 +33,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
       
       // Get the current state from your store
       const artistState = useArtistFormStore.getState();
-      const { artistInfo, analytics, youtubeVideos } = artistState;
+      const { artistInfo, analytics, youtubeVideos, spotifyTracks } = artistState;
 
       // Format the data for submission
       const artistData = {
@@ -46,7 +46,8 @@ export function ArtistCard({ artist }: ArtistCardProps) {
           lastfmPlayCount: analytics.lastfmPlayCount,
           monthlyListeners: analytics.monthlyListeners
         },
-        artistVideos: youtubeVideos
+        artistVideos: youtubeVideos,
+        spotifyTracks: spotifyTracks
       };
 
       // Submit the artist

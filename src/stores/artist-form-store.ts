@@ -5,6 +5,17 @@ import {
 import { ArtistFormFull, Analytics, FormAction } from '@/validations/artist-schema'
 import { ValidationService } from '@/services/validation-service'
 
+interface SpotifyTrack {
+  name: string;
+  trackId: string;
+  popularity: number;
+  platform: string;
+  previewUrl: string | null;
+  imageUrl: string | null;
+  spotifyStreams: number | null;
+  externalUrl: string | null;
+}
+
 interface ArtistFormStore extends ArtistFormFull {
   selectedArtists: SpotifyArtist[];
   analytics: Analytics;
@@ -13,6 +24,7 @@ interface ArtistFormStore extends ArtistFormFull {
   refreshYoutubeAnalytics: (channelId: string) => Promise<void>;
   refreshSimilarArtists: (artistName: string) => Promise<void>;
   validateForm: () => Promise<boolean>;  // Add this
+  spotifyTracks: SpotifyTrack[];
 }
 
 const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 'refreshYoutubeAnalytics' | 'refreshSimilarArtists' | 'validateForm'> = {
@@ -52,6 +64,7 @@ const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 
   similarArtists: [],
   isSubmitting: false,
   errors: {},
+  spotifyTracks: [],
 };
 
 export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({

@@ -31,6 +31,16 @@ const ArtistFormValuesSchema = z.object({
     likeCount: z.number(),
     commentCount: z.number(),
     publishedAt: z.string()
+  })).optional(),
+  spotifyTracks: z.array(z.object({
+    name: z.string(),
+    trackId: z.string(),
+    popularity: z.number(),
+    platform: z.string(),
+    previewUrl: z.string().nullable(),
+    imageUrl: z.string().nullable(),
+    spotifyStreams: z.number().nullable(),
+    externalUrl: z.string().nullable()
   })).optional()
 })
 

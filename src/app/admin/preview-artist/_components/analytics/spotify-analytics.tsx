@@ -34,7 +34,7 @@ export function SpotifyAnalytics() {
       if (monthlyListeners) {
         dispatch({
           type: 'UPDATE_ANALYTICS',
-          payload: { spotifyMonthlyListeners: parseInt(monthlyListeners) }
+          payload: { spotifyMonthlyListeners: monthlyListeners}
         });
       }
     }
