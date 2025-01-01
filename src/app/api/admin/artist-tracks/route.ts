@@ -8,6 +8,7 @@ interface SpotifyApiTrack {
   imageUrl: string
   popularity: number
   preview_url: string | null
+  platform: string
   external_urls: {
     spotify: string
   }
@@ -36,7 +37,6 @@ export async function GET(req: Request) {
       popularity: track.popularity,
       previewUrl: track.preview_url || null,
       externalUrl: track.external_urls?.spotify || null,
-      spotifyStreams: null
     }))    
     return NextResponse.json({ tracks: formattedTracks })
   } catch (error) {

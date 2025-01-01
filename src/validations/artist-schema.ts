@@ -132,7 +132,7 @@ export const spotifyTrackSchema = z.object({
   previewUrl: z.string().nullable(),
   externalUrl: z.string().nullable(),
   imageUrl: z.string().nullable(),
-  spotifyStreams: z.number().nullable(),
+  spotifyStreams: z.number(),
 }) satisfies z.Schema<SpotifyTrack>;
 
 // Array of tracks schema with minimum 1 track
