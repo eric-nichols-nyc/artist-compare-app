@@ -5,7 +5,7 @@ import { SpotifyService } from './spotify-service';
 import { MusicBrainzService } from './music-brainz-service';
 import OpenAI from 'openai';
 import type { PreviewArtistResponse } from "@/types"
-import { ArtistFormValues } from '@/lib/validations/artist';
+import {ArtistFormState} from "@/validations/artist-schema"
 import { LastFmResponse } from '@/types';
 import { YoutubeService } from './youtube-service';
 // Initialize environment variables
@@ -278,7 +278,7 @@ export class ArtistIngestionService {
         }
     }
 
-    public async addArtist(artist: ArtistFormValues) {
+    public async addArtist(artist: ArtistFormState) {
         // add artist to database
         console.log('addArtist', artist);
         return "success"

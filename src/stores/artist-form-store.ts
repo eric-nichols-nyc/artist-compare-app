@@ -134,7 +134,6 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
         }));
         break;
       case 'UPDATE_TRACKS':
-        console.log('action.payload = ', action.payload)
         set((state) => ({
           ...state,
           tracks: action.payload,
@@ -236,67 +235,25 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
   },
 
   submitArtist: async () => {
-    // validate the form
     const isValid = await get().validateForm();
     if(!isValid){
       throw new Error('Form is not valid');
-      return;
     }
     try {
       set({ isSubmitting: true });
       
       const state = get();
-      const formattedData = {
-        artistInfo: {
-          name: state.artistInfo.name,
-          bio: state.artistInfo.bio || null,
-          gender: state.artistInfo.gender || null,
-          country: state.artistInfo.country || null,
-          genres: state.artistInfo.genres || [],
-          age: state.artistInfo.age || null,
-          musicbrainzId: state.artistInfo.musicbrainzId || null,
-          youtubeChannelId: state.artistInfo.youtubeChannelId || null,
-          spotifyId: state.artistInfo.spotifyId || null,
-          imageUrl: state.artistInfo.imageUrl || null,
-          youtubeUrl: state.artistInfo.youtubeUrl || null,
-          spotifyUrl: state.artistInfo.spotifyUrl || null,
-          instagramUrl: state.artistInfo.instagramUrl || null,
-          tiktokUrl: state.artistInfo.tiktokUrl || null
-        },
-        analytics: state.analytics,
-        videos: state.videos.map(video => ({
-          name: video.name,
-          videoId: video.videoId,
-          platform: 'youtube',
-          viewCount: video.viewCount,
-          likeCount: video.likeCount,
-          commentCount: video.commentCount,
-          thumbnail: null,
-          publishedAt: video.publishedAt
-        })),
-        tracks: state.tracks.map(track => ({
-          name: track.name,
-          trackId: track.trackId,
-          platform: track.platform,
-          popularity: track.popularity,
-          previewUrl: track.previewUrl,
-          imageUrl: track.imageUrl,
-          spotifyStreams: track.spotifyStreams,
-          externalUrl: track.externalUrl
-        })),
-        similarArtists: state.similarArtists || []
-      };
-
       const response = await fetch('/api/admin/add-artist', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ artist: formattedData }),
+        body: JSON.stringify({ artist: state }),
       });
 
       if (!response.ok) {
         const error = await response.json();
+        console.error('Validation errors:', error);
         throw new Error(error.message || 'Failed to add artist');
       }
 
@@ -316,7 +273,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
 
     } catch (error) {
       console.error("Error submitting form:", error);
-      throw error; // Let the component handle the error display
+      throw error;
     } finally {
       set({ isSubmitting: false });
     }

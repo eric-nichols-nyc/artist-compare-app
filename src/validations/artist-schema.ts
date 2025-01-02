@@ -152,7 +152,7 @@ export const videoSchema = z.object({
 }) satisfies z.Schema<YoutubeVideo>;
 
 
-export const SimilarArtistSchema = z.object({
+export const similarArtistSchema = z.object({
   name: z.string(),
   imageUrl: z.string().nullable(),
   id: z.string(),
@@ -178,7 +178,7 @@ export const fullArtistSchema = z.object({
   analytics: analyticsSchema,
   videos: z.array(videoSchema),
   tracks: z.array(spotifyTrackSchema),
-  similarArtists: z.array(SimilarArtistSchema),
+  similarArtists: z.array(similarArtistSchema),
 }) satisfies z.Schema<ArtistFormFull>;
 
 // Infer types from schemas

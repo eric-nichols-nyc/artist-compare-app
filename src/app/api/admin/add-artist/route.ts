@@ -1,60 +1,54 @@
 import { ArtistIngestionService } from "@/services/artist-ingestion-service"
 import { NextResponse } from "next/server"
+import { 
+  artistSchema, 
+  analyticsSchema, 
+  videoSchema, 
+  spotifyTrackSchema,
+  similarArtistSchema
+} from "@/validations/artist-schema"
 import { z } from "zod"
 
-const AnalyticsSchema = z.object({
-  spotifyFollowers: z.number().optional(),
-  spotifyPopularity: z.number().optional(),
-  youtubeSubscribers: z.number().optional(),
-  youtubeTotalViews: z.number().optional(),
-  lastfmPlayCount: z.number().optional(),
-  monthlyListeners: z.number().optional(),
-}).nullable()
-
-const ArtistFormValuesSchema = z.object({
-  name: z.string().min(1),
-  spotifyId: z.string().optional(),
-  lastFmId: z.string().optional(),
-  youtubeChannelId: z.string().optional(),
-  bio: z.string().optional(),
-  genres: z.array(z.string()).optional(),
-  imageUrl: z.string().optional(),
-  youtubeUrl: z.string().optional(),
-  spotifyUrl: z.string().optional(),
-  tiktokUrl: z.string().optional(),
-  instagramUrl: z.string().optional(),
-  analytics: AnalyticsSchema,
-  artistVideos: z.array(z.object({
-    youtubeId: z.string(),
-    title: z.string(),
-    viewCount: z.number(),
-    likeCount: z.number(),
-    commentCount: z.number(),
-    publishedAt: z.string()
-  })).optional(),
-  spotifyTracks: z.array(z.object({
-    name: z.string(),
-    trackId: z.string(),
-    popularity: z.number(),
-    platform: z.string(),
-    previewUrl: z.string().nullable(),
-    imageUrl: z.string().nullable(),
-    spotifyStreams: z.number().nullable(),
-    externalUrl: z.string().nullable()
-  })).optional()
+// Use the existing schemas to create the API request schema
+const AddArtistRequestSchema = z.object({
+  artistInfo: artistSchema,
+  analytics: analyticsSchema,
+  videos: z.array(videoSchema),
+  tracks: z.array(spotifyTrackSchema),
+  similarArtists: z.array(similarArtistSchema).optional()
 })
 
 export async function POST(req: Request) {
-  const { artist } = await req.json()
   try {
-    const validatedArtist = ArtistFormValuesSchema.parse(artist)
+    const { artist } = await req.json()
+    console.log('Received artist data:', artist)
+
+    try {
+      const validatedArtist = AddArtistRequestSchema.parse(artist)
+      console.log('Validation passed:', validatedArtist)
+          
     const artistIngestionService = new ArtistIngestionService()
     const result = await artistIngestionService.addArtist(validatedArtist)
     return NextResponse.json(result, { status: 200 })
+
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        console.log('Validation failed:', e.errors)
+        throw e
+      }
+      throw e
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ errors: error.flatten().fieldErrors }, { status: 400 })
+      console.error('Validation error details:', error.errors)
+      return NextResponse.json({ 
+        errors: error.flatten().fieldErrors,
+        message: 'Validation failed'
+      }, { status: 400 })
     }
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
+    console.error('Error adding artist:', error)
+    return NextResponse.json({ 
+      message: 'Something went wrong' 
+    }, { status: 500 })
   }
 }
