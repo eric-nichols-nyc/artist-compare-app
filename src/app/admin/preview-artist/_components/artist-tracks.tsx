@@ -30,7 +30,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
         const response = await fetch(`/api/admin/artist-tracks?spotifyId=${artist.spotifyId}`)
         const data = await response.json()
         console.log('track data = ', data)
-        dispatch({ type: 'UPDATE_TRACKS', payload: data.tracks || [] })
+        dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: data.tracks || [] })
       } catch (error) {
         setError('Failed to load tracks')
       } finally {
@@ -48,7 +48,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
         ? { ...track, spotifyStreams: streams ? parseInt(streams) : null }
         : track
     );
-    dispatch({ type: 'UPDATE_TRACKS', payload: updatedTracks });
+    dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: updatedTracks });
   };
 
   if (isLoading) {

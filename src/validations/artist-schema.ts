@@ -7,7 +7,7 @@ export type FormAction =
   | { type: 'SELECT_ARTIST'; payload: SpotifyArtist }
   | { type: 'UPDATE_ANALYTICS'; payload: Partial<Analytics> }
   | { type: 'UPDATE_YOUTUBE_VIDEOS'; payload: YoutubeVideoInfo[] }
-  | { type: 'UPDATE_TRACKS'; payload: SpotifyTrack[] }
+  | { type: 'UPDATE_SPOTIFY_TRACKS'; payload: SpotifyTrack[] }
   | { type: 'SET_SUBMITTING'; payload: boolean }
   | { type: 'SET_ERRORS'; payload: Record<string, string> }
   | { type: 'UPDATE_SIMILAR_ARTIST_SELECTION'; payload: SimilarArtist[] }
@@ -58,7 +58,7 @@ export interface ArtistFull extends BasicArtistInfo {
   }
 
   export interface YoutubeVideo {
-    name: string;
+    title: string;
     videoId: string;
     platform: string;
     viewCount: number;
@@ -141,7 +141,7 @@ export const spotifyTracksSchema = z.array(spotifyTrackSchema)
 
 // Schema for videos
 export const videoSchema = z.object({
-  name: z.string(),
+  title: z.string(),
   videoId: z.string(),
   platform: z.string(),
   viewCount: z.number(),

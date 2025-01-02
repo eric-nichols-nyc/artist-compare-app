@@ -133,7 +133,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
           videos: action.payload
         }));
         break;
-      case 'UPDATE_TRACKS':
+      case 'UPDATE_SPOTIFY_TRACKS':
         set((state) => ({
           ...state,
           tracks: action.payload,

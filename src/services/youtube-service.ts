@@ -141,7 +141,7 @@ export class YoutubeService {
             console.log('videosResponse ========== ', videosResponse)
 
             return (videosResponse.data.items || []).map(video => ({
-                name: video.snippet?.title ?? '',
+                title: video.snippet?.title ?? '',
                 videoId: video.id ?? '',
                 platform: 'youtube',
                 thumbnail: video.snippet?.thumbnails?.high?.url ?? '',
