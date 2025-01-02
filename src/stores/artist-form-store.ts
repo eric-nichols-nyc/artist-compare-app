@@ -25,9 +25,11 @@ interface ArtistFormStore extends ArtistFormFull {
   refreshSimilarArtists: (artistName: string) => Promise<void>;
   validateForm: () => Promise<boolean>;  // Add this
   spotifyTracks: SpotifyTrack[];
+  isSubmitting: boolean;
+  submitArtist: () => Promise<void>;
 }
 
-const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 'refreshYoutubeAnalytics' | 'refreshSimilarArtists' | 'validateForm'> = {
+const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 'refreshYoutubeAnalytics' | 'refreshSimilarArtists' | 'validateForm' | 'submitArtist'> = {
   selectedArtists: [],
   artistInfo: {
     name: '',
@@ -161,22 +163,15 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
       case 'RESET_FORM':
         set(initialState);
         break;
+      case 'UPDATE_SPOTIFY_TRACKS':
+        set((state) => ({
+          ...state,
+          spotifyTracks: action.payload
+        }));
+        break;
     }
   },
 
-  validateForm: async () => {
-    const state = get();
-    const result = await ValidationService.validateForm({
-      artistInfo: state.artistInfo,
-      analytics: state.analytics,
-      videos: state.videos,
-      tracks: state.tracks,
-      similarArtists: state.similarArtists
-    });
-    set({ errors: result.errors || {} });
-    console.log('Validation result:', result.isValid)
-    return result.isValid;
-  },
 
   // Custom actions
   refreshYoutubeVideos: async (channelId: string) => {
@@ -222,6 +217,108 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
       set({ similarArtists: data || [] });
     } catch (error) {
       console.error('Error fetching similar artists:', error);
+    }
+  },
+
+
+  validateForm: async () => {
+    const state = get();
+    const result = await ValidationService.validateForm({
+      artistInfo: state.artistInfo,
+      analytics: state.analytics,
+      videos: state.videos,
+      tracks: state.tracks,
+      similarArtists: state.similarArtists
+    });
+    set({ errors: result.errors || {} });
+    console.log('Validation result:', result.isValid)
+    return result.isValid;
+  },
+
+  submitArtist: async () => {
+    // validate the form
+    const isValid = await get().validateForm();
+    if(!isValid){
+      throw new Error('Form is not valid');
+      return;
+    }
+    try {
+      set({ isSubmitting: true });
+      
+      const state = get();
+      const formattedData = {
+        artistInfo: {
+          name: state.artistInfo.name,
+          bio: state.artistInfo.bio || null,
+          gender: state.artistInfo.gender || null,
+          country: state.artistInfo.country || null,
+          genres: state.artistInfo.genres || [],
+          age: state.artistInfo.age || null,
+          musicbrainzId: state.artistInfo.musicbrainzId || null,
+          youtubeChannelId: state.artistInfo.youtubeChannelId || null,
+          spotifyId: state.artistInfo.spotifyId || null,
+          imageUrl: state.artistInfo.imageUrl || null,
+          youtubeUrl: state.artistInfo.youtubeUrl || null,
+          spotifyUrl: state.artistInfo.spotifyUrl || null,
+          instagramUrl: state.artistInfo.instagramUrl || null,
+          tiktokUrl: state.artistInfo.tiktokUrl || null
+        },
+        analytics: state.analytics,
+        videos: state.videos.map(video => ({
+          name: video.name,
+          videoId: video.videoId,
+          platform: 'youtube',
+          viewCount: video.viewCount,
+          likeCount: video.likeCount,
+          commentCount: video.commentCount,
+          thumbnail: null,
+          publishedAt: video.publishedAt
+        })),
+        tracks: state.tracks.map(track => ({
+          name: track.name,
+          trackId: track.trackId,
+          platform: track.platform,
+          popularity: track.popularity,
+          previewUrl: track.previewUrl,
+          imageUrl: track.imageUrl,
+          spotifyStreams: track.spotifyStreams,
+          externalUrl: track.externalUrl
+        })),
+        similarArtists: state.similarArtists || []
+      };
+
+      const response = await fetch('/api/admin/add-artist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ artist: formattedData }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to add artist');
+      }
+
+      const result = await response.json();
+      console.log('Artist added successfully:', result);
+      
+      // Clear the form state
+      set((state) => ({
+        ...state,
+        artistInfo: {},
+        analytics: {},
+        videos: [],
+        tracks: [],
+        similarArtists: [],
+        selectedArtist: null
+      }));
+
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      throw error; // Let the component handle the error display
+    } finally {
+      set({ isSubmitting: false });
     }
   },
 })); 
