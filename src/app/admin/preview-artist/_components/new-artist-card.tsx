@@ -20,7 +20,7 @@ interface ArtistCardProps {
 
 export function ArtistCard({ artist }: ArtistCardProps) {
   const isSubmitting = useArtistFormStore(state => state.isSubmitting)
-  const dispatch = useArtistFormStore(state => state.dispatch)
+  const {dispatch, submitArtist} = useArtistFormStore(state => state)
 
   // Only enable in development
   if (process.env.NODE_ENV === 'development') {
@@ -29,44 +29,9 @@ export function ArtistCard({ artist }: ArtistCardProps) {
 
   const handleSubmitArtist = async () => {
     try {
-      dispatch({ type: "SET_SUBMITTING", payload: true });
-      
-      // Get the current state from your store
-      const artistState = useArtistFormStore.getState();
-      const { artistInfo, analytics, youtubeVideos, spotifyTracks } = artistState;
-
-      // Format the data for submission
-      const artistData = {
-        ...artistInfo,
-        analytics: {
-          spotifyFollowers: analytics.spotifyFollowers,
-          spotifyPopularity: analytics.spotifyPopularity,
-          youtubeSubscribers: analytics.youtubeSubscribers,
-          youtubeTotalViews: analytics.youtubeTotalViews,
-          lastfmPlayCount: analytics.lastfmPlayCount,
-          monthlyListeners: analytics.monthlyListeners
-        },
-        artistVideos: youtubeVideos,
-        spotifyTracks: spotifyTracks
-      };
-
-      // Submit the artist
-      const response = await fetch('/api/admin/add-artist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ artist: artistData }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to add artist');
-      }
-
-      // Handle success
-      const result = await response.json();
-      console.log('Artist added successfully:', result);
+      const submit = await submitArtist();
+      console.log('submit ', submit)
+     
       
       // Clear the form or redirect
       dispatch({ type: "CANCEL_ARTIST_SELECTION" });
