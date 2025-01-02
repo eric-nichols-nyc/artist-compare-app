@@ -280,7 +280,14 @@ export class ArtistIngestionService {
 
     public async addArtist(artist: ArtistFormState) {
         // add artist to database
-        console.log('addArtist', artist);
+        const [artistInfo, analyticsData, videosData, tracksData, similarArtistsData] = await Promise.all([
+            this.supabase.from('artists').insert(artist.artistInfo).select(),
+            this.supabase.from('artist_analytics').insert(artist.analytics).select(),
+            this.processYoutubeVideos(artistInfo.youtubeChannelId, artistData.id),
+            this.processSpotifyTracks(artistInfo.spotifyId, artistData.id),
+            this.processSimilarArtists(similarArtists, artistData.id)
+        ]);
+
         return {
             success: true,
             message: 'Artist added successfully'
@@ -289,8 +296,7 @@ export class ArtistIngestionService {
     /**
      * Process and store YouTube videos for an artist
      */
-    private async processYoutubeVideos(channelId: string, artistId: string) {
-        const videos = await this.youtubeService.getChannelTopVideos(channelId);
+    private async processYoutubeVideos(videos: YoutubeVideoInfo[], artistId: string) {
         const videoInserts = videos
             .filter(video => video.title && video.statistics)
             .map(video => ({
