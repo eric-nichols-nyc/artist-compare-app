@@ -15,7 +15,7 @@ const AddArtistRequestSchema = z.object({
   analytics: analyticsSchema,
   videos: z.array(videoSchema),
   tracks: z.array(spotifyTrackSchema),
-  similarArtists: z.array(similarArtistSchema).optional()
+  similarArtists: z.array(similarArtistSchema)
 })
 
 export async function POST(req: Request) {

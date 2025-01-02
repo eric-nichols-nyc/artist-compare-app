@@ -281,7 +281,10 @@ export class ArtistIngestionService {
     public async addArtist(artist: ArtistFormState) {
         // add artist to database
         console.log('addArtist', artist);
-        return "success"
+        return {
+            success: true,
+            message: 'Artist added successfully'
+        };
     }
     /**
      * Process and store YouTube videos for an artist
