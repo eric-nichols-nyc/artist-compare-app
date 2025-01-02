@@ -141,7 +141,7 @@ export function ArtistVideos() {
                     <div className="flex-shrink-0">
                       <Image
                         src={video.thumbnail}
-                        alt={video.name || ''}
+                        alt={video.title || ''}
                         width={120}
                         height={68}
                         className="rounded"
@@ -149,7 +149,7 @@ export function ArtistVideos() {
                     </div>
                   )}
                   <div className="flex-grow">
-                    <h5 className="font-medium text-sm line-clamp-2">{video.name}</h5>
+                    <h5 className="font-medium text-sm line-clamp-2">{video.title}</h5>
                     <div className="flex gap-4 mt-2 text-sm text-gray-500">
                       <span>{formatNumber(video.viewCount)} views</span>
                       <span>{formatNumber(video.likeCount)} likes</span>
