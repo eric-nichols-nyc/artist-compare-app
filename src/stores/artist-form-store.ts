@@ -140,10 +140,35 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
         }));
         break;
       case 'UPDATE_SIMILAR_ARTIST_SELECTION':
-        set((state) => ({
-          ...state,
-          similarArtists: action.payload,
-        }));
+        set((state) => {
+          // Create a map of existing artists by ID for quick lookup
+          const existingArtistsMap = new Map(
+            state.similarArtists.map(artist => [artist.id, artist])
+          );
+
+          // Process new artists
+          action.payload.forEach(newArtist => {
+            // If artist already exists, update it (preserving selected state)
+            if (existingArtistsMap.has(newArtist.id)) {
+              const existing = existingArtistsMap.get(newArtist.id)!;
+              existingArtistsMap.set(newArtist.id, {
+                ...newArtist,
+                selected: existing.selected // Preserve selected state
+              });
+            } else {
+              // If it's a new artist, add it to the map
+              existingArtistsMap.set(newArtist.id, {
+                ...newArtist,
+                selected: false // Default to unselected
+              });
+            }
+          });
+
+          return {
+            ...state,
+            similarArtists: Array.from(existingArtistsMap.values())
+          };
+        });
         break;
       case 'SET_SUBMITTING':
         set((state) => ({

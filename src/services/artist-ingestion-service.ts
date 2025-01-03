@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { SpotifyService } from './spotify-service';
 import { MusicBrainzService } from './music-brainz-service';
-import { ArtistFormState, YoutubeVideoInfo, SpotifyTrackInfo } from "@/validations/artist-schema"
+import { ArtistFormState, YoutubeVideoInfo, SpotifyTrackInfo, ArtistAnalytics } from "@/validations/artist-schema"
 import { LastFmResponse } from '@/types';
 import { YoutubeService } from './youtube-service';
 // Initialize environment variables
@@ -183,10 +183,29 @@ export class ArtistIngestionService {
 
     public async addArtist(artist: ArtistFormState) {
         try {
-            // First insert the artist to get the ID
+            const artistInsert = {
+                id: crypto.randomUUID(),
+                name: artist.artistInfo.name,
+                spotify_id: artist.artistInfo.spotifyId,
+                last_fm_id: artist.artistInfo.musicbrainzId,
+                youtube_channel_id: artist.artistInfo.youtubeChannelId,
+                bio: artist.artistInfo.bio,
+                genres: artist.artistInfo.genres,
+                gender: artist.artistInfo.gender,
+                country: artist.artistInfo.country,
+                age: artist.artistInfo.age,
+                image_url: artist.artistInfo.imageUrl,
+                youtube_url: artist.artistInfo.youtubeUrl,
+                spotify_url: artist.artistInfo.spotifyUrl,
+                tiktok_url: artist.artistInfo.tiktokUrl,
+                instagram_url: artist.artistInfo.instagramUrl,
+                viberate_url: artist.artistInfo.viberateUrl,
+                updated_at: new Date().toISOString()
+            };
+
             const { data: artistData, error: artistError } = await this.supabase
                 .from('artists')
-                .insert(artist.artistInfo)
+                .insert(artistInsert)
                 .select()
                 .single();
 
@@ -196,22 +215,9 @@ export class ArtistIngestionService {
 
             // Now we have the artist ID, we can process the related data
             await Promise.all([
-                // Insert analytics
-                this.supabase
-                    .from('artist_analytics')
-                    .insert({
-                        ...artist.analytics,
-                        artist_id: artistData.id,
-                        date: new Date().toISOString().split('T')[0]
-                    }),
-
-                // Process videos with the new artist ID
+                this.processAnalytics(artist.analytics, artistData.id),
                 this.processYoutubeVideos(artist.videos, artistData.id),
-
-                // Process tracks with the new artist ID
                 this.processSpotifyTracks(artist.tracks, artistData.id),
-
-                // Process similar artists with the new artist ID
                 this.processSimilarArtists(artist.similarArtists, artistData.id)
             ]);
 
@@ -234,13 +240,15 @@ export class ArtistIngestionService {
             if (!videos.length) return;
 
             const videoInserts = videos.map(video => ({
+                id: crypto.randomUUID(),
                 artist_id: artistId,
                 youtube_id: video.videoId,
                 title: video.title,
                 view_count: video.viewCount,
                 like_count: video.likeCount,
                 comment_count: video.commentCount,
-                published_at: video.publishedAt
+                published_at: video.publishedAt,
+                updated_at: new Date().toISOString()
             }));
 
             const { error } = await this.supabase
@@ -257,6 +265,7 @@ export class ArtistIngestionService {
     private async processSpotifyTracks(tracks: SpotifyTrackInfo[], artistId: string) {
         try {
             const trackInserts = tracks.map(track => ({
+                id: crypto.randomUUID(),
                 artist_id: artistId,
                 platform_track_id: track.trackId,
                 name: track.name,
@@ -289,6 +298,7 @@ export class ArtistIngestionService {
                         .single();
 
                     return {
+                        id: crypto.randomUUID(),
                         artist_id: artistId,
                         similar_artist_id: existingArtist?.id,
                         similarity_score: similarArtist.match
@@ -304,6 +314,35 @@ export class ArtistIngestionService {
             throw error;
         }
     };
+
+    private async processAnalytics(analytics: ArtistAnalytics, artistId: string) {
+        try {
+            const analyticsInsert = {
+                id: crypto.randomUUID(),
+                artist_id: artistId,
+                date: new Date().toISOString().split('T')[0],
+                monthly_listeners: analytics.spotifyMonthlyListeners,
+                youtube_subscribers: analytics.youtubeSubscribers,
+                youtube_total_views: analytics.youtubeTotalViews,
+                lastfm_play_count: analytics.lastfmPlayCount,
+                spotify_followers: analytics.spotifyFollowers,
+                spotify_popularity: analytics.spotifyPopularity,
+                instagram_followers: analytics.instagramFollowers,
+                facebook_followers: analytics.facebookFollowers,
+                tiktok_followers: analytics.tiktokFollowers,
+                soundcloud_followers: analytics.soundcloudFollowers
+            };
+
+            const { error } = await this.supabase
+                .from('artist_analytics')
+                .insert(analyticsInsert);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error processing analytics:', error);
+            throw error;
+        }
+    }
 
     public async updateArtist(artistId: string, data: any) {
         const artist = await this.supabase

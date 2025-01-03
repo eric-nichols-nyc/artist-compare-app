@@ -16,8 +16,9 @@ interface SimilarArtistsProps {
 }
 
 export function SimilarArtists({ artist }: SimilarArtistsProps) {
-  const { similarArtists, dispatch, refreshSimilarArtists } = useArtistFormStore();
+  const { dispatch, refreshSimilarArtists } = useArtistFormStore();
   const [artistList, setArtistList] = useState<SimilarArtist[]>([])
+  const [selectedArtists, setSelectedArtists] = useState<SimilarArtist[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -37,6 +38,15 @@ export function SimilarArtists({ artist }: SimilarArtistsProps) {
 
     fetchSimilarArtists()
   }, [artist.name, dispatch])
+
+  const handleSelectArtist = (artist: SimilarArtist) => { 
+    const similarArtists = [...selectedArtists, artist]
+    dispatch({ type: 'UPDATE_SIMILAR_ARTIST_SELECTION', payload: similarArtists })
+  }
+
+  // const handleUnselectArtist = (artist: SimilarArtist) => { 
+  //   setSelectedArtists(selectedArtists.filter(a => a.id !== artist.id))
+  // }
 
   if (isLoading) {
     return (
@@ -115,15 +125,7 @@ export function SimilarArtists({ artist }: SimilarArtistsProps) {
                     <div className="flex items-center">
                       <Checkbox
                         checked={similarArtist.selected}
-                        onCheckedChange={(checked) => {
-                          dispatch({
-                            type: 'UPDATE_SIMILAR_ARTIST_SELECTION',
-                            payload: {
-                              ...similarArtist,
-                              selected: checked as boolean
-                            }
-                          })
-                        }}
+                        onCheckedChange={() => handleSelectArtist(similarArtist)}
                       />
                     </div>
                     {similarArtist.imageUrl ? (

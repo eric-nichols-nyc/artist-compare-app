@@ -27,6 +27,16 @@ export function SpotifyAnalytics() {
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof Analytics) => {        
+    const value = parseCompactNumber(e.target.value);
+    if (value !== null) {
+      dispatch({
+        type: 'UPDATE_ANALYTICS',
+        payload: { [field]: value }
+      });
+    }
+  };
+
   const handleImportMonthlyListeners = () => {
     if (spotifyTracks.length > 0) {
       // Assuming the first track has the most recent monthly listeners
@@ -83,9 +93,10 @@ export function SpotifyAnalytics() {
               <Label>{stat.label}</Label>
               <div className="flex gap-2">
                 <Input 
-                  value={stat.value}
+                  defaultValue={stat.value}
                   readOnly={!stat.editable}
                   className="bg-white/50"
+                  onChange={(e) => handleChange(e, stat.field)}
                   onBlur={stat.editable ? (e) => handleBlur(e, stat.field) : undefined}
                 />
                 {stat.action}

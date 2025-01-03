@@ -15,7 +15,7 @@ describe('ValidationService', () => {
         genres: ["pop", "country"],
         gender: "female",
         country: "US",
-        age: "34",
+        age: 34,
         imageUrl: "https://example.com/image.jpg",
         youtubeUrl: "https://youtube.com/channel/123",
         spotifyUrl: "https://open.spotify.com/artist/123",
@@ -31,7 +31,7 @@ describe('ValidationService', () => {
         youtubeTotalViews: 10000000,
       },
       videos: [{
-        name: "Test Video",
+        title: "Test Video",
         videoId: "123456",
         platform: "youtube",
         viewCount: 1000000,
@@ -47,7 +47,7 @@ describe('ValidationService', () => {
         popularity: 80,
         previewUrl: "https://example.com/preview",
         externalUrl: "https://example.com/track",
-        albumImageUrl: "https://example.com/album.jpg",
+        imageUrl: "https://example.com/album.jpg",
         spotifyStreams: 1000000
       }],
       similarArtists: [{

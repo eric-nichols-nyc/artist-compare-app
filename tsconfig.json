@@ -11,7 +11,7 @@
     "target": "ESNext",         // Ensure the latest JavaScript features are supported
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
