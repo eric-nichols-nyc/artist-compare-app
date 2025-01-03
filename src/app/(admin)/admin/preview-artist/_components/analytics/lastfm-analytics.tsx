@@ -1,47 +1,46 @@
-import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ArtistAnalytics } from "@/validations/artist-schema";
+import { Analytics } from "@/types/analytics";
+import { useAnalyticsState } from "@/hooks/useAnalyticsState";
+import { BaseAnalytics } from "./base-analytics";
 
-interface LastFMAnalyticsProps {
-  analytics: ArtistAnalytics;
-}
+export function LastFMAnalytics() {
+  const { analytics, handleBlur, handleChange } = useAnalyticsState();
 
-export function LastFMAnalytics({ analytics }: LastFMAnalyticsProps) {
   const stats = [
     {
       label: "Monthly Listeners",
       value: analytics.lastFmMonthlyListeners,
+      field: "lastFmMonthlyListeners" as keyof Analytics,
+      editable: true
     },
     {
       label: "Total Listeners",
       value: analytics.lastfmListeners,
+      field: "lastfmListeners" as keyof Analytics,
+      editable: true
     },
     {
       label: "Play Count",
-      value: analytics.lastfmPlayCount
+      value: analytics.lastfmPlayCount,
+      field: "lastfmPlayCount" as keyof Analytics,
+      editable: true
     },
   ];
 
   return (
-    <Card className="p-4 bg-blue-50">
-      <div className="flex flex-col">
-        <div className="flex justify-between items-center mb-2">
-          <h5 className="font-medium text-sm">Last.fm</h5>
+    <BaseAnalytics title="Last.fm" bgColor="bg-blue-50">
+      {stats.map((stat) => (
+        <div key={stat.label} className="space-y-1">
+          <Label>{stat.label}</Label>
+          <Input 
+            value={stat.value || 'N/A'}
+            className="bg-white/50"
+            onChange={(e) => handleChange(e, stat.field)}
+            onBlur={(e) => handleBlur(e, stat.field)}
+          />
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          {stats.map((stat) => (
-            <div key={stat.label} className="space-y-1">
-              <Label>{stat.label}</Label>
-              <Input 
-                value={stat.value || 'N/A'}
-                readOnly
-                className="bg-white/50"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    </Card>
+      ))}
+    </BaseAnalytics>
   );
 } 
