@@ -24,6 +24,7 @@
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
     "@supabase/supabase-js": "^2.47.7",
+    "@tanstack/react-table": "^8.20.6",
     "@testing-library/react": "^16.1.0",
     "@types/spotify-web-api-node": "^5.0.11",
     "autoprefixer": "^10.4.0",

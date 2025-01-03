@@ -34,7 +34,7 @@ export function LastFMAnalytics() {
         <div key={stat.label} className="space-y-1">
           <Label>{stat.label}</Label>
           <Input 
-            value={stat.value || 'N/A'}
+            defaultValue={stat.value || 'N/A'}
             className="bg-white/50"
             onChange={(e) => handleChange(e, stat.field)}
             onBlur={(e) => handleBlur(e, stat.field)}
