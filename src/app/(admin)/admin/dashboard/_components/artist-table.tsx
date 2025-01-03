@@ -48,6 +48,8 @@ interface Artist {
   imageUrl?: string
   country?: string
   genres?: string[]
+  facebookFollowers: number
+  tiktokFollowers: number
 }
 
 // Define columns configuration
@@ -195,7 +197,17 @@ const columns: ColumnDef<Artist>[] = [
   },
   {
     accessorKey: "youtubeSubscribers",
-    header: "YouTube Subscribers",
+    header: () => (
+        <div className="flex items-center justify-end gap-2">
+          <Image
+            src="/images/youtube-alt.svg"
+            alt="Spotify"
+            width={16}
+            height={16}
+          />
+          <span>Subscribers</span>
+        </div>
+      ),
     cell: ({ row }) => {
       const subscribers = parseInt(row.getValue("youtubeSubscribers"))
       const formatted = new Intl.NumberFormat().format(subscribers)
@@ -204,9 +216,57 @@ const columns: ColumnDef<Artist>[] = [
   },
   {
     accessorKey: "instagramFollowers",
-    header: "Instagram Followers",
+    header: () => (
+        <div className="flex items-center justify-end gap-2">
+          <Image
+            src="/images/instagram-alt.bb84a5f1.svg"
+            alt="Instagram"
+            width={16}
+            height={16}
+          />
+          <span>Followers</span>
+        </div>
+      ),
     cell: ({ row }) => {
       const followers = parseInt(row.getValue("instagramFollowers"))
+      const formatted = new Intl.NumberFormat().format(followers)
+      return <div className="text-right font-medium">{formatted}</div>
+    },
+  },
+  {
+    accessorKey: "facebookFollowers",
+    header: () => (
+      <div className="flex items-center justify-end gap-2">
+        <Image
+          src="/images/facebook.svg"
+          alt="Facebook"
+          width={16}
+          height={16}
+        />
+        <span>Followers</span>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const followers = parseInt(row.getValue("facebookFollowers"))
+      const formatted = new Intl.NumberFormat().format(followers)
+      return <div className="text-right font-medium">{formatted}</div>
+    },
+  },
+  {
+    accessorKey: "tiktokFollowers",
+    header: () => (
+      <div className="flex items-center justify-end gap-2">
+        <Image
+          src="/images/tiktok.svg"
+          alt="TikTok"
+          width={16}
+          height={16}
+        />
+        <span>Followers</span>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const followers = parseInt(row.getValue("tiktokFollowers"))
       const formatted = new Intl.NumberFormat().format(followers)
       return <div className="text-right font-medium">{formatted}</div>
     },
