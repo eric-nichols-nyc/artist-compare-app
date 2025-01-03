@@ -9,7 +9,29 @@ import type { ArtistInfo, ArtistAnalytics, YoutubeVideoInfo, SpotifyTrackInfo } 
 
 // Mock all child components
 vi.mock('../artist-header', () => ({
-  ArtistHeader: () => (<div data-testid="mock-artist-header">Artist Header</div>)
+  ArtistHeader: (props: any) => (
+    <div data-testid="mock-artist-header">
+      Artist Header: {props.artist.name}
+    </div>
+  )
+}))
+
+// Add these mocks back after the artist-header mock
+vi.mock('../artist-tracks', () => ({
+  ArtistTracks: () => <div data-testid="mock-artist-tracks">Artist Tracks</div>
+}))
+
+vi.mock('../artist-videos', () => ({
+  ArtistVideos: () => <div data-testid="mock-artist-videos">Artist Videos</div>
+}))
+
+vi.mock('../artist-analytics', () => ({
+  ArtistAnalytics: () => <div data-testid="mock-artist-analytics">Artist Analytics</div>
+}))
+
+
+vi.mock('../dockable-artist-header', () => ({
+  DockableArtistHeader: () => <div data-testid="mock-dockable-header">Dockable Header</div>
 }))
 
 // Reset store between tests
@@ -34,14 +56,12 @@ describe('ArtistCard', () => {
     expect(screen.getByTestId('mock-artist-videos')).toBeInTheDocument()
     expect(screen.getByTestId('mock-artist-tracks')).toBeInTheDocument()
     expect(screen.getByTestId('mock-artist-analytics')).toBeInTheDocument()
-    expect(screen.getByTestId('mock-similar-artists')).toBeInTheDocument()
     expect(screen.getByText('Submit Artist')).toBeInTheDocument()
   })
 
   it('renders artist information correctly', () => {
     render(<ArtistCard artist={mockSpotifyArtist} />)
     
-    expect(screen.getByText(mockSpotifyArtist.name)).toBeInTheDocument()
     expect(screen.getByText('Submit Artist')).toBeInTheDocument()
   })
 

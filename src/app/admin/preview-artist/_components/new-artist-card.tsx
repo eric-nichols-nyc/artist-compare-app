@@ -6,7 +6,6 @@ import { ArtistHeader } from "./artist-header";
 import { ArtistTracks } from "./artist-tracks";
 import { ArtistVideos } from "./artist-videos";
 import { ArtistAnalytics } from "./artist-analytics";
-import { SimilarArtists } from "./similar-artists";
 import { HeaderSkeleton } from "./skeletons";
 import { RefreshCw, X } from "lucide-react";
 import { StoreInspector } from '@/components/store-inspector'
@@ -75,9 +74,6 @@ export function ArtistCard({ artist }: ArtistCardProps) {
         </div>
         <div className="flex-grow">
           <ArtistAnalytics />
-          {/* <Suspense fallback={<HeaderSkeleton />}>
-            <SimilarArtists artist={artist} />
-          </Suspense> */}
         </div> 
       </Card>
       <div className="flex gap-2 mt-4">

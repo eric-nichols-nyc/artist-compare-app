@@ -49,6 +49,7 @@ const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 
   },
   analytics: {
     spotifyMonthlyListeners: null,
+    lastFmMonthlyListeners: null,
     youtubeSubscribers: null,
     youtubeTotalViews: null,
     lastfmListeners: null,

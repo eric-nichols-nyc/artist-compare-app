@@ -15,7 +15,6 @@ export class ValidationService{
                 analytics: formData.analytics,
                 videos: formData.videos,
                 tracks: formData.tracks,
-                similarArtists: formData.similarArtists,
             })
 
             if(!result.success){

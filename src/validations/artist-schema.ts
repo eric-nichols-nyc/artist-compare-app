@@ -19,6 +19,7 @@ export interface Analytics {
     spotifyFollowers?: number | null;
     spotifyPopularity?: number | null;
     spotifyMonthlyListeners?: number | null;
+    lastFmMonthlyListeners?: number | null;
     youtubeSubscribers?: number | null;
     youtubeTotalViews?: number | null;
     lastfmListeners?: number | null;
@@ -27,7 +28,7 @@ export interface Analytics {
     facebookFollowers?: number | null;
     tiktokFollowers?: number | null;
     soundcloudFollowers?: number | null;
-  } 
+} 
 
 export interface BasicArtistInfo {
     name: string;
@@ -113,6 +114,7 @@ export const analyticsSchema = z.object({
   spotifyFollowers: z.number().nullable().optional(),
   spotifyPopularity: z.number().nullable().optional(),
   spotifyMonthlyListeners: z.number().nullable().optional(),
+  lastFmMonthlyListeners: z.number().nullable().optional(),
   youtubeSubscribers: z.number().nullable().optional(),
   youtubeTotalViews: z.number().nullable().optional(),
   lastfmListeners: z.number().nullable().optional(),

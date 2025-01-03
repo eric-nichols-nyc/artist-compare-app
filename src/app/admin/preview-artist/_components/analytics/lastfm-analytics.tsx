@@ -10,7 +10,11 @@ interface LastFMAnalyticsProps {
 export function LastFMAnalytics({ analytics }: LastFMAnalyticsProps) {
   const stats = [
     {
-      label: "Listeners",
+      label: "Monthly Listeners",
+      value: analytics.lastFmMonthlyListeners,
+    },
+    {
+      label: "Total Listeners",
       value: analytics.lastfmListeners,
     },
     {

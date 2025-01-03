@@ -43,7 +43,8 @@ model ArtistAnalytics {
   id                String   @id @default(uuid()) @db.Uuid
   artistId          String   @map("artist_id") @db.Uuid
   date              DateTime @db.Date
-  monthlyListeners  Int      @map("monthly_listeners")
+  spotifyMonthlyListeners  Int?      @map("spotify_monthly_listeners")
+  lastFmMonthlyListeners Int? @map("lastfm_monthly_listeners")
   youtubeSubscribers Int?    @map("youtube_subscribers")
   youtubeTotalViews BigInt?  @map("youtube_total_views")
   lastfmPlayCount   BigInt?  @map("lastfm_play_count")
