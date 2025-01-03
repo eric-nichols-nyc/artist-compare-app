@@ -3,33 +3,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { ArtistCard } from '../new-artist-card'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { mockSpotifyArtist } from '@/mocks/spotify-artist'
-import { rest } from 'msw'
+import { http } from 'msw'
 import { server } from '@/mocks/server'
-import type { ArtistInfo, ArtistAnalytics, YoutubeVideoInfo, SpotifyTrackInfo, SimilarArtist } from '@/validations/artist-schema'
+import type { ArtistInfo, ArtistAnalytics, YoutubeVideoInfo, SpotifyTrackInfo } from '@/validations/artist-schema'
 
 // Mock all child components
 vi.mock('../artist-header', () => ({
   ArtistHeader: () => (<div data-testid="mock-artist-header">Artist Header</div>)
-}))
-
-vi.mock('../artist-tracks', () => ({
-  ArtistTracks: () => <div data-testid="mock-artist-tracks">Artist Tracks</div>
-}))
-
-vi.mock('../artist-videos', () => ({
-  ArtistVideos: () => <div data-testid="mock-artist-videos">Artist Videos</div>
-}))
-
-vi.mock('../artist-analytics', () => ({
-  ArtistAnalytics: () => <div data-testid="mock-artist-analytics">Artist Analytics</div>
-}))
-
-vi.mock('../similar-artists', () => ({
-  SimilarArtists: () => <div data-testid="mock-similar-artists">Similar Artists</div>
-}))
-
-vi.mock('../dockable-artist-header', () => ({
-  DockableArtistHeader: () => <div data-testid="mock-dockable-header">Dockable Header</div>
 }))
 
 // Reset store between tests
@@ -39,7 +19,6 @@ beforeEach(() => {
     analytics: {} as ArtistAnalytics,
     videos: [] as YoutubeVideoInfo[],
     tracks: [] as SpotifyTrackInfo[],
-    similarArtists: [] as SimilarArtist[],
     isSubmitting: false,
     errors: {}
   })
@@ -66,60 +45,67 @@ describe('ArtistCard', () => {
     expect(screen.getByText('Submit Artist')).toBeInTheDocument()
   })
 
-  it('handles form submission', async () => {
+  it('handles form submission with valid data', async () => {
     render(<ArtistCard artist={mockSpotifyArtist} />)
     
     // Fill form data via store with proper types
     useArtistFormStore.setState({
       artistInfo: {
-        name: 'Test Artist',
-        genres: ['pop'],
-        spotifyId: 'spotify123',
-        imageUrl: 'https://example.com/image.jpg',
-        bio: 'Test bio',
-        musicbrainzId: null,
-        country: null,
-        gender: null,
-        age: null,
-        youtubeChannelId: null,
-        youtubeUrl: null,
-        spotifyUrl: null,
+        name: "Drake",
+        bio: "Aubrey \"Drake\" Graham (born October 24, 1986) is an Canadian rapper...",
+        genres: ["canadian hip hop", "canadian pop", "hip hop", "pop rap", "rap"],
+        spotifyId: "3TVXtAsR1Inumwj472S9r4",
+        musicbrainzId: "9fff2f8a-21e6-47de-a2b8-7f449929d43f",
+        youtubeChannelId: "UCByOQJjav0CUDwxCk-jVNRQ",
+        imageUrl: "https://i.scdn.co/image/ab6761610000e5eb4293385d324db8558179afd9",
+        spotifyUrl: "https://open.spotify.com/artist/3TVXtAsR1Inumwj472S9r4",
+        youtubeUrl: "https://youtube.com/channel/UCByOQJjav0CUDwxCk-jVNRQ",
         tiktokUrl: null,
         instagramUrl: null,
-        viberateUrl: null
-      } as ArtistInfo,
+        country: "CA",
+        gender: "male",
+        viberateUrl: null,
+        age: 38
+      },
       analytics: {
-        spotifyFollowers: 1000,
-        spotifyPopularity: 80,
-        youtubeSubscribers: 5000,
-        youtubeTotalViews: null,
-        lastfmPlayCount: null,
         spotifyMonthlyListeners: null,
+        youtubeSubscribers: 30400000,
+        youtubeTotalViews: 19003834546,
+        lastfmListeners: 5850998,
+        lastfmPlayCount: 800575942,
+        spotifyFollowers: 94924678,
+        spotifyPopularity: 97,
         instagramFollowers: null,
         facebookFollowers: null,
         tiktokFollowers: null,
         soundcloudFollowers: null
-      } as ArtistAnalytics,
-      videos: [{
-        title: 'Test Video',
-        videoId: 'xyz123',
-        viewCount: 1000,
-        likeCount: 100,
-        commentCount: 50,
-        publishedAt: '2024-03-20T00:00:00Z',
-        platform: 'youtube',
-        thumbnail: null
-      }] as YoutubeVideoInfo[],
-      tracks: [{
-        name: 'Test Track',
-        trackId: 'track123',
-        popularity: 75,
-        platform: 'spotify',
-        previewUrl: null,
-        imageUrl: null,
-        spotifyStreams: null,
-        externalUrl: null
-      }] as SpotifyTrackInfo[]
+      },
+      videos: [
+        {
+          title: "Drake - When To Say When & Chicago Freestyle",
+          videoId: "0jz0GAFNNIo",
+          platform: "youtube",
+          thumbnail: "https://i.ytimg.com/vi/0jz0GAFNNIo/hqdefault.jpg",
+          publishedAt: "2020-03-01T04:13:08Z",
+          viewCount: 81253136,
+          likeCount: 1047858,
+          commentCount: 42518
+        }
+      ],
+      tracks: [
+        {
+          trackId: "1zi7xx7UVEFkmKfv06H8x0",
+          name: "One Dance",
+          imageUrl: "https://i.scdn.co/image/ab67616d0000b2739416ed64daf84936d89e671c",
+          popularity: 85,
+          previewUrl: null,
+          externalUrl: "https://open.spotify.com/track/1zi7xx7UVEFkmKfv06H8x0",
+          spotifyStreams: null,
+          platform: "spotify"
+        }
+      ],
+      isSubmitting: false,
+      errors: {}
     })
 
     const submitButton = screen.getByText('Submit Artist')
@@ -184,10 +170,10 @@ describe('ArtistCard', () => {
   it('handles API errors during submission', async () => {
     // Mock a failed API response
     server.use(
-      rest.post('/api/admin/add-artist', (req, res, ctx) => {
-        return res(
-          ctx.status(400),
-          ctx.json({ message: 'Validation failed' })
+      http.post('/api/admin/add-artist', ({ request }) => {
+        return new Response(
+          JSON.stringify({ message: 'Validation failed' }), 
+          { status: 400 }
         )
       })
     )
@@ -202,89 +188,4 @@ describe('ArtistCard', () => {
     })
   })
 
-  it('handles multiple similar artist selections', async () => {
-    render(<ArtistCard artist={mockSpotifyArtist} />)
-    
-    // Mock multiple similar artists
-    const similarArtists = [
-      {
-        id: '1',
-        name: 'Similar Artist 1',
-        genres: ['pop'],
-        popularity: 75,
-        imageUrl: 'https://example.com/1.jpg',
-        match: 0.8
-      },
-      {
-        id: '2',
-        name: 'Similar Artist 2',
-        genres: ['rock'],
-        popularity: 80,
-        imageUrl: 'https://example.com/2.jpg',
-        match: 0.7
-      }
-    ]
-
-    // Simulate selecting multiple artists
-    useArtistFormStore.getState().dispatch({ 
-      type: 'UPDATE_SIMILAR_ARTIST_SELECTION', 
-      payload: similarArtists
-    })
-
-    const state = useArtistFormStore.getState()
-    expect(state.similarArtists).toHaveLength(2)
-    expect(state.similarArtists).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: '1' }),
-      expect.objectContaining({ id: '2' })
-    ]))
-  })
-
-  it('preserves existing similar artists when adding new ones', async () => {
-    // Start with one similar artist
-    useArtistFormStore.setState({
-      similarArtists: [{
-        id: '1',
-        name: 'Existing Artist',
-        genres: ['pop'],
-        popularity: 70,
-        imageUrl: 'https://example.com/1.jpg',
-        match: 0.9,
-        selected: true
-      }]
-    })
-
-    render(<ArtistCard artist={mockSpotifyArtist} />)
-
-    // Add another similar artist
-    useArtistFormStore.getState().dispatch({
-      type: 'UPDATE_SIMILAR_ARTIST_SELECTION',
-      payload: [{
-        id: '2',
-        name: 'New Artist',
-        genres: ['rock'],
-        popularity: 80,
-        imageUrl: 'https://example.com/2.jpg',
-        match: 0.7
-      }]
-    })
-
-    const state = useArtistFormStore.getState()
-    expect(state.similarArtists).toHaveLength(2)
-    
-    // Check that existing artist is preserved with its selected state
-    const existingArtist = state.similarArtists.find(a => a.id === '1')
-    expect(existingArtist?.selected).toBe(true)
-    
-    // Check that new artist was added
-    expect(state.similarArtists).toEqual(expect.arrayContaining([
-      expect.objectContaining({ 
-        id: '1',
-        selected: true 
-      }),
-      expect.objectContaining({ 
-        id: '2',
-        selected: false  // New artists should default to unselected
-      })
-    ]))
-  })
 }) 

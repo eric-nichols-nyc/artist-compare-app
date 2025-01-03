@@ -5,7 +5,6 @@ import {
   analyticsSchema, 
   videoSchema, 
   spotifyTrackSchema,
-  similarArtistSchema
 } from "@/validations/artist-schema"
 import { z } from "zod"
 
@@ -15,13 +14,12 @@ const AddArtistRequestSchema = z.object({
   analytics: analyticsSchema,
   videos: z.array(videoSchema),
   tracks: z.array(spotifyTrackSchema),
-  similarArtists: z.array(similarArtistSchema)
 })
 
 export async function POST(req: Request) {
   try {
     const { artist } = await req.json()
-    console.log('Received artist data:', artist)
+    // console.log('Received artist data:', artist)
 
     try {
       const validatedArtist = AddArtistRequestSchema.parse(artist)
@@ -29,6 +27,7 @@ export async function POST(req: Request) {
           
     const artistIngestionService = new ArtistIngestionService()
     const result = await artistIngestionService.addArtist(validatedArtist)
+    console.log('Result:', result)
     return NextResponse.json(result, { status: 200 })
 
     } catch (e) {

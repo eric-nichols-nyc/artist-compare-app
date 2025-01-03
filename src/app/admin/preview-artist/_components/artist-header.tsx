@@ -17,7 +17,8 @@ interface ArtistHeaderProps {
 export function ArtistHeader({ artist }: ArtistHeaderProps) {
   const { artistInfo, dispatch } = useArtistFormStore()
 
-  const handleSocialLinkChange = (field: keyof ArtistInfo, value: string | null) => {
+  const handleSocialLinkChange = (field: keyof ArtistInfo, value: string | string[] | null) => {
+    console.log('field', field)
     dispatch({
       type: 'UPDATE_ARTIST_INFO',
       payload: { [field]: value }
@@ -42,7 +43,7 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
           <div>
             <h1 className="text-2xl font-bold mb-2">{artist.name}</h1>
             <div className="top-info flex flex-col gap-2 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-2">
                 <span className="country flex items-center gap-1.5" title={artistInfo.country || 'Unknown'}>
                   {artistInfo.country && (
                     <Image
@@ -55,8 +56,15 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
                   )}
                   <em>{artistInfo.country || 'Unknown'}</em>
                 </span>
-                <div className="genres" title={artist.genres?.join(', ')}>
-                {artist.genres?.join(', ')}
+                <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Genres</label>
+                <input
+                  type="text"
+                  value={artistInfo.genres?.join(', ') || ''}
+                  onChange={(e) => handleSocialLinkChange('genres', e.target.value.split(',').map(g => g.trim()))}
+                  className="w-full p-2 border rounded"
+                  placeholder="Enter genres, separated by commas"
+                />
               </div>
               </div>
   

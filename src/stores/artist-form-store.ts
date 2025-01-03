@@ -22,14 +22,13 @@ interface ArtistFormStore extends ArtistFormFull {
   dispatch: (action: FormAction) => void;
   refreshYoutubeVideos: (channelId: string) => Promise<void>;
   refreshYoutubeAnalytics: (channelId: string) => Promise<void>;
-  refreshSimilarArtists: (artistName: string) => Promise<void>;
   validateForm: () => Promise<boolean>;  // Add this
   spotifyTracks: SpotifyTrack[];
   isSubmitting: boolean;
   submitArtist: () => Promise<void>;
 }
 
-const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 'refreshYoutubeAnalytics' | 'refreshSimilarArtists' | 'validateForm' | 'submitArtist'> = {
+const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 'refreshYoutubeAnalytics'  | 'validateForm' | 'submitArtist'> = {
   selectedArtists: [],
   artistInfo: {
     name: '',
@@ -63,7 +62,6 @@ const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 
   },
   videos: [],
   tracks: [],
-  similarArtists: [],
   isSubmitting: false,
   errors: {},
   spotifyTracks: [],
@@ -95,17 +93,6 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
             }
           }));
         break;
-
-      case 'CANCEL_ARTIST_SELECTION':
-        set((state) => ({
-          ...initialState,
-          dispatch: state.dispatch,
-          refreshYoutubeVideos: state.refreshYoutubeVideos,
-          refreshYoutubeAnalytics: state.refreshYoutubeAnalytics,
-          refreshSimilarArtists: state.refreshSimilarArtists,
-        }));
-        break;
-
       case 'UPDATE_ARTIST_INFO':
         set((state) => ({
           ...state,
@@ -138,37 +125,6 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
           ...state,
           tracks: action.payload,
         }));
-        break;
-      case 'UPDATE_SIMILAR_ARTIST_SELECTION':
-        set((state) => {
-          // Create a map of existing artists by ID for quick lookup
-          const existingArtistsMap = new Map(
-            state.similarArtists.map(artist => [artist.id, artist])
-          );
-
-          // Process new artists
-          action.payload.forEach(newArtist => {
-            // If artist already exists, update it (preserving selected state)
-            if (existingArtistsMap.has(newArtist.id)) {
-              const existing = existingArtistsMap.get(newArtist.id)!;
-              existingArtistsMap.set(newArtist.id, {
-                ...newArtist,
-                selected: existing.selected // Preserve selected state
-              });
-            } else {
-              // If it's a new artist, add it to the map
-              existingArtistsMap.set(newArtist.id, {
-                ...newArtist,
-                selected: false // Default to unselected
-              });
-            }
-          });
-
-          return {
-            ...state,
-            similarArtists: Array.from(existingArtistsMap.values())
-          };
-        });
         break;
       case 'SET_SUBMITTING':
         set((state) => ({
@@ -234,16 +190,6 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
     }
   },
 
-  refreshSimilarArtists: async (artistName: string) => {
-    try {
-      const response = await fetch(`/api/admin/similar-spotify-artists?name=${encodeURIComponent(artistName)}`);
-      const data = await response.json();
-      set({ similarArtists: data || [] });
-    } catch (error) {
-      console.error('Error fetching similar artists:', error);
-    }
-  },
-
 
   validateForm: async () => {
     const state = get();
@@ -252,7 +198,6 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
       analytics: state.analytics,
       videos: state.videos,
       tracks: state.tracks,
-      similarArtists: state.similarArtists
     });
     set({ errors: result.errors || {} });
     console.log('Validation result:', result.isValid)
@@ -288,12 +233,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
       // Clear the form state
       set((state) => ({
         ...state,
-        artistInfo: {},
-        analytics: {},
-        videos: [],
-        tracks: [],
-        similarArtists: [],
-        selectedArtist: null
+      ...initialState
       }));
 
     } catch (error) {

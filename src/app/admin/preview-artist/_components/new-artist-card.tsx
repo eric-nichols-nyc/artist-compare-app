@@ -75,10 +75,10 @@ export function ArtistCard({ artist }: ArtistCardProps) {
         </div>
         <div className="flex-grow">
           <ArtistAnalytics />
-          <Suspense fallback={<HeaderSkeleton />}>
+          {/* <Suspense fallback={<HeaderSkeleton />}>
             <SimilarArtists artist={artist} />
-          </Suspense>
-        </div>
+          </Suspense> */}
+        </div> 
       </Card>
       <div className="flex gap-2 mt-4">
         <Button 

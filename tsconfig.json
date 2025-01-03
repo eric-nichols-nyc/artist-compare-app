@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -8,10 +12,10 @@
     "esModuleInterop": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "target": "ESNext",         // Ensure the latest JavaScript features are supported
+    "target": "ESNext", // Ensure the latest JavaScript features are supported
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "incremental": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -21,9 +25,22 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/compare", "src/services/artist-ingestion-service.ts", "src/services/ingest-top-artists.ts", "src/app/api/admin/get-top-videos"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/app/compare",
+    "src/services/artist-ingestion-service.ts",
+    "src/services/ingest-top-artists.ts",
+    "src/app/api/admin/get-top-videos"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

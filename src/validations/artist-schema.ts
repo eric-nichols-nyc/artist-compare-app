@@ -167,7 +167,6 @@ export interface ArtistFormFull {
     analytics: Analytics;
     videos: YoutubeVideoInfo[];
     tracks: SpotifyTrackInfo[];
-    similarArtists: SimilarArtist[];
     isSubmitting?: boolean;
     errors?: Record<string, string>;
   }
@@ -178,7 +177,6 @@ export const fullArtistSchema = z.object({
   analytics: analyticsSchema,
   videos: z.array(videoSchema),
   tracks: z.array(spotifyTrackSchema),
-  similarArtists: z.array(similarArtistSchema),
 }) satisfies z.Schema<ArtistFormFull>;
 
 // Infer types from schemas

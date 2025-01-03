@@ -35,8 +35,6 @@ model Artist {
   topTracks        ArtistTrack[]
   comparisonsAsArtist1 ArtistComparison[] @relation("Artist1")
   comparisonsAsArtist2 ArtistComparison[] @relation("Artist2")
-  similarToArtists ArtistSimilarity[]     @relation("SimilarTo")
-  similarArtists   ArtistSimilarity[]     @relation("SimilarFrom")
 
   @@map("artists")
 }
@@ -113,22 +111,6 @@ model ArtistGeography {
 
   @@unique([artistId, country, date])
   @@map("artist_geography")
-}
-
-model ArtistSimilarity {
-  id              String   @id @default(uuid()) @db.Uuid
-  artistId        String   @map("artist_id") @db.Uuid
-  similarArtistId String   @map("similar_artist_id") @db.Uuid
-  similarityScore Float    @map("similarity_score") @db.DoublePrecision
-  platform        String?
-  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
-
-  // Relations
-  artist          Artist   @relation("SimilarFrom", fields: [artistId], references: [id])
-  similarArtist   Artist   @relation("SimilarTo", fields: [similarArtistId], references: [id])
-
-  @@unique([artistId, similarArtistId])
-  @@map("artist_similarities")
 }
 
 model ArtistTrack {

@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { SpotifyService } from './spotify-service';
 import { MusicBrainzService } from './music-brainz-service';
-import { ArtistFormState, YoutubeVideoInfo, SpotifyTrackInfo, ArtistAnalytics } from "@/validations/artist-schema"
+import { ArtistFormState, YoutubeVideoInfo, SpotifyTrackInfo, ArtistAnalytics, ArtistInfo } from "@/validations/artist-schema"
 import { LastFmResponse } from '@/types';
 import { YoutubeService } from './youtube-service';
 // Initialize environment variables
@@ -218,7 +218,6 @@ export class ArtistIngestionService {
                 this.processAnalytics(artist.analytics, artistData.id),
                 this.processYoutubeVideos(artist.videos, artistData.id),
                 this.processSpotifyTracks(artist.tracks, artistData.id),
-                this.processSimilarArtists(artist.similarArtists, artistData.id)
             ]);
 
             return {
