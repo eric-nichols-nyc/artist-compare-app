@@ -15,7 +15,7 @@ interface ArtistHeaderProps {
 }
 
 export function ArtistHeader({ artist }: ArtistHeaderProps) {
-  const { artistInfo, dispatch } = useArtistFormStore()
+  const { artistInfo, dispatch, errors } = useArtistFormStore()
 
   const handleSocialLinkChange = (field: keyof ArtistInfo, value: string | string[] | null) => {
     if (field === 'spotifyId') {
@@ -103,6 +103,11 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
                   placeholder="Enter Spotify ID"
                 />
               </div>
+              {
+                errors?.['artistInfo.spotifyId'] && (
+                  <p className="text-red-500">{errors['artistInfo.spotifyId']}</p>
+                )
+              }
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">YouTube Channel ID</label>
                 <input
