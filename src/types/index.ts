@@ -253,7 +253,7 @@ export interface ArtistIngestionResponse {
 
 export interface BasicArtistInfo {
     name: string;
-    spotifyId: string | null;
+    spotifyId: string;
     imageUrl: string | null;
     genres: string[];
 }
@@ -272,7 +272,7 @@ export interface ArtistInfo extends BasicArtistInfo {
     age: number | null;
     youtubeChannelId: string | null;
     imageUrl: string | null;
-    spotifyUrl: string | null;
+    spotifyUrl: string;
     youtubeUrl: string | null;
     tiktokUrl: string | null;
     instagramUrl: string | null;

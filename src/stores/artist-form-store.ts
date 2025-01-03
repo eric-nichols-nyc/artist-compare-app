@@ -34,11 +34,11 @@ const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 
     name: '',
     bio: null,
     genres: [],
-    spotifyId: null,
+    spotifyId: '',
     musicbrainzId: null,
     youtubeChannelId: null,
     imageUrl: null,
-    spotifyUrl: null,
+    spotifyUrl: '',
     youtubeUrl: null,
     tiktokUrl: null,
     instagramUrl: null,
@@ -82,8 +82,8 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
               name: action.payload.name || '',
               imageUrl: action.payload.imageUrl || '',
               genres: action.payload.genres || [],
-              spotifyId: action.payload.spotifyId || null,
-              spotifyUrl: action.payload.spotifyId ? `https://open.spotify.com/artist/${action.payload.spotifyId}` : null,
+              spotifyId: action.payload.spotifyId || '',
+              spotifyUrl: action.payload.spotifyId ? `https://open.spotify.com/artist/${action.payload.spotifyId}` : '',
               youtubeChannelId: null, // Will be updated later via API
               youtubeUrl: null, // Will be updated when youtubeChannelId is available
             },
@@ -95,6 +95,7 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
           }));
         break;
       case 'UPDATE_ARTIST_INFO':
+        console.log('UPDATE_ARTIST_INFO', action.payload)
         set((state) => ({
           ...state,
           artistInfo: {

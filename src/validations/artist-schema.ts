@@ -32,7 +32,7 @@ export interface Analytics {
 
 export interface BasicArtistInfo {
     name: string;
-    spotifyId: string | null;
+    spotifyId: string;
     imageUrl: string | null;
     genres: string[];
 }
@@ -51,7 +51,7 @@ export interface ArtistFull extends BasicArtistInfo {
     age: number | null;
     youtubeChannelId: string | null;
     imageUrl: string | null;
-    spotifyUrl: string | null;
+    spotifyUrl: string;
     youtubeUrl: string | null;
     tiktokUrl: string | null;
     instagramUrl: string | null;
@@ -89,7 +89,7 @@ export const artistBasicSchema = z.object({
 
 // Platform IDs
 export const artistPlatformSchema = z.object({
-  spotifyId: z.string().nullable(),
+  spotifyId: z.string().min(1, "Spotify ID is required"),
   musicbrainzId: z.string().nullable(),
   youtubeChannelId: z.string().nullable(),
 }) satisfies z.Schema<Pick<ArtistFull, "spotifyId" | "musicbrainzId" | "youtubeChannelId">>;
@@ -98,7 +98,7 @@ export const artistPlatformSchema = z.object({
 export const artistSocialSchema = z.object({
   imageUrl: z.string().nullable(),
   youtubeUrl: z.string().nullable(),
-  spotifyUrl: z.string().nullable(),
+  spotifyUrl: z.string().min(1, "Spotify URL is required"),
   tiktokUrl: z.string().nullable(),
   instagramUrl: z.string().nullable(),
   viberateUrl: z.string().nullable(),

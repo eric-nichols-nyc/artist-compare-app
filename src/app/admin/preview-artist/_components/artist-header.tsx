@@ -18,11 +18,21 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
   const { artistInfo, dispatch } = useArtistFormStore()
 
   const handleSocialLinkChange = (field: keyof ArtistInfo, value: string | string[] | null) => {
-    console.log('field', field)
-    dispatch({
-      type: 'UPDATE_ARTIST_INFO',
-      payload: { [field]: value }
-    });
+    if (field === 'spotifyId') {
+      if (Array.isArray(value)) return; // Skip if value is an array
+      dispatch({
+        type: 'UPDATE_ARTIST_INFO',
+        payload: { 
+          spotifyId: value || '',
+          spotifyUrl: value ? `https://open.spotify.com/artist/${value}` : ''
+        }
+      });
+    } else {
+      dispatch({
+        type: 'UPDATE_ARTIST_INFO',
+        payload: { [field]: value }
+      });
+    }
   };
 
   return (

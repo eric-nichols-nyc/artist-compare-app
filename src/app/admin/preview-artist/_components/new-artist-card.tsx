@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { SpotifyArtist } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,12 @@ interface ArtistCardProps {
 
 export function ArtistCard({ artist }: ArtistCardProps) {
   const isSubmitting = useArtistFormStore(state => state.isSubmitting)
-  const {dispatch, submitArtist} = useArtistFormStore(state => state)
+  const {dispatch, submitArtist, errors} = useArtistFormStore(state => state)
+  const[errorMessages, setErrorMessages] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    console.log('errors', errors)
+  }, [errors])
 
   // Only enable in development
   if (process.env.NODE_ENV === 'development') {
@@ -28,8 +33,10 @@ export function ArtistCard({ artist }: ArtistCardProps) {
 
   const handleSubmitArtist = async () => {
     try {
+      dispatch({ type: "SET_SUBMITTING", payload: true });
       const submit = await submitArtist();
       console.log('submit ', submit)
+
      
       
       // Clear the form or redirect
@@ -37,6 +44,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
 
     } catch (error) {
       console.error("Error submitting form", error);
+      setErrorMessages(error as Record<string, string>)
       // Handle error (show toast notification, etc.)
     } finally {
       dispatch({ type: "SET_SUBMITTING", payload: false });
@@ -76,6 +84,9 @@ export function ArtistCard({ artist }: ArtistCardProps) {
           <ArtistAnalytics />
         </div> 
       </Card>
+      {
+        errorMessages && (<p className="text-red-500">Form is not valid</p>)
+      }
       <div className="flex gap-2 mt-4">
         <Button 
           variant="outline"
