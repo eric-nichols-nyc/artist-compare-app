@@ -73,6 +73,7 @@ export interface YoutubeVideo {
     likeCount?: number;
     thumbnail: string | null;
     monthlyStreams?: number;
+    totalStreams?: number;
 }
 
 export interface SimilarArtist {
@@ -161,6 +162,7 @@ export const videoSchema = z.object({
   viewCount: z.number(),
   likeCount: z.number().optional(),
   monthlyStreams: z.number().optional(),
+  totalStreams: z.number().optional(),
   thumbnail: z.string().nullable(),
 }) satisfies z.Schema<YoutubeVideo>;
 

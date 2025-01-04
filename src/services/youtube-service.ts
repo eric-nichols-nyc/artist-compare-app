@@ -45,7 +45,7 @@ export class YoutubeService {
                     this.youtube.search.list({
                         key: this.API_KEY,
                         part: ['id'],
-                        q: `${artistName} official`,
+                        q: `${artistName} topic`,
                         type: ['channel'],
                         order: 'relevance',
                         relevanceLanguage: 'en',
@@ -156,6 +156,40 @@ export class YoutubeService {
         }
     }, ['youtube-channel-videos'], { tags: ['youtube-channel-videos'], revalidate: 60 * 60 * 24 });
 
+    public getVideosByIds = unstable_cache(async (videoIds: string | string[]): Promise<YoutubeVideoInfo[]> => {
+        if (!videoIds) {
+            throw new Error('Video IDs are required');
+        }
+
+        // Convert string of IDs to array if needed
+        const ids = Array.isArray(videoIds) 
+            ? videoIds 
+            : videoIds.split(',').map(id => id.trim());
+
+        try {
+            const videosResponse = await this.rateLimitRequest(
+                this.youtube.videos.list({
+                    key: this.API_KEY,
+                    part: ['snippet', 'statistics', 'contentDetails'],
+                    id: ids
+                })
+            );
+
+            return (videosResponse.data.items || []).map(video => ({
+                title: video.snippet?.title ?? '',
+                videoId: video.id ?? '',
+                platform: 'youtube',
+                thumbnail: video.snippet?.thumbnails?.high?.url ?? '',
+                publishedAt: video.snippet?.publishedAt ?? '',
+                viewCount: parseInt(video.statistics?.viewCount ?? '0'),
+                likeCount: parseInt(video.statistics?.likeCount ?? '0'),
+                commentCount: parseInt(video.statistics?.commentCount ?? '0')
+            }));
+        } catch (error) {
+            console.error('Error fetching YouTube videos:', error);
+            return [];
+        }
+    }, ['youtube-videos-by-ids'], { tags: ['youtube-videos-by-ids'], revalidate: 60 * 60 * 24 });
 
     public formatVideoStats(statistics: YoutubeVideoStatistics): string {
         const views = statistics.viewCount ? parseInt(statistics.viewCount).toLocaleString() : 0;

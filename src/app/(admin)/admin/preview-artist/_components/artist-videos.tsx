@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { useArtistFormStore } from '@/stores/artist-form-store'
+import { useScrapedDataStore } from '@/stores/scraped-data-store'
 import { Button } from '@/components/ui/button'
 import { RefreshCw, Upload } from 'lucide-react'
 import { DataSourceSelector } from '@/components/data-source-selector'
@@ -14,32 +15,52 @@ type VideoSource = 'youtube' | 'viberate' | 'json'
 
 export function ArtistVideos() {
   const { dispatch, videos, refreshYoutubeVideos, artistInfo } = useArtistFormStore()
+  // get videos from viberate store
+  const { viberateVideos } = useScrapedDataStore()
   const [selectedSource, setSelectedSource] = useState<VideoSource>('youtube')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    console.log("ArtistVideos component mounted", artistInfo.name);
-    async function fetchVideos() {
-      if (!artistInfo.youtubeChannelId) return;
-      setIsLoading(true)
-      try {
-        const response = await fetch(`/api/admin/artist-videos?channelId=${artistInfo.youtubeChannelId}`);
-        if (!response.ok) throw new Error('Failed to fetch videos');
+  // useEffect(() => {
+  //   console.log("ArtistVideos component mounted", artistInfo.name);
+  //   async function fetchVideos() {
+  //     if (!artistInfo.youtubeChannelId) return;
+  //     setIsLoading(true)
+  //     try {
+  //       const response = await fetch(`/api/admin/artist-videos?channelId=${artistInfo.youtubeChannelId}`);
+  //       if (!response.ok) throw new Error('Failed to fetch videos');
         
-        const data = await response.json();
-        console.log('video response = ', data.videos)
-        dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: data.videos || [] });
-      } catch (error) {
-        console.error('Error fetching videos:', error);
-        setError('Failed to fetch videos');
-      }finally{
-        setIsLoading(false)
-      }
-    }
+  //       const data = await response.json();
+  //       console.log('video response = ', data.videos)
+  //       dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: data.videos || [] });
+  //     } catch (error) {
+  //       console.error('Error fetching videos:', error);
+  //       setError('Failed to fetch videos');
+  //     }finally{
+  //       setIsLoading(false)
+  //     }
+  //   }
 
-    fetchVideos();
-  }, [artistInfo.youtubeChannelId, dispatch]);
+  //   fetchVideos();
+  // }, [artistInfo.youtubeChannelId, dispatch]);
+  const fetchYoutubeVideos = async (videoIds: string[]) => {  
+    console.log('videoIds ========== ', videoIds)
+    try{
+      const response = await fetch(`/api/admin/artist-videos?videoIds=${videoIds.join(',')}`);
+      if (!response.ok) throw new Error('Failed to fetch videos');
+      const data = await response.json();      
+      dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: data.videos || [] });
+    } catch (error) {
+      console.error('Error fetching videos:', error);
+      setError('Failed to fetch videos');
+    }
+  }
+  // when the viberateVideos change, fetch the youtube videos
+  useEffect(() => {
+    if (viberateVideos.length) {
+      fetchYoutubeVideos(viberateVideos.map(video => video.videoId.split('?v=')[1]))
+    }
+  }, [viberateVideos])  
 
   const handleSourceChange = async (source: VideoSource) => {
     setSelectedSource(source)

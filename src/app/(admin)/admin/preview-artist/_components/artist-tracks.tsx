@@ -24,7 +24,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
   const { tracks, dispatch } = useArtistFormStore();
     // load tracks from viberate store
   const { viberateTracks } = useScrapedDataStore();
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -43,14 +43,17 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
   }, [viberateTracks])
 
   function mergeTracks(viberateTracks: ViberateSpTrack[], spotifyTracks: Partial<SpotifyTrackInfo>[]):SpotifyTrackInfo[] {
-    return viberateTracks.map((viberateTrack: ViberateSpTrack) => ({
-      ...viberateTrack,
-      ...spotifyTracks.find((spotifyTrack: any) => spotifyTrack.trackId === viberateTrack.spotifyTrackId),
-      platform: 'spotify',
-      trackId: viberateTrack.spotifyTrackId,
-      popularity: 0,
-      spotifyStreams: parseCompactNumber(viberateTrack.monthlyStreams) || null
-    }))
+    return viberateTracks.map((viberateTrack: ViberateSpTrack) => {
+      const spotifyTrack = spotifyTracks.find(track => track.trackId === viberateTrack.spotifyTrackId);
+      return {
+        ...viberateTrack,
+        ...spotifyTrack,
+        platform: 'spotify',
+        trackId: viberateTrack.spotifyTrackId,
+        popularity: spotifyTrack?.popularity || 0,
+        spotifyStreams: parseCompactNumber(viberateTrack.monthlyStreams) || null
+      };
+    });
   }
 
   async function fetchSpotifyTracks(trackIds: string[]) {

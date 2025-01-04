@@ -5,16 +5,16 @@ const youtubeService = new YoutubeService()
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
-  const channelId = searchParams.get('channelId')
+  const videoIds = searchParams.get('videoIds')
 
-  if (!channelId) {
+  if (!videoIds) {
     return NextResponse.json({ error: 'Name is required' }, { status: 400 })
   }
 
   try {
-
+console.log('videoIds ========== ', videoIds)
     // Then get the videos using the channel ID
-    const videos = await youtubeService.getChannelTopVideos(channelId)
+    const videos = await youtubeService.getVideosByIds(videoIds)
     console.log('videos ========== ', videos)
     return NextResponse.json({ videos })
   } catch (error) {

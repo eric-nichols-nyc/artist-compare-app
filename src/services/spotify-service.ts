@@ -40,11 +40,22 @@ export class SpotifyService {
         if (!data.artists?.items?.length) {
             throw new Error('Artist not found');
         }
-        console.log('searchArtist = ', data)
+        console.log('searchArtist = ', data.artists.items[0])
 
         const artistId = data.artists.items[0].id;
 
-   
+        const artistResponse = await fetch(
+            `https://api.spotify.com/v1/artists/${artistId}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
+        );
+    
+        const artistData = await artistResponse.json();
+        console.log('artistData ==================?????= ', artistData)
+        
         return artistId;
 
     },['spotify-search-artist'], { tags: ['spotify-search-artist'], revalidate: 60 * 60 * 24 });
