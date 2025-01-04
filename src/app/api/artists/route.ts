@@ -68,7 +68,7 @@ const getArtists = unstable_cache(
       tictokUrl: artist.tictok_url,
       instagramUrl: artist.instagram_url,
       viberateUrl: artist.viberate_url,
-      musicBrainzId: artist.musicbrainz_id,
+      musicBrainzId: artist.last_fm_id,
       spotifyUrl: artist.spotify_url,
       tiktokUrl: artist.tiktok_url,
       facebookUrl: artist.facebook_url,
