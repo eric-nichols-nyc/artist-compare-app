@@ -6,6 +6,7 @@ import { useArtistFormStore } from "@/stores/artist-form-store";
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { HeaderSkeleton } from "./skeletons";
+import { getArtistInfo } from '@/actions';
 
 interface ArtistDetailsProps {
   artist: SpotifyArtist;
@@ -20,29 +21,38 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
     console.log("ArtistDetails component mounted", artist.name);
     const fetchArtistInfo = async () => {
       try {
-        const response = await fetch(`/api/admin/ingest-artist?name=${artist.name}`);
-        const data = await response.json();
+        const result = await getArtistInfo(artist.name);
+        if (result.success) {
+            // Handle successful response
+            console.log(result.data);
+            const {data} = result;
+     
         dispatch({
           type: 'UPDATE_ARTIST_INFO',
           payload: {
-            musicbrainzId: data.musicbrainzId,
-            bio: data.biography,
-            country: data.country,
-            gender: data.gender,
-            age: data.age,
-            youtubeChannelId: data.youtubeChannelId,
+            musicbrainzId: data?.musicbrainzId,
+            bio: data?.biography,
+            country: data?.country,
+            gender: data?.gender,
+            birthDate: data?.born ? new Date(data.born) : null,
+            youtubeChannelId: data?.youtubeChannelId,
           }
         });
 
         dispatch({
           type: 'UPDATE_ANALYTICS',
           payload: {
-            lastfmPlayCount: data.lastfmPlayCount,
-            lastfmListeners: data.lastfmListeners,
-            youtubeSubscribers: data.youtubeChannelStats.subscriberCount,
-            youtubeTotalViews: data.youtubeChannelStats.viewCount,
+            lastfmPlayCount: data?.lastfmPlayCount,
+            lastfmListeners: data?.lastfmListeners,
+            youtubeSubscribers: parseInt(data?.youtubeChannelStats?.subscriberCount ?? '0'),
+            youtubeTotalViews: parseInt(data?.youtubeChannelStats?.viewCount ?? '0'),
           }
         });
+      }
+        else {
+          // Handle error
+          console.error(result.error);
+      }
       } catch (error) {
         setError("Error fetching artist info");
       } finally {

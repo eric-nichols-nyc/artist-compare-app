@@ -12,7 +12,6 @@ interface MusicBrainzArtist {
   genres?: Array<{ name: string }>;
   gender?: string;
   tags?: Array<{ name: string }>;
-  disambiguation?: string;
   score?: number;
 }
 
@@ -27,7 +26,6 @@ interface ArtistDetails {
     begin: string | null;
     end: string | null;
   };
-  disambiguation: string | null;
 }
 
 export class MusicBrainzService {
@@ -91,8 +89,7 @@ export class MusicBrainzService {
         activeYears: {
           begin: artist['life-span']?.begin || null,
           end: artist['life-span']?.end || null
-        },
-        disambiguation: artist.disambiguation || null
+        }
       };
     } catch (error) {
       console.error('Error fetching artist details:', error);

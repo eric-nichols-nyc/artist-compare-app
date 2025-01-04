@@ -12,18 +12,8 @@ export async function GET(req: Request) {
     }
     const artist: ArtistIngestionResponse = await artistIngestionService.getArtistInfo(name);
     // function to format the artists age from the active years
-    function formatAge(activeYears: { begin: string | null; end: string | null }): number | null {
-        if (!activeYears.begin) return null;
-        
-        const beginDate = new Date(activeYears.begin);
-        const endDate = activeYears.end ? new Date(activeYears.end) : new Date();
-        
-        return Math.floor((endDate.getTime() - beginDate.getTime()) / (1000 * 60 * 60 * 24 * 365));
-    }
-
-    artist.age = artist.activeYears ? formatAge(artist.activeYears) : null
-    artist.youtubeChannelStats.viewCount = parseFormattedNumber(artist.youtubeChannelStats.viewCount)
-    artist.youtubeChannelStats.subscriberCount = parseFormattedNumber(artist.youtubeChannelStats.subscriberCount)
+    artist.youtubeChannelStats.viewCount = parseInt(artist.youtubeChannelStats.viewCount)
+    artist.youtubeChannelStats.subscriberCount = parseInt(artist.youtubeChannelStats.subscriberCount)
     // if artist biographySummary is null, generate it
 
     if(!artist.biography) {
@@ -36,6 +26,8 @@ export async function GET(req: Request) {
         }, 'summary');
         artist.biography = summaryBio;
     }
+
+    console.log('artist =========== ', artist)
 
     return NextResponse.json(artist);
 }

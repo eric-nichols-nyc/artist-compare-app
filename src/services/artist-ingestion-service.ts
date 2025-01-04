@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { SpotifyService } from './spotify-service';
 import { MusicBrainzService } from './music-brainz-service';
-import { ArtistFormState, YoutubeVideoInfo, SpotifyTrackInfo, ArtistAnalytics, ArtistInfo } from "@/validations/artist-schema"
+import { ArtistFormState, YoutubeVideoInfo, SpotifyTrackInfo, ArtistAnalytics } from "@/validations/artist-schema"
 import { LastFmResponse } from '@/types';
 import { YoutubeService } from './youtube-service';
 // Initialize environment variables
@@ -14,21 +14,10 @@ if (typeof window === 'undefined') {
 export interface LastFmArtistInfo {
     name: string;
     mbid: string;
-    url: string;
-    stats: {
-        listeners: string;
-        playcount: string;
-    }
-    bio: {
-        links: {
-            link: {
-                href: string;
-            }
-        }
-        summary: string;
-        content: string;
-    };
-    match: number | null;
+    lfmUrl: string;
+    fmListeners: string;
+    fmPlayCount: string;
+    bio:string;
     selected?: boolean | null;
 }
 
@@ -72,7 +61,6 @@ export class ArtistIngestionService {
                 `http://ws.audioscrobbler.com/2.0/?method=artist.getSimilar&artist=${encodeURIComponent(artistName)}&api_key=${LASTFM_API_KEY}&format=json&limit=10`
             );
             const data = await response.json() as LastFmResponse;
-            console.log('lastfm data', data);
             return data.similarartists.artist;
         } catch (error) {
             console.error('Error fetching Last.fm artist info:', error);
@@ -87,7 +75,16 @@ export class ArtistIngestionService {
                 `http://ws.audioscrobbler.com/2.0/?method=artist.getInfo&artist=${encodeURIComponent(artistName)}&api_key=${LASTFM_API_KEY}&format=json`
             );
             const data = await response.json();
-            return data.artist;
+
+            const fromattedArtist = {
+                name: data.artist.name,
+                mbid: data.artist.mbid,
+                lfmUrl: data.artist.url,
+                fmListeners: data.artist.stats.listeners,
+                fmPlayCount: data.artist.stats.playcount,
+                bio: data.artist.bio.summary,
+            }
+            return fromattedArtist;
         } catch (error) {
             console.error('Error fetching Last.fm artist info:', error);
             throw error;
@@ -151,9 +148,15 @@ export class ArtistIngestionService {
 
     // get artist info  return bio, spotifyId, lastfmId, youtubeChannelId, genres, imageUrl
     public async getArtistInfo(name: string) {
-        const lastfm = await this.getLastFmArtistInfo(name);
-        const musicbrainzInfo = await this.musicBrainzService.getArtistDetails(name);
-        // console.log('musicbrainzInfo =============================', musicbrainzInfo);
+        // Run all API calls concurrently
+        const [lastfm, musicbrainzInfo, youtubeChannel] = await Promise.all([
+            this.getLastFmArtistInfo(name),
+            this.musicBrainzService.getArtistDetails(name),
+            this.getYoutubeChannelInfo(name)
+        ]);
+
+        console.log('lastfm artist info = ', lastfm);
+        console.log('musicbrainzInfo =============================', musicbrainzInfo);
 
         if (!musicbrainzInfo) {
             throw new Error('Could not find artist info in MusicBrainz');
@@ -161,23 +164,20 @@ export class ArtistIngestionService {
 
         const { id, gender, country, activeYears } = musicbrainzInfo;
         const musicbrainzId = id;
-        const youtubeChannel = await this.getYoutubeChannelInfo(name);
         const youtubeChannelId = youtubeChannel?.id;
-
-        // Generate both full and summary bios using Gemini
-
 
         return {
             musicbrainzId,
-            lastFmUrl: lastfm.url,
-            lastfmPlayCount: parseInt(lastfm.stats?.playcount),
-            lastfmListeners: parseInt(lastfm.stats?.listeners),
+            lastFmUrl: lastfm.lfmUrl,
+            lastfmPlayCount: parseInt(lastfm.fmPlayCount),
+            lastfmListeners: parseInt(lastfm.fmListeners),
             youtubeChannelId,
             youtubeChannelStats: youtubeChannel?.statistics,
-            biography: lastfm.bio?.summary,
+            biography: lastfm.bio,
             gender,
             country,
-            activeYears
+            born: activeYears.begin,
+            died: activeYears.end
         }
     }
 
