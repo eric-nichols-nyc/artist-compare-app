@@ -161,6 +161,7 @@ export class ArtistIngestionService {
         if (!musicbrainzInfo) {
             throw new Error('Could not find artist info in MusicBrainz');
         }
+        console.log('youtubeChannel =============================', youtubeChannel);    
 
         const { id, gender, country, activeYears } = musicbrainzInfo;
         const musicbrainzId = id;

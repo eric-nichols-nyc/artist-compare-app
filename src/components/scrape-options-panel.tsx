@@ -163,7 +163,7 @@ export function ScrapeOptionsPanel({
   };
 
   return variant === 'compact' ? (
-    <div className="flex items-center justify-end gap-2">
+    <div className="flex items-center justify-start gap-2">
       <Button 
         size="sm" 
         variant="outline"

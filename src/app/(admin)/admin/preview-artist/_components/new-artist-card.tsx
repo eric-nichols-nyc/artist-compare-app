@@ -73,8 +73,13 @@ export function ArtistCard({ artist }: ArtistCardProps) {
         <div className="flex-grow">
           <ArtistHeader artist={artist} />
         </div>
-        <ScrapeOptionsPanel artistName={artist.name} spotifyId={artist.spotifyId} />
-        <div className="grid grid-cols-2 gap-3">
+        <ScrapeOptionsPanel 
+            artistName={artist.name}
+            spotifyId={artist.spotifyId}
+            youtubeChannelId={artist.youtubeChannelId}
+            variant="compact"
+          />        
+          <div className="grid grid-cols-2 gap-3">
           <Suspense fallback={<HeaderSkeleton />}>
             <ArtistVideos />
           </Suspense>

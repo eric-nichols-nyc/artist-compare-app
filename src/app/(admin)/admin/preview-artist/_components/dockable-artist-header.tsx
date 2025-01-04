@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { SpotifyArtist } from '@/types'
 import Image from 'next/image'
-import { ScrapeOptionsPanel } from '@/components/scrape-options-panel'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { cn } from '@/lib/utils'
 
@@ -47,12 +46,6 @@ export function DockableArtistHeader({ artist }: DockableArtistHeaderProps) {
             )}
             <h2 className="text-lg font-semibold">{artist.name}</h2>
           </div>
-          <ScrapeOptionsPanel 
-            artistName={artist.name}
-            spotifyId={artist.spotifyId}
-            youtubeChannelId={artistInfo.youtubeChannelId}
-            variant="compact"
-          />
         </div>
       </div>
     </div>

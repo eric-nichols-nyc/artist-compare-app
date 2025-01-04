@@ -36,7 +36,7 @@ export class YoutubeService {
         }
     }
 
-    public getChannelInfo = unstable_cache(async (artistName: string, cid?: string | undefined | null): Promise<YoutubeChannelInfo | null> => {
+    public getChannelInfo = async (artistName: string, cid?: string | undefined | null): Promise<YoutubeChannelInfo | null> => {
         try {
             let channelId = cid;
 
@@ -73,16 +73,16 @@ export class YoutubeService {
             return {
                 id: channelId,
                 statistics: {
-                    viewCount: parseInt(channelStats.viewCount ?? '0').toLocaleString() ?? '0',
-                    subscriberCount: parseInt(channelStats.subscriberCount ?? '0').toLocaleString() ?? '0',
-                    videoCount: parseInt(channelStats.videoCount ?? '0').toLocaleString() ?? '0'
+                    viewCount: Number(channelStats.viewCount ?? '0'),
+                    subscriberCount: Number(channelStats.subscriberCount ?? '0'),
+                    videoCount: Number(channelStats.videoCount ?? '0')
                 },
             };
         } catch (error) {
             console.error('Error fetching YouTube channel:', error);
             return null;
         }
-    }, ['youtube-channel-info'], { tags: ['youtube-channel-info'], revalidate: 60 * 60 * 24 });
+    };
 
     public getTopPlaylistVideos = unstable_cache(async (playlistId: string) => {
         if(!playlistId){

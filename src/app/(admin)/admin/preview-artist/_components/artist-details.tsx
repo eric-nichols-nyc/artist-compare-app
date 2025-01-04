@@ -6,7 +6,7 @@ import { useArtistFormStore } from "@/stores/artist-form-store";
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { HeaderSkeleton } from "./skeletons";
-import { getArtistInfo } from '@/actions';
+import { getArtistInfo, revalidateArtistCache } from '@/actions';
 
 interface ArtistDetailsProps {
   artist: SpotifyArtist;
@@ -21,6 +21,7 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
     console.log("ArtistDetails component mounted", artist.name);
     const fetchArtistInfo = async () => {
       try {
+        await revalidateArtistCache(artist.name);
         const result = await getArtistInfo(artist.name);
         if (result.success) {
             // Handle successful response
@@ -44,8 +45,8 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
           payload: {
             lastfmPlayCount: data?.lastfmPlayCount,
             lastfmListeners: data?.lastfmListeners,
-            youtubeSubscribers: parseInt(data?.youtubeChannelStats?.subscriberCount ?? '0'),
-            youtubeTotalViews: parseInt(data?.youtubeChannelStats?.viewCount ?? '0'),
+            youtubeSubscribers: data?.youtubeChannelStats?.subscriberCount ?? '0',
+            youtubeTotalViews: data?.youtubeChannelStats?.viewCount ?? '0',
           }
         });
       }

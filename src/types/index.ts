@@ -238,9 +238,13 @@ export interface ArtistIngestionResponse {
     lastfmPlayCount: number | null
     lastfmListeners: number | null
     youtubeChannelId: string | undefined
-    youtubeChannelStats: any
+    youtubeChannelStats: {
+        viewCount: number;
+        subscriberCount: number;
+        videoCount: number;
+    }
     biography: string | null
-    age?:number | null
+    age?: number | null
     genres?: string[]
     imageUrl?: string | null
     gender?: string | null
@@ -339,17 +343,17 @@ export interface SimilarSpotifyArtistWithMatch {
 
 
 export interface YoutubeVideoStatistics {
-    viewCount?: string | undefined;
-    likeCount?: string | undefined;
-    commentCount?: string | undefined;
+    viewCount?: number | undefined;
+    likeCount?: number | undefined;
+    commentCount?: number | undefined;
 }
 
 export interface YoutubeChannelInfo {
     id: string;
     statistics: {
-        viewCount?: string;
-        subscriberCount?: string;
-        videoCount?: string;
+        viewCount: number;
+        subscriberCount: number;
+        videoCount: number;
     };
     topVideos?: YoutubeVideo[];
 }
