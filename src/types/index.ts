@@ -282,14 +282,13 @@ export interface ArtistInfo extends BasicArtistInfo {
 
   
 export interface SpotifyTrack {
-    name: string;
+    title: string;
     trackId: string;
     popularity: number;
     platform: string;
-    previewUrl: string | null;
     imageUrl: string | null;
     spotifyStreams: number | null;
-    externalUrl: string | null;
+    spotifyUrl: string | null;
   }
   
 
@@ -365,3 +364,11 @@ export interface ArtistFormState {
     errors: Record<string, string>;
   }
 
+export interface ViberateSpTrack {
+    imageUrl: string;
+    spotifyTrackId: string;
+    title: string;
+    spotifyUrl: string;
+    totalStreams: string;
+    monthlyStreams: string;
+  }

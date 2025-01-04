@@ -39,27 +39,18 @@ export function EditArtistSheet({ artist, open, onOpenChange }: EditArtistSheetP
         imageUrl: artist.imageUrl,
         spotifyId: artist.spotifyId,
         youtubeChannelId: artist.youtubeChannelId,
-        spotifyFollowers: artist.spotifyFollowers,
-        monthlyListeners: artist.monthlyListeners,
-        youtubeSubscribers: artist.youtubeSubscribers,
-        instagramFollowers: artist.instagramFollowers,
-        facebookFollowers: artist.facebookFollowers,
-        tiktokFollowers: artist.tiktokFollowers,
-        gender: artist.gender || '',
         bio: artist.bio || '',
-        age: artist.age || null,
-        birthDate: artist.birthDate || '',
+        gender: artist.gender || '',
+        birthDate: artist.birthDate || null,
         birthPlace: artist.birthPlace || '',
-        nationality: artist.nationality || '',
-        occupation: artist.occupation || ['musician'],
-        instruments: artist.instruments || [],
-        yearsActive: artist.yearsActive || '',
-        labels: artist.labels || [],
+        musicbrainzId: artist.musicbrainzId || '',
+        youtubeUrl: artist.youtubeUrl || '',
+        spotifyUrl: artist.spotifyUrl || '',
         tiktokUrl: artist.tiktokUrl || '',
         instagramUrl: artist.instagramUrl || '',
-        youtubeUrl: artist.youtubeUrl || '',
         viberateUrl: artist.viberateUrl || '',
-        musicBrainzId: artist.musicBrainzId || '',
+        youtubeChartsUrl: artist.youtubeChartsUrl || '',
+        songStatsUrl: artist.songStatsUrl || '',
       })
     }
   }, [artist])
@@ -215,35 +206,21 @@ export function EditArtistSheet({ artist, open, onOpenChange }: EditArtistSheetP
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="age">Age</Label>
-                  <Input 
-                    id="age"
-                    type="number"
-                    value={formData.age || ''}
-                    onChange={(e) => handleFieldChange('age', e.target.value ? parseInt(e.target.value) : null)}
-                    aria-invalid={!!errors?.age}
-                  />
-                  {errors?.age && (
-                    <p className="text-sm text-red-500">{errors.age}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
                   <Label htmlFor="birthDate">Birth Date</Label>
                   <Input 
                     id="birthDate"
                     type="date"
-                    value={formData.birthDate || ''}
-                    onChange={(e) => handleFieldChange('birthDate', e.target.value)}
+                    value={formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : ''}
+                    onChange={(e) => handleFieldChange('birthDate', e.target.value ? new Date(e.target.value) : null)}
                     aria-invalid={!!errors?.birthDate}
                   />
                   {errors?.birthDate && (
                     <p className="text-sm text-red-500">{errors.birthDate}</p>
                   )}
                 </div>
+              </div>
 
+              <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="birthPlace">Birth Place</Label>
                   <Input 
@@ -256,75 +233,30 @@ export function EditArtistSheet({ artist, open, onOpenChange }: EditArtistSheetP
                     <p className="text-sm text-red-500">{errors.birthPlace}</p>
                   )}
                 </div>
-              </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="nationality">Nationality</Label>
-                <Input 
-                  id="nationality"
-                  value={formData.nationality || ''}
-                  onChange={(e) => handleFieldChange('nationality', e.target.value)}
-                  aria-invalid={!!errors?.nationality}
-                />
-                {errors?.nationality && (
-                  <p className="text-sm text-red-500">{errors.nationality}</p>
-                )}
-              </div>
+                <div className="grid gap-2">
+                  <Label>YouTube Charts URL</Label>
+                  <Input 
+                    value={formData.youtubeChartsUrl || ''}
+                    onChange={(e) => handleFieldChange('youtubeChartsUrl', e.target.value)}
+                    aria-invalid={!!errors?.youtubeChartsUrl}
+                  />
+                  {errors?.youtubeChartsUrl && (
+                    <p className="text-sm text-red-500">{errors.youtubeChartsUrl}</p>
+                  )}
+                </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="occupation">Occupation</Label>
-                <Input 
-                  id="occupation"
-                  value={formData.occupation?.join(', ') || ''}
-                  onChange={(e) => handleFieldChange('occupation', e.target.value.split(',').map(o => o.trim()))}
-                  placeholder="Enter occupations, separated by commas"
-                  aria-invalid={!!errors?.occupation}
-                />
-                {errors?.occupation && (
-                  <p className="text-sm text-red-500">{errors.occupation}</p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="instruments">Instruments</Label>
-                <Input 
-                  id="instruments"
-                  value={formData.instruments?.join(', ') || ''}
-                  onChange={(e) => handleFieldChange('instruments', e.target.value.split(',').map(i => i.trim()))}
-                  placeholder="Enter instruments, separated by commas"
-                  aria-invalid={!!errors?.instruments}
-                />
-                {errors?.instruments && (
-                  <p className="text-sm text-red-500">{errors.instruments}</p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="yearsActive">Years Active</Label>
-                <Input 
-                  id="yearsActive"
-                  value={formData.yearsActive || ''}
-                  onChange={(e) => handleFieldChange('yearsActive', e.target.value)}
-                  placeholder="e.g., 2010-present"
-                  aria-invalid={!!errors?.yearsActive}
-                />
-                {errors?.yearsActive && (
-                  <p className="text-sm text-red-500">{errors.yearsActive}</p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="labels">Record Labels</Label>
-                <Input 
-                  id="labels"
-                  value={formData.labels?.join(', ') || ''}
-                  onChange={(e) => handleFieldChange('labels', e.target.value.split(',').map(l => l.trim()))}
-                  placeholder="Enter labels, separated by commas"
-                  aria-invalid={!!errors?.labels}
-                />
-                {errors?.labels && (
-                  <p className="text-sm text-red-500">{errors.labels}</p>
-                )}
+                <div className="grid gap-2">
+                  <Label>Song Stats URL</Label>
+                  <Input 
+                    value={formData.songStatsUrl || ''}
+                    onChange={(e) => handleFieldChange('songStatsUrl', e.target.value)}
+                    aria-invalid={!!errors?.songStatsUrl}
+                  />
+                  {errors?.songStatsUrl && (
+                    <p className="text-sm text-red-500">{errors.songStatsUrl}</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -509,21 +441,6 @@ export function EditArtistSheet({ artist, open, onOpenChange }: EditArtistSheetP
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <div className="flex items-center gap-2">
-                    <Image src="/images/facebook.svg" alt="Facebook" width={16} height={16} />
-                    <Label>Facebook Followers</Label>
-                  </div>
-                  <Input 
-                    type="number"
-                    value={formData.facebookFollowers || ''}
-                    onChange={(e) => handleFieldChange('facebookFollowers', parseInt(e.target.value))}
-                    aria-invalid={!!errors?.facebookFollowers}
-                  />
-                  {errors?.facebookFollowers && (
-                    <p className="text-sm text-red-500">{errors.facebookFollowers}</p>
-                  )}
-                </div>
                 <div className="grid gap-2">
                   <div className="flex items-center gap-2">
                     <Image src="/images/tiktok.svg" alt="TikTok" width={16} height={16} />

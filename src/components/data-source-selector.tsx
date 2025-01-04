@@ -3,6 +3,7 @@ import { useScrapedDataStore } from '@/stores/scraped-data-store'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { JsonInputDialog } from './json-input-dialog'
 import { YoutubeVideoInfo } from '@/validations/artist-schema'
+import { useEffect } from 'react'
 
 interface DataSourceSelectorProps {
   type: 'videos' | 'tracks'
@@ -12,13 +13,22 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
   const { youtubeVideos, spotifyTracks, viberateVideos, viberateTracks } = useScrapedDataStore()
   const { dispatch } = useArtistFormStore()
 
+
+  useEffect(() => {
+    // console.log('youtubeVideos', youtubeVideos)
+    // console.log('spotifyTracks', spotifyTracks)
+    // console.log('viberateVideos', viberateVideos)
+    // console.log('viberateTracks', viberateTracks)
+  }, [youtubeVideos, spotifyTracks, viberateVideos, viberateTracks])
+
   const handleLoadSource = (source: 'youtube' | 'spotify' | 'viberate') => {
     if (type === 'videos') {
       const videos = source === 'youtube' ? youtubeVideos : viberateVideos
       dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos })
     } else {
       const rawTracks = source === 'spotify' ? spotifyTracks : viberateTracks
-      dispatch({ type: 'UPDATE_TRACKS', payload: rawTracks })
+      console.log('rawTracks = ', rawTracks)
+      // dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: rawTracks })
     }
   }
 
@@ -26,7 +36,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
     if (type === 'videos') {
       dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: [] })
     } else {
-      dispatch({ type: 'UPDATE_TRACKS', payload: [] })
+      dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: [] })
     }
   }
 
@@ -37,7 +47,7 @@ export function DataSourceSelector({ type }: DataSourceSelectorProps) {
         dispatch({ type: 'UPDATE_YOUTUBE_VIDEOS', payload: videos as YoutubeVideoInfo[] })
       } else {
         const rawTracks = Array.isArray(data) ? data : [data]
-        dispatch({ type: 'UPDATE_TRACKS', payload: rawTracks })
+        dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: rawTracks })
       }
     } catch (error) {
       console.error('Error importing JSON:', error)

@@ -133,4 +133,24 @@ export class SpotifyService {
         ['spotify-top-tracks'],
         { tags: ['spotify-top-tracks'], revalidate: 60 * 60 * 24 }
     );
+
+    public static getTracks = unstable_cache(
+        async (trackIds: string[]) => {
+            const accessToken = await this.getAccessToken();
+            
+            const response = await fetch(
+                `https://api.spotify.com/v1/tracks?ids=${trackIds.join(',')}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+            const data = await response.json();
+            return data.tracks || [];
+        },
+        ['spotify-tracks'],
+        { tags: ['spotify-tracks'], revalidate: 60 * 60 * 24 }
+    );
 } 

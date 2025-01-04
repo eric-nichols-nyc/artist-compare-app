@@ -1,20 +1,10 @@
 import { create } from 'zustand'
 import { 
   SpotifyArtist, 
+  SpotifyTrack 
 } from '@/types'
 import { ArtistFormFull, Analytics, FormAction } from '@/validations/artist-schema'
 import { ValidationService } from '@/services/validation-service'
-
-interface SpotifyTrack {
-  name: string;
-  trackId: string;
-  popularity: number;
-  platform: string;
-  previewUrl: string | null;
-  imageUrl: string | null;
-  spotifyStreams: number | null;
-  externalUrl: string | null;
-}
 
 interface ArtistFormStore extends ArtistFormFull {
   selectedArtists: SpotifyArtist[];
@@ -22,7 +12,7 @@ interface ArtistFormStore extends ArtistFormFull {
   dispatch: (action: FormAction) => void;
   refreshYoutubeVideos: (channelId: string) => Promise<void>;
   refreshYoutubeAnalytics: (channelId: string) => Promise<void>;
-  validateForm: () => Promise<boolean>;  // Add this
+  validateForm: () => Promise<boolean>;
   spotifyTracks: SpotifyTrack[];
   isSubmitting: boolean;
   submitArtist: () => Promise<void>;
@@ -38,16 +28,19 @@ const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 
     musicbrainzId: null,
     youtubeChannelId: null,
     imageUrl: null,
-    spotifyUrl: '',
+    spotifyUrl: null,
     youtubeUrl: null,
     tiktokUrl: null,
     instagramUrl: null,
+    viberateUrl: null,
     facebookUrl: null,
     websiteUrl: null,
+    youtubeChartsUrl: null,
+    songStatsUrl: null,
     country: null,
     gender: null,
-    viberateUrl: null,
-    age: null,
+    birthDate: null,
+    birthPlace: null,
   },
   analytics: {
     spotifyMonthlyListeners: null,

@@ -26,7 +26,7 @@ export function ScrapeOptionsPanel({
   youtubeChannelId,
   variant = 'default'
 }: ScrapeOptionsPanelProps) {
-  const { setViberateSocialStats } = useScrapedDataStore();
+  const { setViberateSocialStats, setViberateVideos, setViberateTracks, setSocialStats } = useScrapedDataStore();
   const [sourceStates, setSourceStates] = useState<Record<Source, SourceState>>(
     {
       viberate: { isLoading: false, error: null, isLoaded: false },
@@ -43,8 +43,7 @@ export function ScrapeOptionsPanel({
   };
 
   const handleScrapeViberate = async () => {
-    if (sourceStates.viberate.isLoading || sourceStates.viberate.isLoaded)
-      return;
+    if (sourceStates.viberate.isLoading || sourceStates.viberate.isLoaded) return;
 
     updateSourceState("viberate", { isLoading: true, error: null });
 
@@ -60,9 +59,26 @@ export function ScrapeOptionsPanel({
       if (!response.ok) throw new Error("Failed to scrape Viberate");
 
       const data = await response.json();
+      console.log('Viberate scraped data:', data);
+
       if (data.error) throw new Error(data.error);
 
-      setViberateSocialStats(data);
+      // Set all the scraped data
+      if (data.socialStats) {
+        console.log('Setting social stats:', data.socialStats);
+        setViberateSocialStats(data.socialStats);
+        setSocialStats(data.socialStats);
+      }
+      
+      if (data.topVideos) {
+        console.log('Setting videos:', data.topVideos);
+        setViberateVideos(data.topVideos);
+      }
+      
+      if (data.topSongs) {
+        console.log('Setting tracks:', data.topSongs);
+        setViberateTracks(data.topSongs);
+      }
 
       updateSourceState("viberate", {
         isLoading: false,
@@ -70,10 +86,10 @@ export function ScrapeOptionsPanel({
         error: null,
       });
     } catch (error) {
+      console.error('Viberate scraping error:', error);
       updateSourceState("viberate", {
         isLoading: false,
-        error:
-          error instanceof Error ? error.message : "Failed to scrape Viberate",
+        error: error instanceof Error ? error.message : "Failed to scrape Viberate",
       });
     }
   };

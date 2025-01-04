@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import {YoutubeVideoInfo, SpotifyTrackInfo} from "@/validations/artist-schema"
+import { ViberateSpTrack } from '@/types'
 
 interface SocialStats {
   facebook?: number
@@ -9,6 +10,12 @@ interface SocialStats {
   spotify?: number
   tiktok?: number
   soundcloud?: number
+}
+
+interface ViberateTrack {
+  title: string
+  monthlyStreams: string | null
+  totalStreams: string | null
 }
 
 interface ScrapedDataStore {
@@ -24,9 +31,9 @@ interface ScrapedDataStore {
 
   // Viberate Data
   viberateVideos: YoutubeVideoInfo[]
-  viberateTracks: SpotifyTrackInfo[]
+  viberateTracks: ViberateSpTrack[]
   setViberateVideos: (videos: YoutubeVideoInfo[]) => void
-  setViberateTracks: (tracks: SpotifyTrackInfo[]) => void
+  setViberateTracks: (tracks: ViberateSpTrack[]) => void
   clearViberateData: () => void
 
   // Add social stats
@@ -37,6 +44,9 @@ interface ScrapedDataStore {
 
   // Add social stats clearer
   clearSocialStats: () => void
+
+  viberateSocialStats: any
+  setViberateSocialStats: (stats: any) => void
 }
 
 export const useScrapedDataStore = create<ScrapedDataStore>()(
@@ -58,6 +68,9 @@ export const useScrapedDataStore = create<ScrapedDataStore>()(
       clearSpotifyTracks: () => set({ spotifyTracks: [] }),
       clearViberateData: () => set({ viberateVideos: [], viberateTracks: [] }),
       clearSocialStats: () => set({ socialStats: {} }),
+
+      viberateSocialStats: null,
+      setViberateSocialStats: (stats) => set({ viberateSocialStats: stats }),
     }),
     { name: 'Scraped Data Store' }
   )

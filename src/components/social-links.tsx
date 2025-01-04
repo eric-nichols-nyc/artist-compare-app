@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { SpotifyArtist } from "@/types"
+import { ArtistInfo } from "@/validations/artist-schema"
 import { useEffect, useMemo } from "react"
 import { 
   Globe, 
@@ -13,7 +13,7 @@ import {
 import { useArtistFormStore } from "@/stores/artist-form-store"
 
 interface SocialLinksProps {
-  artist: SpotifyArtist
+  artist: ArtistInfo
   onChange?: (links: { platform: string; url: string }[]) => void
   editable?: boolean
 }

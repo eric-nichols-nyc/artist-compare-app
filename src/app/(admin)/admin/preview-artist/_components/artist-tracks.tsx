@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Card } from '@/components/ui/card'
-import { SpotifyArtist } from '@/types'
+import { SpotifyArtist, ViberateSpTrack } from '@/types'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { useArtistFormStore } from '@/stores/artist-form-store'
@@ -13,6 +13,8 @@ import { ExternalLinkIcon, Music2Icon } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { TracksSkeleton } from './skeletons'
 import { DataSourceSelector } from '@/components/data-source-selector'
+import { useScrapedDataStore } from '@/stores/scraped-data-store'
+import { parseCompactNumber } from '@/lib/utils/number-format'
 
 interface ArtistTracksProps {
   artist: SpotifyArtist
@@ -20,27 +22,49 @@ interface ArtistTracksProps {
 
 export function ArtistTracks({ artist }: ArtistTracksProps) {
   const { tracks, dispatch } = useArtistFormStore();
+    // load tracks from viberate store
+  const { viberateTracks } = useScrapedDataStore();
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchTracks = async () => {
-      try {
-        setIsLoading(true)
-        const response = await fetch(`/api/admin/artist-tracks?spotifyId=${artist.spotifyId}`)
-        const data = await response.json()
-        console.log('track data = ', data)
-        dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: data.tracks || [] })
-      } catch (error) {
-        setError('Failed to load tracks')
-      } finally {
-        setIsLoading(false)
-      }
+    console.log('tracks = ', tracks)
+  }, [tracks])
+
+
+  useEffect(() => {  
+    console.log('viberateTracks = ', viberateTracks)
+    const trackIds = viberateTracks.map(track => track.spotifyTrackId)
+    if(trackIds.length) { 
+      fetchSpotifyTracks(trackIds)
     }
 
-    fetchTracks()
-  }, [artist.spotifyId, dispatch])
+  // dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: mergedTracks });
+  }, [viberateTracks])
 
+  function mergeTracks(viberateTracks: ViberateSpTrack[], spotifyTracks: Partial<SpotifyTrackInfo>[]):SpotifyTrackInfo[] {
+    return viberateTracks.map((viberateTrack: ViberateSpTrack) => ({
+      ...viberateTrack,
+      ...spotifyTracks.find((spotifyTrack: any) => spotifyTrack.trackId === viberateTrack.spotifyTrackId),
+      platform: 'spotify',
+      trackId: viberateTrack.spotifyTrackId,
+      popularity: 0,
+      spotifyStreams: parseCompactNumber(viberateTrack.monthlyStreams) || null
+    }))
+  }
+
+  async function fetchSpotifyTracks(trackIds: string[]) {
+    console.log('trackIds1 = ', trackIds)
+    const response = await fetch(`/api/admin/artist-tracks?spotifyIds=${trackIds.join(',')}&spotifyId=${artist.spotifyId}`)
+    const data = await response.json()
+    console.log('track data = ', data.tracks)
+    const mergedTracks = mergeTracks(viberateTracks, data.tracks)
+    console.log('mergedTracks = ', mergedTracks)
+    dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: mergedTracks || [] })
+  }
+
+
+  // merge tracks monthly streams and total streams
 
   const handleStreamUpdate = (trackId: string, streams: string) => {
     const updatedTracks = tracks.map(track => 
@@ -79,7 +103,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
                     {track.imageUrl ? (
                       <Image
                         src={track.imageUrl}
-                        alt={track.name}
+                        alt={track.title}
                         width={80}
                         height={80}
                         className="rounded-md"
@@ -92,7 +116,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
                   </div>
                   <div className="flex-grow space-y-3">
                     <div>
-                      <h5 className="font-medium text-sm">{track.name}</h5>
+                      <h5 className="font-medium text-sm">{track.title}</h5>
                       <div className="text-xs text-gray-500">ID: {track.trackId}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -105,8 +129,8 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
                       <div>
                         <Label className="text-xs">Streams</Label>
                         <Input
-                          type="text"
-                          value={track.spotifyStreams?.toString() || ''}
+                          type="number"
+                          value={track.spotifyStreams || 0}
                           onChange={(e) => handleStreamUpdate(track.trackId, e.target.value)}
                           className="h-8 text-sm"
                           placeholder="Enter streams"
@@ -114,10 +138,10 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
                       </div>
                     </div>
                   </div>
-                  {track.externalUrl && (
+                  {track.spotifyUrl && (
                     <div className="flex-shrink-0 self-center">
                       <a 
-                        href={track.externalUrl} 
+                        href={track.spotifyUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-block"

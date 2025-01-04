@@ -4,9 +4,9 @@
 import { Card } from '@/components/ui/card'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import Image from 'next/image'
-import { ArtistInfo, SpotifyArtist } from '@/types'
+import { ArtistInfo } from '@/types'
 import { ArtistInfo as ArtistInfoSchema } from '@/validations/artist-schema'
-import { SocialLinks } from '@/components/SocialLinks'
+import { SocialLinks } from '@/components/social-links'
 import { HeaderSkeleton } from './skeletons'
 import { ArtistDetails } from './artist-details'
 import { Suspense } from 'react'
@@ -82,7 +82,7 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
               <div className="flex items-center gap-1.5">
                 <span className="text-muted-foreground">Age:</span>
                 <span>
-                  {artistInfo.age}
+                  {artistInfo.birthDate ? new Date(artistInfo.birthDate).getFullYear() - new Date().getFullYear() : 'Unknown'}
                 </span>
               </div>
             </div>
@@ -122,9 +122,6 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
             </div>
             <SocialLinks 
               artist={artist} 
-              onChange={(links) => {
-                // Handle social links update
-              }}
             />
           </div>
         </div>

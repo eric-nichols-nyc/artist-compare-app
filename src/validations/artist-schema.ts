@@ -42,35 +42,40 @@ export interface SpotifyArtist extends BasicArtistInfo {
     popularity: number | null;
 }
 
-export interface ArtistFull extends BasicArtistInfo {
-    bio: string | null;
-    genres: string[];
-    musicbrainzId: string | null;
-    country: string | null;
-    gender: string | null;
-    age: number | null;
-    youtubeChannelId: string | null;
-    imageUrl: string | null;
-    spotifyUrl: string;
-    facebookUrl: string | null;
-    youtubeUrl: string | null;
-    tiktokUrl: string | null;
-    instagramUrl: string | null;
-    viberateUrl: string | null;
-    websiteUrl: string | null;
-  }
+export interface ArtistFull {
+  name: string;
+  spotifyId: string;
+  musicbrainzId: string | null;
+  youtubeChannelId: string | null;
+  bio: string | null;
+  genres: string[];
+  gender: string | null;
+  country: string | null;
+  birthDate: Date | null;
+  birthPlace: string | null;
+  imageUrl: string | null;
+  youtubeUrl: string | null;
+  spotifyUrl: string | null;
+  facebookUrl: string | null;
+  tiktokUrl: string | null;
+  instagramUrl: string | null;
+  viberateUrl: string | null;
+  websiteUrl: string | null;
+  youtubeChartsUrl: string | null;
+  songStatsUrl: string | null;
+}
 
-  export interface YoutubeVideo {
+export interface YoutubeVideo {
     title: string;
     videoId: string;
     platform: string;
     viewCount: number;
-    likeCount: number;
-    commentCount: number;
+    likeCount?: number;
     thumbnail: string | null;
-    publishedAt: string;
-  }
-  export interface SimilarArtist {
+    monthlyStreams?: number;
+}
+
+export interface SimilarArtist {
     id: string;
     name: string;
     popularity: number | null;
@@ -79,6 +84,7 @@ export interface ArtistFull extends BasicArtistInfo {
     match: number | null;
     selected?: boolean | null;
 }
+
 // Basic artist info
 export const artistBasicSchema = z.object({
   name: z.string().min(1, "Artist name is required"),
@@ -86,8 +92,9 @@ export const artistBasicSchema = z.object({
   genres: z.array(z.string()).min(1, "At least one genre is required"),
   country: z.string().nullable(),
   gender: z.string().nullable(),
-  age: z.number().nullable(),
-}) satisfies z.Schema<Pick<ArtistFull, "name" | "bio" | "genres" | "country" | "gender" | "age">>;
+  birthDate: z.date().nullable(),
+  birthPlace: z.string().nullable(),
+}) satisfies z.Schema<Pick<ArtistFull, "name" | "bio" | "genres" | "country" | "gender" | "birthDate" | "birthPlace">>;
 
 // Platform IDs
 export const artistPlatformSchema = z.object({
@@ -100,13 +107,15 @@ export const artistPlatformSchema = z.object({
 export const artistSocialSchema = z.object({
   imageUrl: z.string().nullable(),
   youtubeUrl: z.string().nullable(),
-  spotifyUrl: z.string().min(1, "Spotify URL is required"),
+  facebookUrl: z.string().nullable(),
+  spotifyUrl: z.string().nullable(),
   tiktokUrl: z.string().nullable(),
   instagramUrl: z.string().nullable(),
   viberateUrl: z.string().nullable(),
-  facebookUrl: z.string().nullable(),
+  youtubeChartsUrl: z.string().nullable(),
+  songStatsUrl: z.string().nullable(),
   websiteUrl: z.string().nullable(),
-}) satisfies z.Schema<Pick<ArtistFull, "imageUrl" | "youtubeUrl" | "spotifyUrl" | "tiktokUrl" | "instagramUrl" | "facebookUrl" | "websiteUrl">>;
+}) satisfies z.Schema<Pick<ArtistFull, "imageUrl" | "youtubeUrl" | "spotifyUrl" | "tiktokUrl" | "instagramUrl" | "viberateUrl" | "youtubeChartsUrl" | "songStatsUrl">>;
 
 // Combined schema for full artist validation
 export const artistSchema = artistBasicSchema
@@ -131,12 +140,11 @@ export const analyticsSchema = z.object({
 
 // Spotify track schema
 export const spotifyTrackSchema = z.object({
-  name: z.string(),
+  title: z.string(),
   trackId: z.string(),
   popularity: z.number(),
   platform: z.string(),
-  previewUrl: z.string().nullable(),
-  externalUrl: z.string().nullable(),
+  spotifyUrl: z.string().nullable(),
   imageUrl: z.string().nullable(),
   spotifyStreams: z.number().nullable(),
 }) satisfies z.Schema<SpotifyTrack>;
@@ -151,10 +159,9 @@ export const videoSchema = z.object({
   videoId: z.string(),
   platform: z.string(),
   viewCount: z.number(),
-  likeCount: z.number(),
-  commentCount: z.number(),
+  likeCount: z.number().optional(),
+  monthlyStreams: z.number().optional(),
   thumbnail: z.string().nullable(),
-  publishedAt: z.string(),
 }) satisfies z.Schema<YoutubeVideo>;
 
 

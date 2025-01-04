@@ -5,7 +5,7 @@ import { useScrapedDataStore } from '@/stores/scraped-data-store'
 
 async function delay() {
   // Random delay between .45-1.25 minutes
-  const delayTime = Math.random() * 5000 + 20000;
+  const delayTime = Math.random() * 5000 + 2000;
   await new Promise(resolve => setTimeout(resolve, delayTime));
 }
 
@@ -70,7 +70,7 @@ const getViberateData = unstable_cache(
       });
 
       // Parse social stats into structured data
-      const parsedStats = {
+      const parsedStats: Record<string, number | undefined> = {
         facebook: undefined,
         instagram: undefined,
         youtube: undefined,
@@ -113,7 +113,8 @@ const getViberateData = unstable_cache(
             .replace('")', ''),
           monthlyStreams: row.querySelectorAll('.stats strong')[0].textContent,
           totalStreams: row.querySelectorAll('.stats strong')[1].textContent,
-          spotifyUrl: row?.querySelector('h3 a')?.getAttribute('href')
+          spotifyUrl: row?.querySelector('h3 a')?.getAttribute('href'),
+          spotifyTrackId: row?.querySelector('h3 a')?.getAttribute('href')?.split('/')?.[4]
         }));
       });
 
@@ -127,12 +128,12 @@ const getViberateData = unstable_cache(
       const topVideos = await page.evaluate(() => {
         return Array.from(document.querySelectorAll('.chart-module.youtube tbody tr')).map(row => ({
           title: row?.querySelector('h3 a')?.textContent,
-          imageUrl: row?.querySelector('figure')?.style?.backgroundImage
+          videoId: row?.querySelector('h3 a')?.getAttribute('href'),
+          thumbnail: row?.querySelector('figure')?.style?.backgroundImage
             ?.replace('url("', '')
             .replace('")', ''),
           monthlyStreams: row.querySelectorAll('.stats strong')[0].textContent,
           totalStreams: row.querySelectorAll('.stats strong')[1].textContent,
-          youtubeUrl: row?.querySelector('h3 a')?.getAttribute('href')
         }));
       });
 
