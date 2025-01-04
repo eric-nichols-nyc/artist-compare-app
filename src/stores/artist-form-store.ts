@@ -42,6 +42,8 @@ const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 
     youtubeUrl: null,
     tiktokUrl: null,
     instagramUrl: null,
+    facebookUrl: null,
+    websiteUrl: null,
     country: null,
     gender: null,
     viberateUrl: null,

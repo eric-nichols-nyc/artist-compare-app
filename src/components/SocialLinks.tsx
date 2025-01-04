@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { SpotifyArtist } from "@/types"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { 
   Globe, 
   Instagram, 
@@ -10,6 +10,7 @@ import {
   Facebook,
   ExternalLink 
 } from "lucide-react"
+import { useArtistFormStore } from "@/stores/artist-form-store"
 
 interface SocialLinksProps {
   artist: SpotifyArtist
@@ -48,9 +49,15 @@ const SOCIAL_PLATFORMS = [
     urlTemplate: 'https://facebook.com/{handle}',
     icon: Facebook
   },
+  { 
+    platform: 'Viberate', 
+    urlTemplate: 'https://www.viberate.com/artist/{handle}',
+    icon: Facebook
+  },
 ]
 
 export const SocialLinks = ({ artist, onChange }: SocialLinksProps) => {
+  const {dispatch} = useArtistFormStore()
   const defaultLinks = useMemo(() => {
     const handle = artist.name.toLowerCase().replace(/\s+/g, '')
 
@@ -70,6 +77,22 @@ export const SocialLinks = ({ artist, onChange }: SocialLinksProps) => {
     )
     onChange(updatedLinks)
   }
+
+  useEffect(() => {
+    console.log('defaultLinks', defaultLinks)
+    dispatch({
+      type: 'UPDATE_ARTIST_INFO',
+      payload: {
+        instagramUrl: defaultLinks.find(link => link.platform === 'Instagram')?.url,
+        youtubeUrl: defaultLinks.find(link => link.platform === 'YouTube')?.url,
+        spotifyUrl: defaultLinks.find(link => link.platform === 'Spotify')?.url,
+        tiktokUrl: defaultLinks.find(link => link.platform === 'TikTok')?.url,
+        facebookUrl: defaultLinks.find(link => link.platform === 'Facebook')?.url,
+        websiteUrl: defaultLinks.find(link => link.platform === 'Website')?.url,
+        viberateUrl: defaultLinks.find(link => link.platform === 'Viberate')?.url,
+      }
+    })
+  }, [defaultLinks, dispatch])
 
   return (
     <div className="grid grid-cols-1 gap-4">

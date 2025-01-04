@@ -5,13 +5,14 @@ import { Card } from '@/components/ui/card'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import Image from 'next/image'
 import { ArtistInfo, SpotifyArtist } from '@/types'
+import { ArtistInfo as ArtistInfoSchema } from '@/validations/artist-schema'
 import { SocialLinks } from '@/components/SocialLinks'
 import { HeaderSkeleton } from './skeletons'
 import { ArtistDetails } from './artist-details'
 import { Suspense } from 'react'
 
 interface ArtistHeaderProps {
-  artist: SpotifyArtist
+  artist: ArtistInfoSchema
 }
 
 export function ArtistHeader({ artist }: ArtistHeaderProps) {

@@ -37,21 +37,11 @@ import {
 } from "@/components/ui/table"
 import { EditArtistSheet } from "./edit-artist-sheet"
 import { useState } from "react"
+import { ArtistInfo } from '@/validations/artist-schema'
 
 // Interface for artist data
-interface Artist {
-  id: string
-  name: string
-  spotifyFollowers: number
-  monthlyListeners: number
-  youtubeSubscribers: number
-  instagramFollowers: number
-  popularity: number
-  imageUrl?: string
-  country?: string
-  genres?: string[]
-  facebookFollowers: number
-  tiktokFollowers: number
+interface Artist extends ArtistInfo {
+  // Add any additional fields specific to the table
 }
 
 export function ArtistMetricsTable() {
@@ -61,7 +51,7 @@ export function ArtistMetricsTable() {
   const [rowSelection, setRowSelection] = React.useState({})
   const [data, setData] = React.useState<Artist[]>([])
   const [loading, setLoading] = React.useState(true)
-  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null)
+  const [selectedArtist, setSelectedArtist] = useState<ArtistInfo | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
 
   const columns: ColumnDef<Artist>[] = [
@@ -307,7 +297,7 @@ export function ArtistMetricsTable() {
               <DropdownMenuSeparator />
               <DropdownMenuItem>View details</DropdownMenuItem>
               <DropdownMenuItem onClick={() => {
-                setSelectedArtist(artist)
+                setSelectedArtist(artist as unknown as ArtistInfo)
                 setSheetOpen(true)
               }}>
                 Edit artist

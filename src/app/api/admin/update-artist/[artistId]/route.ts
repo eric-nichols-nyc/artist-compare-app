@@ -12,7 +12,7 @@ export async function PUT(
     const ingestionService = new ArtistIngestionService()
     const updatedArtist = await ingestionService.updateArtist(artistId, data)
 
-    return NextResponse.json(updatedArtist)
+    return NextResponse.json({status: 'success', artist: updatedArtist})
   } catch (error) {
     console.error("Error updating artist:", error)
     return new NextResponse("Internal Error", { status: 500 })

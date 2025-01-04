@@ -1,27 +1,6 @@
-// // app/api/artists/route.ts
-// import { NextResponse } from "next/server"
-// import { createClient } from '@supabase/supabase-js';
-
-// export async function GET() {
-//   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-//   const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
-
-//   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
-//   // return all artists
-
-//   try {
-//     const { data, error } = await supabase.from('artists').select('*')
-//     if (error) {
-//       return new NextResponse("Internal Error", { status: 500 })
-//     }
-//     return NextResponse.json(data)
-//   } catch (error) {
-//     return new NextResponse("Internal Error", { status: 500 })
-//   }
-// }
-
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { unstable_cache } from 'next/cache'
 
 const mockArtists = [
   {
@@ -54,19 +33,12 @@ const mockArtists = [
   },
 ]
 
-export async function GET() {
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY!
+const getArtists = unstable_cache(
+  async () => {
+    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY!
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-  // If we're missing env vars or in development, return mock data
-  // if (!SUPABASE_URL || !SUPABASE_KEY || process.env.NODE_ENV === 'development') {
-  //   await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network latency
-  //   return NextResponse.json({ artists: mockArtists })
-  // }
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
-
-  try {
     const { data: artists, error } = await supabase
       .from('artists')
       .select(`
@@ -83,15 +55,25 @@ export async function GET() {
       `)
       .order('name')
 
-    if (error) {
-      console.error('Supabase error:', error)
-      return NextResponse.json({ artists: mockArtists })
-    }
+    if (error) throw error
 
-    // Transform the data to match the expected format
-    const transformedArtists = artists.map(artist => ({
+    return artists.map(artist => ({
       id: artist.id,
+      bio: artist.bio,
+      gender: artist.gender,
+      age: artist.age,
       name: artist.name,
+      spotifyId: artist.spotify_id,
+      youtubeChannelId: artist.youtube_channel_id,
+      tictokUrl: artist.tictok_url,
+      instagramUrl: artist.instagram_url,
+      viberateUrl: artist.viberate_url,
+      musicBrainzId: artist.musicbrainz_id,
+      spotifyUrl: artist.spotify_url,
+      tiktokUrl: artist.tiktok_url,
+      facebookUrl: artist.facebook_url,
+      websiteUrl: artist.website_url,
+      youtubeUrl: artist.youtube_url,  
       spotifyFollowers: artist.artist_analytics[0]?.spotify_followers || 0,
       monthlyListeners: artist.artist_analytics[0]?.spotify_monthly_listeners || 0,
       youtubeSubscribers: artist.artist_analytics[0]?.youtube_subscribers || 0,
@@ -103,9 +85,18 @@ export async function GET() {
       facebookFollowers: artist.artist_analytics[0]?.facebook_followers || 0,
       tiktokFollowers: artist.artist_analytics[0]?.tiktok_followers || 0,
     }))
-    console.log(transformedArtists)
+  },
+  ['artists-list'],
+  {
+    revalidate: 300,
+    tags: ['artists']
+  }
+)
 
-    return NextResponse.json({ artists: transformedArtists })
+export async function GET() {
+  try {
+    const artists = await getArtists()
+    return NextResponse.json({ artists })
   } catch (error) {
     console.error('Error fetching artists:', error)
     return NextResponse.json({ artists: mockArtists })

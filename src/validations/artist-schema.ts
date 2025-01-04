@@ -52,10 +52,12 @@ export interface ArtistFull extends BasicArtistInfo {
     youtubeChannelId: string | null;
     imageUrl: string | null;
     spotifyUrl: string;
+    facebookUrl: string | null;
     youtubeUrl: string | null;
     tiktokUrl: string | null;
     instagramUrl: string | null;
     viberateUrl: string | null;
+    websiteUrl: string | null;
   }
 
   export interface YoutubeVideo {
@@ -102,7 +104,9 @@ export const artistSocialSchema = z.object({
   tiktokUrl: z.string().nullable(),
   instagramUrl: z.string().nullable(),
   viberateUrl: z.string().nullable(),
-}) satisfies z.Schema<Pick<ArtistFull, "imageUrl" | "youtubeUrl" | "spotifyUrl" | "tiktokUrl" | "instagramUrl">>;
+  facebookUrl: z.string().nullable(),
+  websiteUrl: z.string().nullable(),
+}) satisfies z.Schema<Pick<ArtistFull, "imageUrl" | "youtubeUrl" | "spotifyUrl" | "tiktokUrl" | "instagramUrl" | "facebookUrl" | "websiteUrl">>;
 
 // Combined schema for full artist validation
 export const artistSchema = artistBasicSchema
