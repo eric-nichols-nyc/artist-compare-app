@@ -13,10 +13,12 @@ export class YoutubeService {
     private youtube;
     private lastRequestTime: number = 0;
     private readonly API_KEY: string;
+    private memoryCache: Map<string, { data: YoutubeVideoInfo[], timestamp: number }>;
 
     constructor() {
         this.API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API!;
         this.youtube = google.youtube('v3');
+        this.memoryCache = new Map();
     }
 
     private async rateLimitRequest<T>(request: Promise<T>): Promise<T> {
@@ -159,6 +161,17 @@ export class YoutubeService {
     }, ['youtube-channel-videos'], { tags: ['youtube-channel-videos'], revalidate: 60 * 60 * 24 });
 
     public getVideosByIds = unstable_cache(async (videoIds: string | string[]): Promise<YoutubeVideoInfo[]> => {
+        const cacheKey = Array.isArray(videoIds) ? videoIds.join(',') : videoIds;
+        
+        // Check memory cache first
+        const cached = this.memoryCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < 24 * 60 * 60 * 1000) {
+            console.log('Memory cache HIT for:', cacheKey);
+            return cached.data;
+        }
+
+        console.log('Cache MISS for:', cacheKey);
+        
         if (!videoIds) {
             throw new Error('Video IDs are required');
         }
@@ -169,6 +182,7 @@ export class YoutubeService {
             : videoIds.split(',').map(id => id.trim());
 
         try {
+            console.log('Cache MISS - Fetching from YouTube API:', ids);
             const videosResponse = await this.rateLimitRequest(
                 this.youtube.videos.list({
                     key: this.API_KEY,
@@ -177,7 +191,7 @@ export class YoutubeService {
                 })
             );
 
-            return (videosResponse.data.items || []).map(video => ({
+            const results = (videosResponse.data.items || []).map(video => ({
                 title: video.snippet?.title ?? '',
                 videoId: video.id ?? '',
                 platform: 'youtube',
@@ -187,15 +201,27 @@ export class YoutubeService {
                 likeCount: parseInt(video.statistics?.likeCount ?? '0'),
                 commentCount: parseInt(video.statistics?.commentCount ?? '0')
             }));
+
+            console.log('YouTube API response received for:', ids);
+
+            // Store in memory cache
+            this.memoryCache.set(cacheKey, {
+                data: results,
+                timestamp: Date.now()
+            });
+
+            return results;
         } catch (error) {
             console.error('Error fetching YouTube videos:', error);
             return [];
         }
-    }, ['youtube-videos-by-ids'], { tags: ['youtube-videos-by-ids'], revalidate: 60 * 60 * 24 });
+    }, 
+    [`youtube-videos-by-ids`],
+    { tags: ['youtube-videos-by-ids'], revalidate: 60 * 60 * 24 });
 
     public formatVideoStats(statistics: YoutubeVideoStatistics): string {
-        const views = statistics.viewCount ? parseInt(statistics.viewCount).toLocaleString() : 0;
-        const likes = statistics.likeCount ? parseInt(statistics.likeCount).toLocaleString() : '0';
+        const views = statistics.viewCount ? statistics.viewCount.toLocaleString() : 0;
+        const likes = statistics.likeCount ? statistics.likeCount.toLocaleString() : '0';
         return `${views} views • ${likes} likes`;
     }
 

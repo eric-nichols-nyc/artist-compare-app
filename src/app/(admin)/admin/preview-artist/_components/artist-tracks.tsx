@@ -27,19 +27,19 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
 
 
   async function fetchSpotifyTracks(trackIds: string[]) {
-    console.log('trackIds1 = ', trackIds)
+    //console.log('trackIds1 = ', trackIds)
     try {
       setIsLoading(true)
       // Extract video IDs from watch URLs
       const videoIds = trackIds.map(url => url.split('=')[1]);
       const response = await fetch(`/api/admin/artist-tracks?spotifyIds=${videoIds.join(',')}&spotifyId=${artist.spotifyId}`)
       const data = await response.json()
-      console.log('track data = ', data.tracks)
+      //console.log('track data = ', data.tracks)
       const mergedTracks = mergeTracks(viberateTracks, data.tracks)
-      console.log('mergedTracks = ', mergedTracks)
+      //console.log('mergedTracks = ', mergedTracks)
       dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: mergedTracks || [] })
     } catch (error) {
-      console.error('Error fetching Spotify tracks:', error)
+      //console.error('Error fetching Spotify tracks:', error)
       setError('Error fetching Spotify tracks')
     } finally {
       setIsLoading(false)
@@ -52,7 +52,7 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
 
 
   useEffect(() => {  
-    console.log('viberateTracks = ', viberateTracks)
+    //console.log('viberateTracks = ', viberateTracks)
     const trackIds = viberateTracks
       .map(track => track.spotifyTrackId)
       .filter((id): id is string => !!id);

@@ -6,8 +6,7 @@ import { BaseAnalytics } from "./base-analytics";
 import { useArtistFormStore } from "@/stores/artist-form-store";
 
 export function LastFMAnalytics() {
-  const { handleBlur, handleChange } = useAnalyticsState();
-  const {analytics} = useArtistFormStore();
+  const { analytics, formatNumber, handleBlur, handleChange } = useAnalyticsState();
 
   const stats = [
     {
@@ -36,7 +35,7 @@ export function LastFMAnalytics() {
         <div key={stat.label} className="space-y-1">
           <Label>{stat.label}</Label>
           <Input 
-            defaultValue={stat.value || 'N/A'}
+            value={stat.value || 'N/A'}
             className="bg-white/50"
             onChange={(e) => handleChange(e, stat.field)}
             onBlur={(e) => handleBlur(e, stat.field)}

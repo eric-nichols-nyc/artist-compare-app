@@ -120,7 +120,15 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
       case 'UPDATE_SPOTIFY_TRACKS':
         set((state) => ({
           ...state,
-          tracks: action.payload,
+          tracks: action.payload.map(track => ({
+            imageUrl: track.imageUrl || '',
+            spotifyUrl: track.spotifyUrl,
+            title: track.title,
+            platform: track.platform,
+            trackId: track.trackId,
+            popularity: track.popularity,
+            spotifyStreams: track.spotifyStreams
+          }))
         }));
         break;
       case 'SET_SUBMITTING':

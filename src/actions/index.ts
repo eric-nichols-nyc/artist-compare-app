@@ -9,6 +9,7 @@ export const getArtistInfo = unstable_cache(
     async (name: string) => {
         try {
             const artistInfo = await artistIngestionService.getArtistInfo(name);
+            console.log('artistInfo from action is ',artistInfo)
             return { success: true, data: artistInfo };
         } catch (error) {
             console.error('Error fetching artist info:', error);

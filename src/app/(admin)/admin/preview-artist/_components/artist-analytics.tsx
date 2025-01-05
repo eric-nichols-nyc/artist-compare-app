@@ -43,7 +43,7 @@ export function ArtistAnalytics() {
           onRefresh={handleRefreshYoutube}
           isRefreshing={isRefreshing}
         />
-        <LastFMAnalytics analytics={analytics} />
+        <LastFMAnalytics />
       </div>
       <SocialMediaAnalytics analytics={analytics} />
     </div>

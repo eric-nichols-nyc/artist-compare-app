@@ -23,51 +23,47 @@ export function ArtistDetails({ artistName }: ArtistDetailsProps) {
         await revalidateArtistCache(artistName);
         const result = await getArtistInfo(artistName);
         if (result.success) {
-            // Handle successful response
-            console.log(result.data);
+            console.log("Artist info fetched:", result.data);
             const {data} = result;
      
-        dispatch({
-          type: 'UPDATE_ARTIST_INFO',
-          payload: {
-            musicbrainzId: data?.musicbrainzId,
-            bio: data?.biography,
-            country: data?.country,
-            gender: data?.gender,
-            birthDate: data?.born ? new Date(data.born) : null,
-            youtubeChannelId: data?.youtubeChannelId,
-          }
-        });
+            dispatch({
+              type: 'UPDATE_ARTIST_INFO',
+              payload: {
+                musicbrainzId: data?.musicbrainzId,
+                bio: data?.biography,
+                country: data?.country,
+                gender: data?.gender,
+                birthDate: data?.born ? new Date(data.born) : null,
+                youtubeChannelId: data?.youtubeChannelId,
+              }
+            });
 
-        dispatch({
-          type: 'UPDATE_ANALYTICS',
-          payload: {
-            lastfmPlayCount: data?.lastfmPlayCount,
-            lastfmListeners: data?.lastfmListeners,
-            youtubeSubscribers: data?.youtubeChannelStats?.subscriberCount 
-              ? Number(data.youtubeChannelStats.subscriberCount) 
-              : null,
-            youtubeTotalViews: data?.youtubeChannelStats?.viewCount 
-              ? Number(data.youtubeChannelStats.viewCount) 
-              : null,
-          }
-        });
-      }
-        else {
-          // Handle error
+            dispatch({
+              type: 'UPDATE_ANALYTICS',
+              payload: {
+                lastfmPlayCount: data?.lastfmPlayCount ? Number(data.lastfmPlayCount) : null,
+                lastfmListeners: data?.lastfmListeners ? Number(data.lastfmListeners) : null,
+                lastFmMonthlyListeners: data?.lastfmListeners ? Number(data.lastfmListeners) : null,
+                youtubeSubscribers: data?.youtubeChannelStats?.subscriberCount 
+                  ? Number(data.youtubeChannelStats.subscriberCount) 
+                  : null,
+                youtubeTotalViews: data?.youtubeChannelStats?.viewCount 
+                  ? Number(data.youtubeChannelStats.viewCount) 
+                  : null,
+              }
+            });
+        } else {
           console.error(result.error);
-      }
+        }
       } catch (error) {
         setError("Error fetching artist info");
+        console.error("Fetch error:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    setTimeout(() => {
-      fetchArtistInfo();
-    }, 3000);
-
+    fetchArtistInfo();
   }, [artistName, dispatch]);
 
   // console.log(state.artistInfo)

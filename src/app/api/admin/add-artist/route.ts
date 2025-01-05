@@ -7,6 +7,8 @@ import {
   spotifyTrackSchema,
 } from "@/validations/artist-schema"
 import { z } from "zod"
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
 const AddArtistRequestSchema = z.object({
   artistInfo: artistSchema.extend({
@@ -20,6 +22,7 @@ const AddArtistRequestSchema = z.object({
 })
 
 export async function POST(req: Request) {
+
   try {
     const { artist } = await req.json()
 

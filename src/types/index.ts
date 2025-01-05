@@ -356,6 +356,7 @@ export interface YoutubeChannelInfo {
         videoCount: number;
     };
     topVideos?: YoutubeVideo[];
+    fetchedAt: string;
 }
 
 export interface ArtistFormState {

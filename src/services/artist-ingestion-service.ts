@@ -40,7 +40,6 @@ if (!LASTFM_API_KEY || !YOUTUBE_API_KEY || !SUPABASE_URL || !SUPABASE_KEY) {
     throw new Error('Missing required environment variables');
 }
 
-
 export class ArtistIngestionService {
     private supabase;
     private musicBrainzService: MusicBrainzService;
@@ -50,6 +49,23 @@ export class ArtistIngestionService {
         this.youtubeService = new YoutubeService();
         this.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
         this.musicBrainzService = new MusicBrainzService();
+    }
+
+    private async testConnection() {
+        try {
+            const { data, error } = await this.supabase
+                .from('artists')
+                .select('id')
+                .limit(1);
+            
+            if (error) {
+                console.error('Supabase connection test failed:', error);
+            } else {
+                console.log('Supabase connection test successful');
+            }
+        } catch (error) {
+            console.error('Supabase connection test error:', error);
+        }
     }
 
     /**
@@ -216,8 +232,18 @@ export class ArtistIngestionService {
                 .select()
                 .single();
 
-            if (artistError || !artistData) {
-                throw new Error(`Failed to insert artist: ${artistError?.message}`);
+            if (artistError) {
+                console.error('Supabase Error Details:', {
+                    code: artistError.code,
+                    message: artistError.message,
+                    details: artistError.details,
+                    hint: artistError.hint
+                });
+                throw new Error(`Failed to insert artist: ${artistError.message} (Code: ${artistError.code})`);
+            }
+
+            if (!artistData) {
+                throw new Error('No data returned from insert operation');
             }
 
             // Now we have the artist ID, we can process the related data
@@ -233,7 +259,7 @@ export class ArtistIngestionService {
                 artistId: artistData.id
             };
         } catch (error) {
-            console.error('Error in addArtist:', error);
+            console.error('Full error object:', error);
             throw error;
         }
     }
@@ -252,8 +278,6 @@ export class ArtistIngestionService {
                 title: video.title,
                 view_count: video.viewCount,
                 like_count: video.likeCount,
-                comment_count: video.commentCount,
-                published_at: video.publishedAt,
                 updated_at: new Date().toISOString()
             }));
 
@@ -274,7 +298,7 @@ export class ArtistIngestionService {
                 id: crypto.randomUUID(),
                 artist_id: artistId,
                 platform_track_id: track.trackId,
-                name: track.name,
+                title: track.title,
                 popularity: track.popularity,
                 platform: 'spotify'
             }));

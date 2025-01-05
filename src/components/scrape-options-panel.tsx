@@ -66,7 +66,13 @@ export function ScrapeOptionsPanel({
       console.log('Data fetched at:', data.fetchedAt);
       // dispatch spotify monthly listeners
       dispatch({type: 'UPDATE_ANALYTICS', payload: {spotifyMonthlyListeners: data.monthlyListeners}})
-
+      // update social media
+      dispatch({type: 'UPDATE_ANALYTICS', payload: {
+        instagramFollowers: data.socialStats.instagram,
+        tiktokFollowers: data.socialStats.tiktok,
+        facebookFollowers: data.socialStats.facebook,
+        soundcloudFollowers: data.socialStats.soundcloud,
+      }})
 
       if (data.error) throw new Error(data.error);
 

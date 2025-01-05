@@ -12,7 +12,7 @@ model Artist {
   id                String    @id @default(uuid()) @db.Uuid
   name              String
   spotifyId         String   @unique @map("spotify_id")
-  musicbrainzId     String   @unique @map("last_fm_id")
+  musicbrainzId     String   @unique @map("musicbrainz_id")
   youtubeChannelId  String   @unique @map("youtube_channel_id")
   bio               String   @db.Text
   genres            String[]
@@ -26,7 +26,7 @@ model Artist {
   tiktokUrl         String   @map("tiktok_url") @db.Text
   instagramUrl      String   @map("instagram_url") @db.Text
   viberateUrl       String?  @map("viberate_url") @db.Text
-  youtubeChartsUrl  String   @map("youtube_charts_url") @db.Text
+  youtubeChartsUrl  String?   @map("youtube_charts_url") @db.Text
   songStatsUrl      String?   @map("song_stats_url") @db.Text
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
@@ -120,15 +120,15 @@ model ArtistGeography {
 model ArtistTrack {
   id              String   @id @default(uuid()) @db.Uuid
   artistId        String   @map("artist_id") @db.Uuid
-  platformTrackId String?  @map("platform_track_id")
-  name            String
-  popularity      Int
+  trackId         Int?  @map("track_id")
+  title           String
+  popularity      Int?
   platform        String
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   // Relations
   artist          Artist   @relation(fields: [artistId], references: [id])
 
-  @@unique([platform, platformTrackId])
+  @@unique([platform, trackId])
   @@map("artist_top_tracks")
 }

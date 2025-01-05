@@ -45,7 +45,7 @@ export function ArtistVideos() {
   //   fetchVideos();
   // }, [artistInfo.youtubeChannelId, dispatch]);
   const fetchYoutubeVideos = async (videoIds: string[]) => {  
-    console.log('videoIds ========== ', videoIds)
+    // console.log('videoIds ========== ', videoIds)
     try{
       const response = await fetch(`/api/admin/artist-videos?videoIds=${videoIds.join(',')}`);
       if (!response.ok) throw new Error('Failed to fetch videos');
@@ -58,7 +58,7 @@ export function ArtistVideos() {
   }
   // when the viberateVideos change, fetch the youtube videos
   useEffect(() => {
-    console.log('viberateVideos = ', viberateVideos)
+    // console.log('viberateVideos = ', viberateVideos)
     const videoIds = viberateVideos
       .map(video => video.videoId)
       .filter((id): id is string => !!id)
@@ -134,7 +134,7 @@ export function ArtistVideos() {
                   type="file"
                   accept=".json"
                   className="hidden"
-                  onChange={fetchYoutubeVideos(ids)}
+                  onChange={() => fetchYoutubeVideos(ids)}
                 />
               </label>
             </Button>
