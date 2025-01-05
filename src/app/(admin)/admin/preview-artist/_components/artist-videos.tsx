@@ -20,6 +20,7 @@ export function ArtistVideos() {
   const [selectedSource, setSelectedSource] = useState<VideoSource>('youtube')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [ids, setIds] = useState<string[]>([])
 
   // useEffect(() => {
   //   console.log("ArtistVideos component mounted", artistInfo.name);
@@ -62,7 +63,7 @@ export function ArtistVideos() {
       .map(video => video.videoId)
       .filter((id): id is string => !!id)
       .map(url => url.split('=')[1]); // Extract ID from watch?v= URLs
-
+    setIds(videoIds)
     if(videoIds.length) { 
       fetchYoutubeVideos(videoIds)
     }
@@ -116,14 +117,15 @@ export function ArtistVideos() {
 
   return (
     <Card className="mt-4">
-      <CardHeader>
-        <CardTitle>Top Videos</CardTitle>
+      <CardHeader className="flex">
         <div className="flex items-center gap-2">
+        <CardTitle>Top Videos</CardTitle>
+
           {/* <DataSourceSelector
             type="videos"
           /> */}
           
-          {/* {selectedSource === 'json' ? (
+          {selectedSource === 'json' ? (
             <Button variant="outline" size="sm" asChild>
               <label className="cursor-pointer">
                 <Upload className="w-4 h-4 mr-2" />
@@ -132,7 +134,7 @@ export function ArtistVideos() {
                   type="file"
                   accept=".json"
                   className="hidden"
-                  onChange={handleJsonUpload}
+                  onChange={fetchYoutubeVideos(ids)}
                 />
               </label>
             </Button>
@@ -146,7 +148,7 @@ export function ArtistVideos() {
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh Videos
             </Button>
-          )} */}
+          )}
         </div>
       </CardHeader>
 
