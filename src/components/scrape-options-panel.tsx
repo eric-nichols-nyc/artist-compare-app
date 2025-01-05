@@ -4,6 +4,7 @@ import { useScrapedDataStore } from "@/stores/scraped-data-store";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
+import { useArtistFormStore } from "@/stores/artist-form-store";
 
 interface ScrapeOptionsPanelProps {
   artistName: string;
@@ -26,6 +27,7 @@ export function ScrapeOptionsPanel({
   youtubeChannelId,
   variant = 'default'
 }: ScrapeOptionsPanelProps) {
+  const { dispatch } = useArtistFormStore();
   const { setViberateSocialStats, setViberateVideos, setViberateTracks, setSocialStats } = useScrapedDataStore();
   const [sourceStates, setSourceStates] = useState<Record<Source, SourceState>>(
     {
@@ -60,6 +62,11 @@ export function ScrapeOptionsPanel({
 
       const data = await response.json();
       console.log('Viberate scraped data:', data);
+      console.log('Using cached data:', data.fromCache);
+      console.log('Data fetched at:', data.fetchedAt);
+      // dispatch spotify monthly listeners
+      dispatch({type: 'UPDATE_ANALYTICS', payload: {spotifyMonthlyListeners: data.monthlyListeners}})
+
 
       if (data.error) throw new Error(data.error);
 

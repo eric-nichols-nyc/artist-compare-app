@@ -120,7 +120,7 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">YouTube Channel ID</label>
+                <label className="text-sm font-medium">MusicBrainz ID</label>
                 <input
                   type="text"
                   value={artistInfo.musicbrainzId || ''}

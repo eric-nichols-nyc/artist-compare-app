@@ -27,6 +27,17 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+
+  async function fetchSpotifyTracks(trackIds: string[]) {
+    console.log('trackIds1 = ', trackIds)
+    const response = await fetch(`/api/admin/artist-tracks?spotifyIds=${trackIds.join(',')}&spotifyId=${artist.spotifyId}`)
+    const data = await response.json()
+    console.log('track data = ', data.tracks)
+    const mergedTracks = mergeTracks(viberateTracks, data.tracks)
+    console.log('mergedTracks = ', mergedTracks)
+    dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: mergedTracks || [] })
+  }
+
   useEffect(() => {
     console.log('tracks = ', tracks)
   }, [tracks])
@@ -51,20 +62,11 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
         platform: 'spotify',
         trackId: viberateTrack.spotifyTrackId,
         popularity: spotifyTrack?.popularity || 0,
-        spotifyStreams: parseCompactNumber(viberateTrack.monthlyStreams) || null
+        spotifyStreams: viberateTrack.monthlyStreams || null
       };
     });
   }
 
-  async function fetchSpotifyTracks(trackIds: string[]) {
-    console.log('trackIds1 = ', trackIds)
-    const response = await fetch(`/api/admin/artist-tracks?spotifyIds=${trackIds.join(',')}&spotifyId=${artist.spotifyId}`)
-    const data = await response.json()
-    console.log('track data = ', data.tracks)
-    const mergedTracks = mergeTracks(viberateTracks, data.tracks)
-    console.log('mergedTracks = ', mergedTracks)
-    dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: mergedTracks || [] })
-  }
 
 
   // merge tracks monthly streams and total streams
@@ -87,15 +89,14 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
   }
 
   if (!tracks.length) {
-    return <div className="p-4">No tracks available</div>
+    return <Card className="p-4">No tracks available</Card>
   }
 
   return (
-    <div>
       <Card className="mt-4">
       <h4 className="font-semibold mb-3 p-2">Top Tracks</h4>
 
-      <DataSourceSelector type="tracks" />
+      {/* <DataSourceSelector type="tracks" /> */}
 
         <ScrollArea className="h-[600px] rounded-md border">
           <div className="p-4">
@@ -161,6 +162,5 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
           </div>
         </ScrollArea>
       </Card>
-    </div>
   )
 } 

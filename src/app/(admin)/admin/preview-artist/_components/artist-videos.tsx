@@ -58,7 +58,7 @@ export function ArtistVideos() {
   // when the viberateVideos change, fetch the youtube videos
   useEffect(() => {
     if (viberateVideos.length) {
-      fetchYoutubeVideos(viberateVideos.map(video => video.videoId.split('?v=')[1]))
+      fetchYoutubeVideos(viberateVideos.map(video => video?.videoId || '').filter(Boolean) as string[])
     }
   }, [viberateVideos])  
 
@@ -113,11 +113,11 @@ export function ArtistVideos() {
       <CardHeader>
         <CardTitle>Top Videos</CardTitle>
         <div className="flex items-center gap-2">
-          <DataSourceSelector
+          {/* <DataSourceSelector
             type="videos"
-          />
+          /> */}
           
-          {selectedSource === 'json' ? (
+          {/* {selectedSource === 'json' ? (
             <Button variant="outline" size="sm" asChild>
               <label className="cursor-pointer">
                 <Upload className="w-4 h-4 mr-2" />
@@ -140,7 +140,7 @@ export function ArtistVideos() {
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh Videos
             </Button>
-          )}
+          )} */}
         </div>
       </CardHeader>
 

@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { chromium } from 'playwright';
 import { useScrapedDataStore } from '@/stores/scraped-data-store'
 import { Page } from 'playwright';
-import { parseCompactNumber } from '@/lib/utils/number-format';
 import { YoutubeVideoInfo } from '@/validations/artist-schema';
 
 async function delay() {
@@ -48,8 +47,8 @@ class ScrapingError extends Error {
 }
 
 // Wrap the scraping logic in a cached function
-const getViberateData = unstable_cache(
-  async (artistName: string): Promise<ViberateResponse> => {
+const getViberateData = (artistName: string) => unstable_cache(
+  async (): Promise<ViberateResponse> => {
     let browser = null;
 
     try {
@@ -171,7 +170,7 @@ const getViberateData = unstable_cache(
       await page.waitForSelector('.chart-module.youtube');
 
       const topVideos = await page.evaluate(() => {
-        // Define parseCompactNumber inside this evaluate context too
+
         function parseCompactNumber(value: string | null | undefined): number | undefined {
           if (!value) return undefined;
           const normalized = value.trim().toLowerCase();
@@ -188,6 +187,7 @@ const getViberateData = unstable_cache(
           
           return parseFloat(normalized);
         }
+        // Define parseCompactNumber inside this evaluate context too
 
         return Array.from(document.querySelectorAll('.chart-module.youtube tbody tr')).map(row => ({
           title: row?.querySelector('h3 a')?.textContent || '',
@@ -211,7 +211,7 @@ const getViberateData = unstable_cache(
       useScrapedDataStore.getState().setViberateVideos(topVideos)
       useScrapedDataStore.getState().setViberateTracks(topSongs)
       useScrapedDataStore.getState().setSocialStats(parsedStats)
-      useScrapedDataStore.getState().setSpotifyMonthlyListeners(Number(monthlyListeners))
+      useScrapedDataStore.getState().setSpotifyMonthlyListeners(monthlyListeners || 0)
 
       return { 
         socialStats: parsedStats, 
@@ -233,19 +233,35 @@ const getViberateData = unstable_cache(
       }
     }
   },
-  ['viberate-data'],
+  [`viberate-data-${artistName}`],
   {
     revalidate: 86400,
-    tags: ['viberate-data'],
+    tags: [`viberate-data-${artistName}`],
   }
 );
 
 const getMonthlyListeners = async (page: Page): Promise<number | null> => {
+  function parseCompactNumber(value: string | null | undefined): number | undefined {
+    if (!value) return undefined;
+    const normalized = value.trim().toLowerCase();
+    
+    if (normalized.endsWith('k')) {
+      return parseFloat(normalized.replace('k', '')) * 1000;
+    }
+    if (normalized.endsWith('m')) {
+      return parseFloat(normalized.replace('m', '')) * 1000000;
+    }
+    if (normalized.endsWith('b')) {
+      return parseFloat(normalized.replace('b', '')) * 1000000000;
+    }
+    
+    return parseFloat(normalized);
+  }
   const monthlyListeners = await page.$eval(
     '.analytics-module-content .stats strong', 
     (element:any) => element.textContent || null
   );
-  return parseCompactNumber(monthlyListeners);
+  return parseCompactNumber(monthlyListeners) || null;
 };
 
 export const GET = async (req: Request) => {
@@ -262,23 +278,28 @@ export const GET = async (req: Request) => {
     }
 
     if (clearCache) {
-      console.log('Clearing cache for Viberate data');
-      revalidateTag('viberate-data');
+      console.log('Clearing cache for:', artistName);
+      revalidateTag(`viberate-data-${artistName}`);
     }
 
-    const startTime = Date.now();
-    const data = await getViberateData(artistName);
-    const endTime = Date.now();
-
-    // If the response was nearly instant, it was likely cached
-    const isCached = endTime - startTime < 1000;
+    // Add cache debugging
+    console.log('Cache key:', `viberate-data-${artistName}`);
     
-    console.log(`Viberate data for ${artistName} - ${isCached ? 'from cache' : 'freshly scraped'}`);
+    const startTime = performance.now();
+    const data = await getViberateData(artistName)();
+    const endTime = performance.now();
+
+    // More accurate cache detection (responses under 100ms are likely cached)
+    const isCached = endTime - startTime < 100;
+    
+    console.log(`Response time: ${endTime - startTime}ms`);
+    console.log(`Data for ${artistName} - ${isCached ? 'from cache' : 'freshly scraped'}`);
     
     return NextResponse.json({
       ...data,
       fromCache: isCached,
-      fetchedAt: isCached ? data.fetchedAt : new Date().toISOString()
+      fetchedAt: isCached ? data.fetchedAt : new Date().toISOString(),
+      responseTime: `${Math.round(endTime - startTime)}ms`
     });
 
   } catch (error) {
