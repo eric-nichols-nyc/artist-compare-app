@@ -9,6 +9,8 @@ interface ValidationResult {
 
 export class ValidationService{
     static async validateForm(formData: ArtistFormState): Promise<ValidationResult>{
+      console.log('poop')
+
         try{
             const result = await fullArtistSchema.safeParseAsync({
                 artistInfo: formData.artistInfo,

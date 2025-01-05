@@ -12,11 +12,11 @@ interface SocialStats {
   soundcloud?: number
 }
 
-interface ViberateTrack {
-  title: string
-  monthlyStreams: string | null
-  totalStreams: string | null
-}
+// interface ViberateTrack {
+//   title: string
+//   monthlyStreams: string | null
+//   totalStreams: string | null
+// }
 
 interface ScrapedDataStore {
   // YouTube Data
@@ -28,6 +28,11 @@ interface ScrapedDataStore {
   spotifyTracks: SpotifyTrackInfo[]
   setSpotifyTracks: (tracks: SpotifyTrackInfo[]) => void
   clearSpotifyTracks: () => void
+
+  // Spotify Monthly Listeners
+  spotifyMonthlyListeners: number
+  setSpotifyMonthlyListeners: (listeners: number) => void
+  clearSpotifyMonthlyListeners: () => void
 
   // Viberate Data
   viberateVideos: YoutubeVideoInfo[]
@@ -68,6 +73,9 @@ export const useScrapedDataStore = create<ScrapedDataStore>()(
       clearSpotifyTracks: () => set({ spotifyTracks: [] }),
       clearViberateData: () => set({ viberateVideos: [], viberateTracks: [] }),
       clearSocialStats: () => set({ socialStats: {} }),
+
+      setSpotifyMonthlyListeners: (listeners) => set({ spotifyMonthlyListeners: listeners }),
+      clearSpotifyMonthlyListeners: () => set({ spotifyMonthlyListeners: 0 }),
 
       viberateSocialStats: null,
       setViberateSocialStats: (stats) => set({ viberateSocialStats: stats }),

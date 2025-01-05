@@ -100,8 +100,8 @@ export const artistBasicSchema = z.object({
 // Platform IDs
 export const artistPlatformSchema = z.object({
   spotifyId: z.string().min(1, "Spotify ID is required"),
-  musicbrainzId: z.string().nullable(),
-  youtubeChannelId: z.string().nullable(),
+  musicbrainzId: z.string().min(1, "MusicBrainz ID is required"),
+  youtubeChannelId: z.string().min(1, "Youtube Channel ID is required"),
 }) satisfies z.Schema<Pick<ArtistFull, "spotifyId" | "musicbrainzId" | "youtubeChannelId">>;
 
 // Social URLs

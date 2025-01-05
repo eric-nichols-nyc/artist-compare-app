@@ -1,7 +1,8 @@
-import { unstable_cache } from 'next/cache';
+import { unstable_cache, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { chromium } from 'playwright';
 import { useScrapedDataStore } from '@/stores/scraped-data-store'
+import { Page } from 'playwright';
 
 async function delay() {
   // Random delay between .45-1.25 minutes
@@ -26,12 +27,20 @@ function parseFollowerCount(count: string | null | undefined): number | undefine
   return number * multiplier;
 }
 
-// Cache key generator function
-const getViberateCacheKey = (artistName: string) => `viberate-${artistName}`;
+// Add cache checking flag to the response type
+interface ViberateResponse {
+  socialStats: Record<string, number | undefined>;
+  topSongs: any[];
+  topVideos: any[];
+  monthlyListeners: string | null;
+  fromCache?: boolean;
+  fetchedAt?: string;
+}
 
 // Wrap the scraping logic in a cached function
 const getViberateData = unstable_cache(
-  async (artistName: string) => {
+  async (artistName: string): Promise<ViberateResponse> => {
+    console.log('Making fresh Viberate scrape for:', artistName);
     let browser = null;
 
     try {
@@ -137,6 +146,7 @@ const getViberateData = unstable_cache(
         }));
       });
 
+      const monthlyListeners = await getMonthlyListeners(page);
 
       // Optionally, you can grab the result after submitting
       console.log('socialStats   ======= ', {socialStats, topSongs, topVideos}); 
@@ -147,11 +157,15 @@ const getViberateData = unstable_cache(
       useScrapedDataStore.getState().setViberateVideos(topVideos)
       useScrapedDataStore.getState().setViberateTracks(topSongs)
       useScrapedDataStore.getState().setSocialStats(parsedStats)
+      useScrapedDataStore.getState().setSpotifyMonthlyListeners(Number(monthlyListeners))
 
       return { 
         socialStats: parsedStats, 
         topSongs, 
-        topVideos 
+        topVideos,
+        monthlyListeners,
+        fromCache: false,
+        fetchedAt: new Date().toISOString()
       };
     } finally {
       if (browser) {
@@ -159,25 +173,41 @@ const getViberateData = unstable_cache(
       }
     }
   },
-  // Cache key configuration
-  [getViberateCacheKey],
+  ['viberate-data'],
   {
-    revalidate: 86400, // Cache for 24 hours
-    tags: ['viberate-data'], // Optional: for manual revalidation
+    revalidate: 86400,
+    tags: ['viberate-data'],
   }
 );
+
+const getMonthlyListeners = async (page: Page): Promise<string | null> => {
+  const monthlyListeners = await page.$eval(
+    '.analytics-module-content .channel.spotify .stats strong', 
+    (element:any) => element.textContent || null
+  );
+  return monthlyListeners;
+};
 
 export const GET = async (req: Request) => {
   const {searchParams} = new URL(req.url);
   const artistName = searchParams.get('artistName');
+  const clearCache = searchParams.get('clearCache') === 'true';
 
   if(!artistName) {
     return NextResponse.json({ error: 'Artist name is required' }, { status: 400 });
   }
 
+  if (clearCache) {
+    revalidateTag('viberate-data');
+  }
+
   try {
-    // Use the cached function
     const data = await getViberateData(artistName);
+    
+    // If this is a fresh fetch, fromCache will be false
+    // If it's from cache, fromCache will be true (Next.js sets this internally)
+    console.log('Data source:', data.fromCache ? 'Cache' : 'Fresh scrape');
+    console.log('Fetched at:', data.fetchedAt);
 
     // Store the scraped data
     useScrapedDataStore.getState().setViberateVideos(data.topVideos);
