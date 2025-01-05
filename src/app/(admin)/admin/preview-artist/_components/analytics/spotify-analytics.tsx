@@ -10,17 +10,6 @@ export function SpotifyAnalytics() {
   const { spotifyTracks } = useScrapedDataStore();
   const { analytics, formatNumber, handleBlur, handleChange } = useAnalyticsState();
 
-  // const handleImportMonthlyListeners = () => {
-  //   if (spotifyTracks.length > 0) {
-  //     const monthlyListeners = spotifyTracks[0].spotifyStreams;
-  //     if (monthlyListeners) {
-  //       dispatch({
-  //         type: 'UPDATE_ANALYTICS',
-  //         payload: { spotifyMonthlyListeners: monthlyListeners}
-  //       });
-  //     }
-  //   }
-  // };
 
   const stats = [
     {

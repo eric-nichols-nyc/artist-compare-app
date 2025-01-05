@@ -39,10 +39,17 @@ interface ViberateResponse {
   fetchedAt?: string;
 }
 
+// Add custom error class
+class ScrapingError extends Error {
+  constructor(message: string, public statusCode: number = 500) {
+    super(message);
+    this.name = 'ScrapingError';
+  }
+}
+
 // Wrap the scraping logic in a cached function
 const getViberateData = unstable_cache(
   async (artistName: string): Promise<ViberateResponse> => {
-    console.log('Making fresh Viberate scrape for:', artistName);
     let browser = null;
 
     try {
@@ -60,6 +67,7 @@ const getViberateData = unstable_cache(
         ]
       });
 
+      console.log('Starting fresh Viberate scrape for:', artistName);
       const context = await browser.newContext({
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         viewport: { width: 1920, height: 1080 },
@@ -68,7 +76,13 @@ const getViberateData = unstable_cache(
         isMobile: false,
       });
       const page = await context.newPage();
-      await page.goto(`https://www.viberate.com/artist/${artistName}`, { waitUntil: 'networkidle' });
+      const response = await page.goto(`https://www.viberate.com/artist/${artistName}`, { waitUntil: 'networkidle' });
+      
+      // Check if page loaded successfully
+      if (!response?.ok()) {
+        throw new ScrapingError(`Failed to load artist page: ${response?.statusText()}`, 404);
+      }
+
       await page.waitForTimeout(3000);
       const socialStats = await page.evaluate(() => {
         // gets all the li elements in the class .header-stats   
@@ -109,6 +123,8 @@ const getViberateData = unstable_cache(
         }
       });
 
+      const monthlyListeners = await getMonthlyListeners(page);
+
       // click View Top Songs
       await page.click('.pro-section-channel-top-tracks a');
       // wait for .chart-module.spotify
@@ -117,13 +133,31 @@ const getViberateData = unstable_cache(
       // consol loge the content of the page
 
       const topSongs = await page.evaluate(() => {
+        // Define parseCompactNumber inside the evaluate context
+        function parseCompactNumber(value: string | null | undefined): number | undefined {
+          if (!value) return undefined;
+          const normalized = value.trim().toLowerCase();
+          
+          if (normalized.endsWith('k')) {
+            return parseFloat(normalized.replace('k', '')) * 1000;
+          }
+          if (normalized.endsWith('m')) {
+            return parseFloat(normalized.replace('m', '')) * 1000000;
+          }
+          if (normalized.endsWith('b')) {
+            return parseFloat(normalized.replace('b', '')) * 1000000000;
+          }
+          
+          return parseFloat(normalized);
+        }
+
         return Array.from(document.querySelectorAll('.chart-module.spotify tbody tr')).map(row => ({
           title: row?.querySelector('h3 a')?.textContent ?? 'Title not found',
           imageUrl: row?.querySelector('figure')?.style?.backgroundImage
             ?.replace('url("', '')
             .replace('")', ''),
-          monthlyStreams: parseFloat(row.querySelectorAll('.stats strong')[0]?.textContent?.replace(/[^0-9.]/g, '') || '0'),
-          totalStreams: parseFloat(row.querySelectorAll('.stats strong')[1]?.textContent?.replace(/[^0-9.]/g, '') || '0'),
+          monthlyStreams: parseCompactNumber(row.querySelectorAll('.stats strong')[0]?.textContent),
+          totalStreams: parseCompactNumber(row.querySelectorAll('.stats strong')[1]?.textContent),
           spotifyUrl: row?.querySelector('h3 a')?.getAttribute('href') ?? 'url not found',
           spotifyTrackId: row?.querySelector('h3 a')?.getAttribute('href')?.split('/')?.[4]
         }));
@@ -137,23 +171,39 @@ const getViberateData = unstable_cache(
       await page.waitForSelector('.chart-module.youtube');
 
       const topVideos = await page.evaluate(() => {
+        // Define parseCompactNumber inside this evaluate context too
+        function parseCompactNumber(value: string | null | undefined): number | undefined {
+          if (!value) return undefined;
+          const normalized = value.trim().toLowerCase();
+          
+          if (normalized.endsWith('k')) {
+            return parseFloat(normalized.replace('k', '')) * 1000;
+          }
+          if (normalized.endsWith('m')) {
+            return parseFloat(normalized.replace('m', '')) * 1000000;
+          }
+          if (normalized.endsWith('b')) {
+            return parseFloat(normalized.replace('b', '')) * 1000000000;
+          }
+          
+          return parseFloat(normalized);
+        }
+
         return Array.from(document.querySelectorAll('.chart-module.youtube tbody tr')).map(row => ({
           title: row?.querySelector('h3 a')?.textContent || '',
           videoId: row?.querySelector('h3 a')?.getAttribute('href')?.split('/')?.pop() || '',
           thumbnail: row?.querySelector('figure')?.style?.backgroundImage
             ?.replace('url("', '')
             .replace('")', '') || null,
-          monthlyStreams: parseFloat(row.querySelectorAll('.stats strong')[0]?.textContent?.replace(/[^0-9.]/g, '') || '0'),
-          totalStreams: parseFloat(row.querySelectorAll('.stats strong')[1]?.textContent?.replace(/[^0-9.]/g, '') || '0'),
+          monthlyStreams: parseCompactNumber(row.querySelectorAll('.stats strong')[0]?.textContent),
+          totalStreams: parseCompactNumber(row.querySelectorAll('.stats strong')[1]?.textContent),
           platform: 'youtube',
           viewCount: 0
         }));
       });
 
-      const monthlyListeners = await getMonthlyListeners(page);
 
       // Optionally, you can grab the result after submitting
-      console.log('socialStats   ======= ', {socialStats, topSongs, topVideos}); 
       //console.log(content);
       await browser.close();
 
@@ -171,6 +221,12 @@ const getViberateData = unstable_cache(
         fromCache: false,
         fetchedAt: new Date().toISOString()
       };
+    } catch (error) {
+      console.error('Scraping error:', error);
+      if (error instanceof ScrapingError) {
+        throw error;
+      }
+      throw new ScrapingError('Failed to scrape data');
     } finally {
       if (browser) {
         await browser.close();
@@ -186,41 +242,58 @@ const getViberateData = unstable_cache(
 
 const getMonthlyListeners = async (page: Page): Promise<number | null> => {
   const monthlyListeners = await page.$eval(
-    '.analytics-module-content .channel.spotify .stats strong', 
+    '.analytics-module-content .stats strong', 
     (element:any) => element.textContent || null
   );
   return parseCompactNumber(monthlyListeners);
 };
 
 export const GET = async (req: Request) => {
-  const {searchParams} = new URL(req.url);
-  const artistName = searchParams.get('artistName');
-  const clearCache = searchParams.get('clearCache') === 'true';
-
-  if(!artistName) {
-    return NextResponse.json({ error: 'Artist name is required' }, { status: 400 });
-  }
-
-  if (clearCache) {
-    revalidateTag('viberate-data');
-  }
-
   try {
+    const {searchParams} = new URL(req.url);
+    const artistName = searchParams.get('artistName');
+    const clearCache = searchParams.get('clearCache') === 'true';
+
+    if(!artistName) {
+      return NextResponse.json(
+        { error: 'Artist name is required' }, 
+        { status: 400 }
+      );
+    }
+
+    if (clearCache) {
+      console.log('Clearing cache for Viberate data');
+      revalidateTag('viberate-data');
+    }
+
+    const startTime = Date.now();
     const data = await getViberateData(artistName);
+    const endTime = Date.now();
+
+    // If the response was nearly instant, it was likely cached
+    const isCached = endTime - startTime < 1000;
     
-    // If this is a fresh fetch, fromCache will be false
-    // If it's from cache, fromCache will be true (Next.js sets this internally)
-    console.log('Data source:', data.fromCache ? 'Cache' : 'Fresh scrape');
-    console.log('Fetched at:', data.fetchedAt);
+    console.log(`Viberate data for ${artistName} - ${isCached ? 'from cache' : 'freshly scraped'}`);
+    
+    return NextResponse.json({
+      ...data,
+      fromCache: isCached,
+      fetchedAt: isCached ? data.fetchedAt : new Date().toISOString()
+    });
 
-    // Store the scraped data
-    useScrapedDataStore.getState().setViberateVideos(data.topVideos);
-    useScrapedDataStore.getState().setViberateTracks(data.topSongs);
-    useScrapedDataStore.getState().setSocialStats(data.socialStats);
-
-    return NextResponse.json(data);
   } catch (error) {
-    console.error('Scraping error:', error);
-    return NextResponse.json({ error: 'Failed to scrape data' }, { status: 500 });
+    console.error('Route error:', error);
+    
+    if (error instanceof ScrapingError) {
+      return NextResponse.json(
+        { error: error.message }, 
+        { status: error.statusCode }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Internal server error' }, 
+      { status: 500 }
+    );
   }
 };

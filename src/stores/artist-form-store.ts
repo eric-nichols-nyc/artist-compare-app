@@ -25,8 +25,8 @@ const initialState: Omit<ArtistFormStore, 'dispatch' | 'refreshYoutubeVideos' | 
     bio: null,
     genres: [],
     spotifyId: '',
-    musicbrainzId: null,
-    youtubeChannelId: null,
+    musicbrainzId: '',
+    youtubeChannelId: '',
     imageUrl: null,
     spotifyUrl: null,
     youtubeUrl: null,
@@ -79,8 +79,8 @@ export const useArtistFormStore = create<ArtistFormStore>((set, get) => ({
               genres: action.payload.genres || [],
               spotifyId: action.payload.spotifyId || '',
               spotifyUrl: action.payload.spotifyId ? `https://open.spotify.com/artist/${action.payload.spotifyId}` : '',
-              youtubeChannelId: null, // Will be updated later via API
-              youtubeUrl: null, // Will be updated when youtubeChannelId is available
+              youtubeChannelId: '',
+              youtubeUrl: null,
             },
             analytics: {
               ...state.analytics,

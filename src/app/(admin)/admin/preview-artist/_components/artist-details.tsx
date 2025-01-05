@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SpotifyArtist } from "@/types";
 import { useArtistFormStore } from "@/stores/artist-form-store";
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -9,20 +8,20 @@ import { HeaderSkeleton } from "./skeletons";
 import { getArtistInfo, revalidateArtistCache } from '@/actions';
 
 interface ArtistDetailsProps {
-  artist: SpotifyArtist;
+  artistName: string;
 }
 
-export function ArtistDetails({ artist }: ArtistDetailsProps) {
+export function ArtistDetails({ artistName }: ArtistDetailsProps) {
   const { artistInfo, dispatch } = useArtistFormStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("ArtistDetails component mounted", artist.name);
+    console.log("ArtistDetails component mounted", artistName);
     const fetchArtistInfo = async () => {
       try {
-        await revalidateArtistCache(artist.name);
-        const result = await getArtistInfo(artist.name);
+        await revalidateArtistCache(artistName);
+        const result = await getArtistInfo(artistName);
         if (result.success) {
             // Handle successful response
             console.log(result.data);
@@ -45,8 +44,12 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
           payload: {
             lastfmPlayCount: data?.lastfmPlayCount,
             lastfmListeners: data?.lastfmListeners,
-            youtubeSubscribers: data?.youtubeChannelStats?.subscriberCount ?? '0',
-            youtubeTotalViews: data?.youtubeChannelStats?.viewCount ?? '0',
+            youtubeSubscribers: data?.youtubeChannelStats?.subscriberCount 
+              ? Number(data.youtubeChannelStats.subscriberCount) 
+              : null,
+            youtubeTotalViews: data?.youtubeChannelStats?.viewCount 
+              ? Number(data.youtubeChannelStats.viewCount) 
+              : null,
           }
         });
       }
@@ -65,7 +68,7 @@ export function ArtistDetails({ artist }: ArtistDetailsProps) {
       fetchArtistInfo();
     }, 3000);
 
-  }, [artist.name, dispatch]);
+  }, [artistName, dispatch]);
 
   // console.log(state.artistInfo)
   if (isLoading) {

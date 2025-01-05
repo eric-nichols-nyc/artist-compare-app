@@ -119,6 +119,21 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
                   placeholder="Enter YouTube Channel ID"
                 />
               </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">YouTube Channel ID</label>
+                <input
+                  type="text"
+                  value={artistInfo.musicbrainzId || ''}
+                  onChange={(e) => handleSocialLinkChange('musicbrainzId', e.target.value)}
+                  className="w-full p-2 border rounded"
+                  placeholder="Enter MusicBrainz ID"
+                />
+                {
+                  errors?.['artistInfo.musicbrainzId'] && (
+                    <p className="text-red-500">{errors['artistInfo.musicbrainzId']}</p>
+                  )
+                }
+              </div>
             </div>
             <SocialLinks 
               artist={artist} 
@@ -131,7 +146,9 @@ export function ArtistHeader({ artist }: ArtistHeaderProps) {
           <h3 className="text-lg font-semibold mb-3">Biography</h3>
           <div className="flex-grow">
             <Suspense fallback={<HeaderSkeleton />}>
-              <ArtistDetails artist={artist} />
+              <ArtistDetails 
+                artistName={artist.name} 
+              />
             </Suspense>
           </div>
         </div>

@@ -74,9 +74,9 @@ export class YoutubeService {
             return {
                 id: channelId,
                 statistics: {
-                    viewCount: Number(channelStats.viewCount ?? '0'),
-                    subscriberCount: Number(channelStats.subscriberCount ?? '0'),
-                    videoCount: Number(channelStats.videoCount ?? '0')
+                    viewCount: parseInt(channelStats.viewCount || '0'),
+                    subscriberCount: parseInt(channelStats.subscriberCount || '0'),
+                    videoCount: parseInt(channelStats.videoCount || '0')
                 },
                 fetchedAt: new Date().toISOString()
             };

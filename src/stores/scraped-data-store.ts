@@ -58,6 +58,7 @@ export const useScrapedDataStore = create<ScrapedDataStore>()(
       viberateVideos: [],
       viberateTracks: [],
       socialStats: {},
+      spotifyMonthlyListeners: 0,
 
       setYoutubeVideos: (videos) => set({ youtubeVideos: videos }),
       setSpotifyTracks: (tracks) => set({ spotifyTracks: tracks }),

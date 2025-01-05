@@ -173,7 +173,10 @@ export class ArtistIngestionService {
             lastfmPlayCount: parseInt(lastfm.fmPlayCount),
             lastfmListeners: parseInt(lastfm.fmListeners),
             youtubeChannelId,
-            youtubeChannelStats: youtubeChannel?.statistics,
+            youtubeChannelStats: {
+                subscriberCount: youtubeChannel?.statistics?.subscriberCount ?? 0,
+                viewCount: youtubeChannel?.statistics?.viewCount ?? 0
+            },
             biography: lastfm.bio,
             gender,
             country,

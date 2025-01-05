@@ -43,7 +43,7 @@ export function ScrapeOptionsPanel({
   };
 
   const handleScrapeViberate = async () => {
-    if (sourceStates.viberate.isLoading || sourceStates.viberate.isLoaded) return;
+    if (sourceStates.viberate.isLoading) return;
 
     updateSourceState("viberate", { isLoading: true, error: null });
 
