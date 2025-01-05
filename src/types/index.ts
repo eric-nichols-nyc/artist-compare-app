@@ -371,8 +371,16 @@ export interface ArtistFormState {
 export interface ViberateSpTrack {
     imageUrl: string;
     spotifyTrackId: string;
-    title: string;
+    title: string | undefined;
     spotifyUrl: string;
-    totalStreams: string;
-    monthlyStreams: string;
+    totalStreams: number | undefined;
+    monthlyStreams: number | undefined;
+  }
+  
+  export interface ViberateVideo { 
+    title: string;
+    monthlyStreams: number | null;
+    totalStreams: number | null;
+    thumbnail: string | null;
+    videoId: string;
   }

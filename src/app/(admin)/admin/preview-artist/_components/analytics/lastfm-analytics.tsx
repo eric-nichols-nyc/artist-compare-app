@@ -3,9 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Analytics } from "@/types/analytics";
 import { useAnalyticsState } from "@/hooks/useAnalyticsState";
 import { BaseAnalytics } from "./base-analytics";
+import { useArtistFormStore } from "@/stores/artist-form-store";
 
 export function LastFMAnalytics() {
-  const { analytics, handleBlur, handleChange } = useAnalyticsState();
+  const { handleBlur, handleChange } = useAnalyticsState();
+  const {analytics} = useArtistFormStore();
 
   const stats = [
     {

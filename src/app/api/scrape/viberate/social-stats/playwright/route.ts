@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { chromium } from 'playwright';
 import { useScrapedDataStore } from '@/stores/scraped-data-store'
 import { Page } from 'playwright';
+import { parseCompactNumber } from '@/lib/utils/number-format';
+import { YoutubeVideoInfo } from '@/validations/artist-schema';
 
 async function delay() {
   // Random delay between .45-1.25 minutes
@@ -31,8 +33,8 @@ function parseFollowerCount(count: string | null | undefined): number | undefine
 interface ViberateResponse {
   socialStats: Record<string, number | undefined>;
   topSongs: any[];
-  topVideos: any[];
-  monthlyListeners: string | null;
+  topVideos: Partial<YoutubeVideoInfo>[];
+  monthlyListeners: number | null;
   fromCache?: boolean;
   fetchedAt?: string;
 }
@@ -116,13 +118,13 @@ const getViberateData = unstable_cache(
 
       const topSongs = await page.evaluate(() => {
         return Array.from(document.querySelectorAll('.chart-module.spotify tbody tr')).map(row => ({
-          title: row?.querySelector('h3 a')?.textContent,
+          title: row?.querySelector('h3 a')?.textContent ?? 'Title not found',
           imageUrl: row?.querySelector('figure')?.style?.backgroundImage
             ?.replace('url("', '')
             .replace('")', ''),
-          monthlyStreams: row.querySelectorAll('.stats strong')[0].textContent,
-          totalStreams: row.querySelectorAll('.stats strong')[1].textContent,
-          spotifyUrl: row?.querySelector('h3 a')?.getAttribute('href'),
+          monthlyStreams: parseFloat(row.querySelectorAll('.stats strong')[0]?.textContent?.replace(/[^0-9.]/g, '') || '0'),
+          totalStreams: parseFloat(row.querySelectorAll('.stats strong')[1]?.textContent?.replace(/[^0-9.]/g, '') || '0'),
+          spotifyUrl: row?.querySelector('h3 a')?.getAttribute('href') ?? 'url not found',
           spotifyTrackId: row?.querySelector('h3 a')?.getAttribute('href')?.split('/')?.[4]
         }));
       });
@@ -136,13 +138,15 @@ const getViberateData = unstable_cache(
 
       const topVideos = await page.evaluate(() => {
         return Array.from(document.querySelectorAll('.chart-module.youtube tbody tr')).map(row => ({
-          title: row?.querySelector('h3 a')?.textContent,
-          videoId: row?.querySelector('h3 a')?.getAttribute('href'),
+          title: row?.querySelector('h3 a')?.textContent || '',
+          videoId: row?.querySelector('h3 a')?.getAttribute('href')?.split('/')?.pop() || '',
           thumbnail: row?.querySelector('figure')?.style?.backgroundImage
             ?.replace('url("', '')
-            .replace('")', ''),
-          monthlyStreams: row.querySelectorAll('.stats strong')[0].textContent,
-          totalStreams: row.querySelectorAll('.stats strong')[1].textContent,
+            .replace('")', '') || null,
+          monthlyStreams: parseFloat(row.querySelectorAll('.stats strong')[0]?.textContent?.replace(/[^0-9.]/g, '') || '0'),
+          totalStreams: parseFloat(row.querySelectorAll('.stats strong')[1]?.textContent?.replace(/[^0-9.]/g, '') || '0'),
+          platform: 'youtube',
+          viewCount: 0
         }));
       });
 
@@ -180,12 +184,12 @@ const getViberateData = unstable_cache(
   }
 );
 
-const getMonthlyListeners = async (page: Page): Promise<string | null> => {
+const getMonthlyListeners = async (page: Page): Promise<number | null> => {
   const monthlyListeners = await page.$eval(
     '.analytics-module-content .channel.spotify .stats strong', 
     (element:any) => element.textContent || null
   );
-  return monthlyListeners;
+  return parseCompactNumber(monthlyListeners);
 };
 
 export const GET = async (req: Request) => {

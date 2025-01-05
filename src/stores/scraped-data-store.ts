@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import {YoutubeVideoInfo, SpotifyTrackInfo} from "@/validations/artist-schema"
-import { ViberateSpTrack } from '@/types'
+import { ViberateSpTrack, ViberateVideo } from '@/types'
 
 interface SocialStats {
   facebook?: number
@@ -12,15 +12,11 @@ interface SocialStats {
   soundcloud?: number
 }
 
-// interface ViberateTrack {
-//   title: string
-//   monthlyStreams: string | null
-//   totalStreams: string | null
-// }
+
 
 interface ScrapedDataStore {
   // YouTube Data
-  youtubeVideos: YoutubeVideoInfo[]
+  youtubeVideos: Partial<YoutubeVideoInfo>[]
   setYoutubeVideos: (videos: YoutubeVideoInfo[]) => void
   clearYoutubeVideos: () => void
 
@@ -35,10 +31,10 @@ interface ScrapedDataStore {
   clearSpotifyMonthlyListeners: () => void
 
   // Viberate Data
-  viberateVideos: YoutubeVideoInfo[]
-  viberateTracks: ViberateSpTrack[]
-  setViberateVideos: (videos: YoutubeVideoInfo[]) => void
-  setViberateTracks: (tracks: ViberateSpTrack[]) => void
+  viberateVideos: Partial<YoutubeVideoInfo>[]
+  viberateTracks: Partial<ViberateSpTrack>[]
+  setViberateVideos: (videos: Partial<YoutubeVideoInfo>[]) => void
+  setViberateTracks: (tracks: Partial<ViberateSpTrack>[]) => void
   clearViberateData: () => void
 
   // Add social stats
