@@ -79,7 +79,8 @@ export function ArtistSearch() {
                     <Image
                       src={artist.imageUrl}
                       alt={artist.name}
-                      fill
+                      width={40}
+                      height={40} 
                       className="object-cover"
                     />
                   </div>

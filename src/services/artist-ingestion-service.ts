@@ -297,7 +297,7 @@ export class ArtistIngestionService {
             const trackInserts = tracks.map(track => ({
                 id: crypto.randomUUID(),
                 artist_id: artistId,
-                platform_track_id: track.trackId,
+                track_id: track.trackId,
                 title: track.title,
                 popularity: track.popularity,
                 platform: 'spotify'

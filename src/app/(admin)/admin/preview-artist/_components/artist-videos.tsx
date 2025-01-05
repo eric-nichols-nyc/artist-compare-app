@@ -120,35 +120,15 @@ export function ArtistVideos() {
       <CardHeader className="flex">
         <div className="flex items-center gap-2">
         <CardTitle>Top Videos</CardTitle>
-
-          {/* <DataSourceSelector
-            type="videos"
-          /> */}
-          
-          {selectedSource === 'json' ? (
-            <Button variant="outline" size="sm" asChild>
-              <label className="cursor-pointer">
-                <Upload className="w-4 h-4 mr-2" />
-                Upload JSON
-                <input
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={() => fetchYoutubeVideos(ids)}
-                />
-              </label>
-            </Button>
-          ) : (
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => handleSourceChange(selectedSource)}
+              onClick={() => fetchYoutubeVideos(ids)}
               disabled={isLoading}
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh Videos
             </Button>
-          )}
         </div>
       </CardHeader>
 

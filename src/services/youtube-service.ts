@@ -166,11 +166,11 @@ export class YoutubeService {
         // Check memory cache first
         const cached = this.memoryCache.get(cacheKey);
         if (cached && Date.now() - cached.timestamp < 24 * 60 * 60 * 1000) {
-            console.log('Memory cache HIT for:', cacheKey);
+            console.log('✅ Found in memory cache:', cacheKey);
             return cached.data;
         }
 
-        console.log('Cache MISS for:', cacheKey);
+        console.log('❌ Not in memory cache, checking YouTube API:', cacheKey);
         
         if (!videoIds) {
             throw new Error('Video IDs are required');

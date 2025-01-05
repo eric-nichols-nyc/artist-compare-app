@@ -92,8 +92,7 @@ model ArtistVideo {
   title         String
   viewCount     BigInt   @map("view_count")
   likeCount     BigInt   @map("like_count")
-  commentCount  Int      @map("comment_count")
-  publishedAt   DateTime @map("published_at") @db.Timestamptz
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
@@ -120,7 +119,7 @@ model ArtistGeography {
 model ArtistTrack {
   id              String   @id @default(uuid()) @db.Uuid
   artistId        String   @map("artist_id") @db.Uuid
-  trackId         Int?  @map("track_id")
+  trackId         String  @map("track_id")
   title           String
   popularity      Int?
   platform        String
