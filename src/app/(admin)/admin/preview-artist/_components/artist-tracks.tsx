@@ -12,9 +12,7 @@ import { Button } from '@/components/ui/button'
 import { ExternalLinkIcon, Music2Icon } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { TracksSkeleton } from './skeletons'
-import { DataSourceSelector } from '@/components/data-source-selector'
 import { useScrapedDataStore } from '@/stores/scraped-data-store'
-import { parseCompactNumber } from '@/lib/utils/number-format'
 
 interface ArtistTracksProps {
   artist: SpotifyArtist
@@ -30,12 +28,22 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
 
   async function fetchSpotifyTracks(trackIds: string[]) {
     console.log('trackIds1 = ', trackIds)
-    const response = await fetch(`/api/admin/artist-tracks?spotifyIds=${trackIds.join(',')}&spotifyId=${artist.spotifyId}`)
-    const data = await response.json()
-    console.log('track data = ', data.tracks)
-    const mergedTracks = mergeTracks(viberateTracks, data.tracks)
-    console.log('mergedTracks = ', mergedTracks)
-    dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: mergedTracks || [] })
+    try {
+      setIsLoading(true)
+      // Extract video IDs from watch URLs
+      const videoIds = trackIds.map(url => url.split('=')[1]);
+      const response = await fetch(`/api/admin/artist-tracks?spotifyIds=${videoIds.join(',')}&spotifyId=${artist.spotifyId}`)
+      const data = await response.json()
+      console.log('track data = ', data.tracks)
+      const mergedTracks = mergeTracks(viberateTracks, data.tracks)
+      console.log('mergedTracks = ', mergedTracks)
+      dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: mergedTracks || [] })
+    } catch (error) {
+      console.error('Error fetching Spotify tracks:', error)
+      setError('Error fetching Spotify tracks')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -45,7 +53,9 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
 
   useEffect(() => {  
     console.log('viberateTracks = ', viberateTracks)
-    const trackIds = viberateTracks.map(track => track.spotifyTrackId)
+    const trackIds = viberateTracks
+      .map(track => track.spotifyTrackId)
+      .filter((id): id is string => !!id);
     if(trackIds.length) { 
       fetchSpotifyTracks(trackIds)
     }
@@ -53,18 +63,21 @@ export function ArtistTracks({ artist }: ArtistTracksProps) {
   // dispatch({ type: 'UPDATE_SPOTIFY_TRACKS', payload: mergedTracks });
   }, [viberateTracks])
 
-  function mergeTracks(viberateTracks: ViberateSpTrack[], spotifyTracks: Partial<SpotifyTrackInfo>[]):SpotifyTrackInfo[] {
-    return viberateTracks.map((viberateTrack: ViberateSpTrack) => {
-      const spotifyTrack = spotifyTracks.find(track => track.trackId === viberateTrack.spotifyTrackId);
-      return {
-        ...viberateTrack,
-        ...spotifyTrack,
-        platform: 'spotify',
-        trackId: viberateTrack.spotifyTrackId,
-        popularity: spotifyTrack?.popularity || 0,
-        spotifyStreams: viberateTrack.monthlyStreams || null
-      };
-    });
+  function mergeTracks(viberateTracks: Partial<ViberateSpTrack>[], spotifyTracks: Partial<SpotifyTrackInfo>[]):SpotifyTrackInfo[] {
+    return viberateTracks
+      .filter((track): track is ViberateSpTrack => !!track.spotifyTrackId)
+      .map((viberateTrack) => {
+        const spotifyTrack = spotifyTracks.find(track => track.trackId === viberateTrack.spotifyTrackId);
+        return {
+          title: viberateTrack.title || 'Untitled',
+          imageUrl: viberateTrack.imageUrl || '/default-track-image.jpg',
+          platform: 'spotify',
+          trackId: viberateTrack.spotifyTrackId,
+          popularity: spotifyTrack?.popularity || 0,
+          spotifyUrl: viberateTrack.spotifyUrl || null,
+          spotifyStreams: viberateTrack.monthlyStreams || null
+        };
+      });
   }
 
 

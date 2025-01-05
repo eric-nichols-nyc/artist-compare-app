@@ -369,7 +369,7 @@ export interface ArtistFormState {
   }
 
 export interface ViberateSpTrack {
-    imageUrl: string;
+    imageUrl: string | undefined;
     spotifyTrackId: string;
     title: string | undefined;
     spotifyUrl: string;

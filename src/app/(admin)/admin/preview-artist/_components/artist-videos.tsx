@@ -57,8 +57,14 @@ export function ArtistVideos() {
   }
   // when the viberateVideos change, fetch the youtube videos
   useEffect(() => {
-    if (viberateVideos.length) {
-      fetchYoutubeVideos(viberateVideos.map(video => video?.videoId || '').filter(Boolean) as string[])
+    console.log('viberateVideos = ', viberateVideos)
+    const videoIds = viberateVideos
+      .map(video => video.videoId)
+      .filter((id): id is string => !!id)
+      .map(url => url.split('=')[1]); // Extract ID from watch?v= URLs
+
+    if(videoIds.length) { 
+      fetchYoutubeVideos(videoIds)
     }
   }, [viberateVideos])  
 
