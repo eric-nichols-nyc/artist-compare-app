@@ -4,6 +4,7 @@ import { FanbaseChart } from './fanbase-chart';
 import { PopularityChart } from '../charts/popularity-chart';
 import { MonthlyListenersChart } from '../charts/monthly-listeners-chart';
 import { YouTubeDailyViewsChart } from '../charts/youtube-daily-views-chart';
+import { MostViewedVideos } from '../youtube/most-viewed-videos';
 
 const fanbaseData = [
   {
@@ -122,9 +123,25 @@ const youtubeDailyViewsData = [
   // Add more dates...
 ];
 
+const sampleVideos = [
+  {
+    title: "Lady Gaga - Bad Romance (Official Music Video)",
+    thumbnailUrl: "https://i.ytimg.com/vi/qrO4YZeyl0I/maxresdefault.jpg",
+    views: 1900000000,
+    artistName: "Lady Gaga"
+  },
+  {
+    title: "will.i.am - Scream & Shout ft. Britney Spears (Official Music Video)",
+    thumbnailUrl: "https://i.ytimg.com/vi/kYtGl1dX5qI/maxresdefault.jpg",
+    views: 1100000000,
+    artistName: "will.i.am"
+  }
+];
+
 export function ComparisonSection() {
   return (
     <div className="space-y-6 p-6">
+      <MostViewedVideos videos={sampleVideos} />
       <MonthlyListenersChart data={monthlyListenersData} />
       <YouTubeDailyViewsChart data={youtubeDailyViewsData} />
       <FanbaseChart data={fanbaseData} />
