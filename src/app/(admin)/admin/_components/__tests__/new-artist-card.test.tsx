@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { ArtistCard } from '../new-artist-card'
+import { ArtistCard } from '../artist/new-artist-card'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { mockSpotifyArtist } from '@/mocks/spotify-artist'
 import { http } from 'msw'

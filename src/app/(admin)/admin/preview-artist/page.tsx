@@ -1,10 +1,8 @@
-import { ContentLayout } from '@/app/(admin)/admin/_components/content-layout'
-import { PreviewArtistContent } from './_components/preview-artist-content'
 
 export default async function PreviewArtistPage() {
   return (
-    <ContentLayout title="Preview Artist">
-      <PreviewArtistContent />
-    </ContentLayout>
+    <p>
+      You should not see this page
+    </p>
   )
 }
