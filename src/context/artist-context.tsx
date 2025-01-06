@@ -11,6 +11,7 @@ type Artist = {
 type ArtistContextType = {
   artists: Artist[]
   addArtist: (artist: Artist) => void
+  setArtists: (artists: Artist[]) => void
 }
 
 const ArtistContext = createContext<ArtistContextType | undefined>(undefined)
@@ -23,7 +24,7 @@ export function ArtistProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <ArtistContext.Provider value={{ artists, addArtist }}>
+    <ArtistContext.Provider value={{ artists, addArtist, setArtists }}>
       {children}
     </ArtistContext.Provider>
   )

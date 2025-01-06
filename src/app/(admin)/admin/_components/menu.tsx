@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Ellipsis, LogOut } from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ import {
   TooltipContent,
   TooltipProvider
 } from "@/components/ui/tooltip";
-
+import { ArtistList } from "@/components/features/sidebar/artist-list";
 interface MenuProps {
   isOpen: boolean | undefined;
 }
@@ -105,7 +105,7 @@ export function Menu({ isOpen }: MenuProps) {
             </li>
           ))}
           </ul>
-          <div>artist list goes here</div>
+          <ArtistList />
         </div>
       </nav>
     </ScrollArea>
