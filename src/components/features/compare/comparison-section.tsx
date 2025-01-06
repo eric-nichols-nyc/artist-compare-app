@@ -5,6 +5,8 @@ import { PopularityChart } from '../charts/popularity-chart';
 import { MonthlyListenersChart } from '../charts/monthly-listeners-chart';
 import { YouTubeDailyViewsChart } from '../charts/youtube-daily-views-chart';
 import { MostViewedVideos } from '../youtube/most-viewed-videos';
+import { MostPlayedTracks } from '../spotify/most-played-tracks';
+import { TopConnections } from '../connections/top-connections';
 
 const fanbaseData = [
   {
@@ -138,13 +140,66 @@ const sampleVideos = [
   }
 ];
 
+const sampleTracks = [
+  {
+    title: "Shape of You",
+    thumbnailUrl: "https://i.scdn.co/image/ab67616d0000b273ba5db46f4b838ef6027e6f96",
+    plays: 3200000000,
+    artistName: "Ed Sheeran"
+  },
+  {
+    title: "Blinding Lights",
+    thumbnailUrl: "https://i.scdn.co/image/ab67616d0000b2738863bc11d2aa12b54f5aeb36",
+    plays: 2800000000,
+    artistName: "The Weeknd"
+  }
+];
+
+const sampleConnections = [
+  {
+    name: "Sabrina Carpenter",
+    imageUrl: "https://i.scdn.co/image/ab6761610000e5ebf0c30372ad69e7c788845b95",
+    country: "USA",
+    genre: "POP"
+  },
+  {
+    name: "Ariana Grande",
+    imageUrl: "https://i.scdn.co/image/ab6761610000e5ebcdce7620dc940db079bf4952",
+    country: "USA",
+    genre: "POP"
+  },
+  {
+    name: "Lady Gaga",
+    imageUrl: "https://i.scdn.co/image/ab6761610000e5eb0e08ea2c4d6789fbf5cbe0aa",
+    country: "USA",
+    genre: "POP"
+  },
+  {
+    name: "Rihanna",
+    imageUrl: "https://i.scdn.co/image/ab6761610000e5eb99e4fca7c0b7cb166d915789",
+    country: "BRB",
+    genre: "POP"
+  },
+  {
+    name: "Selena Gomez",
+    imageUrl: "https://i.scdn.co/image/ab6761610000e5eba5205abffd84341e5bace828",
+    country: "USA",
+    genre: "POP"
+  }
+];
+
 export function ComparisonSection() {
   return (
     <div className="space-y-6 p-6">
+    <div className="flex w-full">
+        <TopConnections connections={sampleConnections} />
+        <TopConnections connections={sampleConnections} />
+    </div>
+      <FanbaseChart data={fanbaseData} />
+      <MostPlayedTracks tracks={sampleTracks} />
       <MostViewedVideos videos={sampleVideos} />
       <MonthlyListenersChart data={monthlyListenersData} />
       <YouTubeDailyViewsChart data={youtubeDailyViewsData} />
-      <FanbaseChart data={fanbaseData} />
       <PopularityChart data={popularityData} />
     </div>
   );
