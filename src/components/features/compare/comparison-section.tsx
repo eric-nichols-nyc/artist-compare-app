@@ -197,10 +197,10 @@ export function ComparisonSection() {
     </div>
       <FanbaseChart data={fanbaseData} />
       <MostPlayedTracks tracks={sampleTracks} />
-      <MostViewedVideos videos={sampleVideos} />
-      <MonthlyListenersChart data={monthlyListenersData} />
-      <YouTubeDailyViewsChart data={youtubeDailyViewsData} />
       <PopularityChart data={popularityData} />
+      <MonthlyListenersChart data={monthlyListenersData} />
+      <MostViewedVideos videos={sampleVideos} />
+      <YouTubeDailyViewsChart data={youtubeDailyViewsData} />
     </div>
   );
 } 
