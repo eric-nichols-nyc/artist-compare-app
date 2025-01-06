@@ -2,6 +2,8 @@
 
 import { FanbaseChart } from './fanbase-chart';
 import { PopularityChart } from '../charts/popularity-chart';
+import { MonthlyListenersChart } from '../charts/monthly-listeners-chart';
+import { YouTubeDailyViewsChart } from '../charts/youtube-daily-views-chart';
 
 const fanbaseData = [
   {
@@ -70,9 +72,61 @@ const popularityData = [
   }
 ];
 
+const monthlyListenersData = [
+  {
+    date: '2024-12-09',
+    artists: [
+      { name: 'Taylor Swift', listeners: 92970321, color: '#FF9500' },
+      { name: 'Sabrina Carpenter', listeners: 80685745, color: '#FF2D55' }
+    ]
+  },
+  {
+    date: '2024-12-12',
+    artists: [
+      { name: 'Taylor Swift', listeners: 93500000, color: '#FF9500' },
+      { name: 'Sabrina Carpenter', listeners: 81200000, color: '#FF2D55' }
+    ]
+  },
+  {
+    date: '2024-12-15',
+    artists: [
+      { name: 'Taylor Swift', listeners: 94100000, color: '#FF9500' },
+      { name: 'Sabrina Carpenter', listeners: 82400000, color: '#FF2D55' }
+    ]
+  },
+  // Add more dates...
+];
+
+const youtubeDailyViewsData = [
+  {
+    date: '2024-12-09',
+    artists: [
+      { name: 'Taylor Swift', views: 13500000, color: '#FF9500' },
+      { name: 'Sabrina Carpenter', views: 7800000, color: '#FF2D55' }
+    ]
+  },
+  {
+    date: '2024-12-12',
+    artists: [
+      { name: 'Taylor Swift', views: 14200000, color: '#FF9500' },
+      { name: 'Sabrina Carpenter', views: 8100000, color: '#FF2D55' }
+    ]
+  },
+  {
+    date: '2024-12-15',
+    artists: [
+      { name: 'Taylor Swift', views: 12800000, color: '#FF9500' },
+      { name: 'Sabrina Carpenter', views: 7500000, color: '#FF2D55' }
+    ]
+  },
+  // Add more dates...
+];
+
 export function ComparisonSection() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 p-6">
+      <MonthlyListenersChart data={monthlyListenersData} />
+      <YouTubeDailyViewsChart data={youtubeDailyViewsData} />
       <FanbaseChart data={fanbaseData} />
       <PopularityChart data={popularityData} />
     </div>

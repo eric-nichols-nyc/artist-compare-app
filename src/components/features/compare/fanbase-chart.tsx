@@ -1,6 +1,7 @@
 'use client';
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ChartCard } from '../charts/chart-card';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { ArtistFanbaseData } from '@/types/artist';
 
 const PLATFORMS = {
@@ -31,34 +32,44 @@ export function FanbaseChart({ data }: FanbaseChartProps) {
   }));
 
   return (
-    <div className="w-full h-[400px]">
-      <h2 className="text-xl font-semibold mb-4">Fan base</h2>
-      <p className="text-sm text-gray-500 mb-6">
-        Total fans, followers and subscribers
-      </p>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart
-          layout="vertical"
-          data={formattedData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-        >
-          <XAxis type="number" />
-          <YAxis type="category" dataKey="name" width={100} />
-          <Tooltip 
-            formatter={(value: number) => `${(value / 1000000).toFixed(1)}M`}
-          />
-          <Legend />
-          {Object.entries(PLATFORMS).map(([key, platform]) => (
-            <Bar
-              key={key}
-              dataKey={key}
-              stackId="a"
-              fill={platform.color}
-              name={platform.name}
+    <ChartCard>
+      <div className="w-full h-[400px]">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-semibold">Fan base</h2>
+            <p className="text-sm text-gray-500">Total fans, followers and subscribers</p>
+          </div>
+        </div>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart
+            layout="vertical"
+            data={formattedData}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
+            <XAxis type="number" />
+            <YAxis type="category" dataKey="name" width={100} />
+            <Tooltip 
+              formatter={(value: number) => `${(value / 1000000).toFixed(1)}M`}
+              contentStyle={{ 
+                backgroundColor: '#1F2937',
+                border: 'none',
+                borderRadius: '8px',
+                color: 'white'
+              }}
             />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+            <Legend />
+            {Object.entries(PLATFORMS).map(([key, platform]) => (
+              <Bar
+                key={key}
+                dataKey={key}
+                stackId="a"
+                fill={platform.color}
+                name={platform.name}
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </ChartCard>
   );
 }

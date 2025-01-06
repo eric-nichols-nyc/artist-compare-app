@@ -3,32 +3,32 @@
 import { ChartCard } from './chart-card';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
-interface PopularityData {
+interface YouTubeViewsData {
   date: string;
   artists: {
     name: string;
-    popularity: number;
+    views: number;
     color: string;
   }[];
 }
 
-interface PopularityChartProps {
-  data: PopularityData[];
+interface YouTubeDailyViewsChartProps {
+  data: YouTubeViewsData[];
 }
 
-export function PopularityChart({ data }: PopularityChartProps) {
+export function YouTubeDailyViewsChart({ data }: YouTubeDailyViewsChartProps) {
   return (
     <ChartCard>
       <div className="w-full h-[400px]">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="#1DB954">
-                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.371-.694.495-1.055.241-2.886-1.766-6.517-2.166-10.79-1.187-.411.097-.824-.188-.92-.599-.097-.41.188-.824.599-.92 4.692-1.073 8.807-.620 12.045 1.371.362.227.486.694.241 1.055zm1.474-3.267c-.302.464-.863.615-1.327.313-3.301-2.028-8.325-2.614-12.226-1.429-.513.152-1.053-.143-1.205-.656-.151-.513.143-1.053.656-1.205 4.458-1.352 9.994-.686 13.755 1.648.464.302.615.863.313 1.327zm.127-3.403C15.17 8.454 8.804 8.229 5.132 9.36c-.614.19-1.265-.15-1.455-.765-.19-.614.15-1.265.765-1.455 4.277-1.297 11.385-1.047 15.86 1.62.554.329.736 1.045.407 1.599-.33.554-1.045.736-1.599.407z"/>
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="#FF0000">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
-              Spotify popularity
+              YouTube daily views
             </h2>
-            <p className="text-sm text-gray-500">Spotify popularity over time</p>
+            <p className="text-sm text-gray-500">YouTube daily views over time</p>
           </div>
           <select className="bg-transparent border rounded-md px-2 py-1 text-sm">
             <option>Last 28 days</option>
@@ -50,9 +50,8 @@ export function PopularityChart({ data }: PopularityChartProps) {
               })}
             />
             <YAxis 
-              domain={[90, 102]}
-              ticks={[90, 92, 94, 96, 98, 100, 102]}
               stroke="#9CA3AF"
+              tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
             />
             <Tooltip
               contentStyle={{ 
@@ -66,7 +65,7 @@ export function PopularityChart({ data }: PopularityChartProps) {
                 day: 'numeric',
                 year: '2-digit'
               })}
-              formatter={(value: number) => [`${value}`, 'Popularity']}
+              formatter={(value: number) => [`${(value).toLocaleString()}`, 'Daily Views']}
             />
             <Legend />
             {data[0]?.artists.map((artist) => (
@@ -74,7 +73,7 @@ export function PopularityChart({ data }: PopularityChartProps) {
                 key={artist.name}
                 type="monotone"
                 dataKey={(item) => 
-                  item.artists.find(a => a.name === artist.name)?.popularity
+                  item.artists.find(a => a.name === artist.name)?.views
                 }
                 name={artist.name}
                 stroke={artist.color}
