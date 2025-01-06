@@ -291,6 +291,7 @@ export interface SpotifyTrack {
     popularity: number;
     platform: string;
     imageUrl: string | null;
+    spotifyStreamsMonthly: number | null;
     spotifyStreams: number | null;
     spotifyUrl: string | null;
   }

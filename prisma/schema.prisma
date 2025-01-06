@@ -123,6 +123,9 @@ model ArtistTrack {
   title           String
   popularity      Int?
   platform        String
+  streamCountMonthly BigInt? @map("stream_count_monthly")
+  streamCountTotal     BigInt? @map("stream_count_total")
+  thumbnailUrl    String? @map("thumbnail_url")
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   // Relations

@@ -52,6 +52,7 @@ const getArtists = unstable_cache(
       imageUrl: artist.image_url,
       country: artist.country,
       genres: artist.genres,
+      rank: artist?.rank || 0,
       facebookFollowers: artist.artist_analytics[0]?.facebook_followers || 0,
       tiktokFollowers: artist.artist_analytics[0]?.tiktok_followers || 0,
     }))

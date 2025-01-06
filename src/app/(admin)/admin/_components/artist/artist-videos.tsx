@@ -6,8 +6,7 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { useArtistFormStore } from '@/stores/artist-form-store'
 import { useScrapedDataStore } from '@/stores/scraped-data-store'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, Upload } from 'lucide-react'
-import { DataSourceSelector } from '@/components/data-source-selector'
+import { RefreshCw } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 

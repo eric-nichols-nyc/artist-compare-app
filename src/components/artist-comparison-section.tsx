@@ -42,6 +42,7 @@ export function ArtistComparisonSection({
   isLoading,
   reversed,
 }: ArtistComparisonSectionProps) {
+  console.log('artist comparison section', artist)
   const handleArtistSelect = (selectedArtist: Omit<Artist, "rankings">) => {
     onArtistSelect(selectedArtist);
   };

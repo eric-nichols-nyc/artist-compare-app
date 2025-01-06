@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useFanbaseStore } from '@/store/fanbase-store';
 import { FanbaseChart } from './charts/fanbase-chart';
 import { FanbaseDistribution } from './charts/fanbase-distribution-chart';
+import { ArtistFanbaseData } from '@/types/artist';
 // import { PopularityChart } from './charts/popularity-chart';
 // import { MonthlyListenersChart } from './charts/monthly-listeners-chart';
 // import { YouTubeDailyViewsChart } from './charts/youtube-daily-views-chart';
 import { MostViewedVideos } from '../youtube/most-viewed-videos';
-import { MostPlayedTracks } from '../spotify/most-played-tracks';
+//import { MostPlayedTracks } from '../spotify/most-played-tracks';
 // import { TopConnections } from '../connections/top-connections';
 // import { SocialComparison } from './charts/social-comparison-chart';
 
@@ -58,8 +59,8 @@ export function ComparisonSection() {
     <div className="flex flex-col gap-4">
     
       {/* Pie charts for each artist */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {sortedFanbaseData.map((artist, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {sortedFanbaseData.map((artist) => (
           <FanbaseDistribution 
             key={artist.name}
             data={transformDataForDistribution(artist)}
@@ -70,9 +71,13 @@ export function ComparisonSection() {
       </div>
            <div className="w-full">
         <FanbaseChart data={sortedFanbaseData} />
-      </div> */}
-      
+      </div>
+      <Suspense fallback={<div>Loading...</div>}>
       <MostViewedVideos />
+      </Suspense>
+      {/* <Suspense fallback={<div>Loading...</div>}>
+      <MostPlayedTracks />
+      </Suspense> */}
     </div>
   );
 }

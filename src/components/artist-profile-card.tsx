@@ -9,6 +9,7 @@ interface ArtistProfileProps {
   countryCode: string
   genre: string
   imageUrl: string
+  rank: number
   rankings: {
     overall: number
     [key: string]: number  // For other genre rankings
@@ -23,12 +24,14 @@ export function ArtistProfileCard({
   country,
   countryCode,
   genre,
+  rank,
   imageUrl,
   rankings,
   overallRankChange,
   onChangeArtist,
   reversed
 }: ArtistProfileProps) {
+  console.log('artist profile card', name, rank)
   const [imageError, setImageError] = useState(false);
   const fallbackImage = "/images/placeholder.jpg";
 
@@ -70,7 +73,7 @@ export function ArtistProfileCard({
               <div className={`flex flex-row items-center gap-2 justify-end ${reversed ? 'flex-row-reverse' : ''}`}>
                 <span className="text-gray-600">{country}</span>
                 <Image 
-                  src={`/flags/ussvg`}
+                  src={`/flags/us.svg`}
                   alt={country}
                   width={20}
                   height={12}
@@ -78,22 +81,9 @@ export function ArtistProfileCard({
                 />
               </div>
             </div>
-
-            {/* Genre Rankings */}
-            <div className="space-y-2">
-              {Object.entries(rankings).map(([genre, rank]) => (
-                genre !== 'overall' && (
-                  <div key={genre} className={`flex flex-row items-center gap-2 justify-end ${reversed ? 'flex-row-reverse' : ''}`}>
-                    <span className="text-gray-600">{genre}</span>
-                    <span className="font-semibold">{rank}</span>
-                  </div>
-                )
-              ))}
-            </div>
-
             {/* Overall Rank */}
             <div className="flex items-center gap-2">
-              <span className="text-4xl font-bold">{rankings.overall}</span>
+              <span className="text-4xl font-bold">{rank}</span>
               {overallRankChange && (
                 <span className={`text-sm ${overallRankChange > 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {overallRankChange > 0 ? '+' : ''}{overallRankChange}

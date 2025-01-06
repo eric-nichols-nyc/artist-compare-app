@@ -299,6 +299,8 @@ export class ArtistIngestionService {
                 artist_id: artistId,
                 track_id: track.trackId,
                 title: track.title,
+                stream_count: track.spotifyStreams,
+                thumbnail_url: track.imageUrl,
                 popularity: track.popularity,
                 platform: 'spotify'
             }));
