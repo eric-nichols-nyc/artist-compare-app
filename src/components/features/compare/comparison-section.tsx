@@ -1,12 +1,14 @@
 'use client';
 
-import { FanbaseChart } from './fanbase-chart';
-import { PopularityChart } from '../charts/popularity-chart';
-import { MonthlyListenersChart } from '../charts/monthly-listeners-chart';
-import { YouTubeDailyViewsChart } from '../charts/youtube-daily-views-chart';
+import { FanbaseChart } from './charts/fanbase-chart';
+import { PopularityChart } from './charts/popularity-chart';
+import { MonthlyListenersChart } from './charts/monthly-listeners-chart';
+import { YouTubeDailyViewsChart } from './charts/youtube-daily-views-chart';
 import { MostViewedVideos } from '../youtube/most-viewed-videos';
 import { MostPlayedTracks } from '../spotify/most-played-tracks';
 import { TopConnections } from '../connections/top-connections';
+import { FanbaseDistribution } from './charts/fanbase-distribution-chart';
+import { SocialComparison } from './charts/social-comparison-chart';
 
 const fanbaseData = [
   {
@@ -17,15 +19,7 @@ const fanbaseData = [
       instagram: 280500000,
       facebook: 69800000,
       tiktok: 23400000,
-      twitter: 92700000,
-      deezer: 14300000,
       soundcloud: 3200000,
-      twitch: 450000,
-      amazon: 8900000,
-      applemusic: 38500000,
-      pandora: 12400000,
-      vk: 890000,
-      yandex: 2100000,
     },
     totalFollowers: 727000000
   },
@@ -37,15 +31,7 @@ const fanbaseData = [
       instagram: 30800000,
       facebook: 2100000,
       tiktok: 18400000,
-      twitter: 3900000,
-      deezer: 2800000,
       soundcloud: 890000,
-      twitch: 120000,
-      amazon: 1900000,
-      applemusic: 8900000,
-      pandora: 3200000,
-      vk: 180000,
-      yandex: 450000,
     },
     totalFollowers: 119000000
   }
@@ -188,13 +174,114 @@ const sampleConnections = [
   }
 ];
 
+const fanbaseDistributionData = [
+  {
+    name: 'Instagram',
+    value: 280500000,
+    color: '#E4405F',
+    icon: 'instagram'
+  },
+  {
+    name: 'Facebook',
+    value: 69800000,
+    color: '#1877F2',
+    icon: 'facebook'
+  },
+  {
+    name: 'Spotify',
+    value: 111200000,
+    color: '#1DB954',
+    icon: 'spotify'
+  },
+  {
+    name: 'YouTube',
+    value: 56400000,
+    color: '#FF0000',
+    icon: 'youtube'
+  },
+  {
+    name: 'TikTok',
+    value: 23400000,
+    color: '#000000',
+    icon: 'tiktok'
+  }
+];
+
+const socialComparisonData = [
+  {
+    name: 'spotify',
+    leftValue: 4400000,
+    rightValue: 2200000,
+    color: '#1DB954',
+    icon: 'spotify',
+    label: 'Followers'
+  },
+  {
+    name: 'youtube',
+    leftValue: 1800000,
+    rightValue: 500000,
+    color: '#FF0000',
+    icon: 'youtube',
+    label: 'Subscribers'
+  },
+  {
+    name: 'instagram',
+    leftValue: 1200000,
+    rightValue: 0,
+    color: '#E4405F',
+    icon: 'instagram',
+    label: 'Followers'
+  },
+  {
+    name: 'facebook',
+    leftValue: 227800,
+    rightValue: 501700,
+    color: '#1877F2',
+    icon: 'facebook',
+    label: 'Followers'
+  },
+  {
+    name: 'soundcloud',
+    leftValue: 454600,
+    rightValue: 168800,
+    color: '#FF3300',
+    icon: 'soundcloud',
+    label: 'Fans'
+  },
+  {
+    name: 'tiktok',
+    leftValue: 1900000,
+    rightValue: 295000,
+    color: '#000000',
+    icon: 'tiktok',
+    label: 'Followers'
+  }
+];
+
 export function ComparisonSection() {
   return (
     <div className="space-y-6 p-6">
-    <div className="flex w-full">
+      <div className="flex w-full">
         <TopConnections connections={sampleConnections} />
         <TopConnections connections={sampleConnections} />
-    </div>
+      </div>
+      <SocialComparison 
+        platforms={socialComparisonData}
+        leftArtist="Taylor Swift"
+        rightArtist="Sabrina Carpenter"
+      />
+      <div className="grid grid-cols-2 gap-6">
+        <FanbaseDistribution 
+          data={fanbaseDistributionData} 
+          totalFans={727000000}
+          artistName="Taylor Swift"
+        />
+        <FanbaseDistribution 
+          data={fanbaseDistributionData.map(d => ({ ...d, value: d.value * 0.4 }))} 
+          totalFans={119000000}
+          artistName="Sabrina Carpenter"
+        />
+      </div>
       <FanbaseChart data={fanbaseData} />
       <MostPlayedTracks tracks={sampleTracks} />
       <PopularityChart data={popularityData} />

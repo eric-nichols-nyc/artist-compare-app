@@ -1,6 +1,6 @@
 'use client';
 
-import { ChartCard } from '../charts/chart-card';
+import { ChartCard } from './chart-card';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { ArtistFanbaseData } from '@/types/artist';
 
@@ -10,15 +10,7 @@ const PLATFORMS = {
   instagram: { name: 'Instagram', color: '#E4405F' },
   facebook: { name: 'Facebook', color: '#1877F2' },
   tiktok: { name: 'TikTok', color: '#000000' },
-  twitter: { name: 'Twitter', color: '#1DA1F2' },
-  deezer: { name: 'Deezer', color: '#FEAA2D' },
   soundcloud: { name: 'SoundCloud', color: '#FF3300' },
-  twitch: { name: 'Twitch', color: '#9146FF' },
-  amazon: { name: 'Amazon Music', color: '#00A8E1' },
-  applemusic: { name: 'Apple Music', color: '#FA57C1' },
-  pandora: { name: 'Pandora', color: '#3668FF' },
-  vk: { name: 'VK', color: '#4C75A3' },
-  yandex: { name: 'Yandex Music', color: '#FFCC00' }
 };
 
 interface FanbaseChartProps {

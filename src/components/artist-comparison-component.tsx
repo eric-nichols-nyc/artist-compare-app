@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { ArtistComparisonSection } from "./artist-comparison-section";
 import { useSearchParams, useRouter } from "next/navigation";
-import { FanbaseChart } from "./features/compare/fanbase-chart";
+import { FanbaseChart } from "./features/compare/charts/fanbase-chart";
 import { ComparisonSection } from "./features/compare/comparison-section";
 
 
