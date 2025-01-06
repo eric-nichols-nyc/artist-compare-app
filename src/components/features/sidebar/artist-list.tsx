@@ -4,7 +4,6 @@ import { useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useArtists } from '@/context/artist-context'
-import { Button } from '@/components/ui/button'
 
 export function ArtistList() {
   const { artists, setArtists } = useArtists()
@@ -22,26 +21,25 @@ export function ArtistList() {
   }, [])
 
   return (
-    <div className="flex flex-col items-start gap-2 py-4">
+    <div className="flex flex-col gap-2 py-4">
       {artists.map((artist) => (
-        <div className="flex gap-2">
-        <Button variant="link" asChild key={artist.id}>
         <Link
-          href={`/preview-artist/${artist.id}`}
-          className="relative w-full h-10  overflow-hidden hover:ring-2 hover:ring-blue-500 transition-all"
-          title={artist.name}
+          key={artist.id}
+          href={`/admin/preview-artist/${artist.id}`}
+          className="flex items-center gap-3 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors group"
         >
-          <Image
-            src={artist.imageUrl}
-            alt={artist.name}
-            width={40}
-            height={40}
-            className="object-cover rounded-full"
-          />
-          <p>{artist.name}</p>
+          <div className="relative w-10 h-10">
+            <Image
+              src={artist.imageUrl}
+              alt={artist.name}
+              fill
+              className="rounded-full object-cover"
+            />
+          </div>
+          <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 truncate">
+            {artist.name}
+          </span>
         </Link>
-        </Button>
-        </div>
       ))}
     </div>
   )

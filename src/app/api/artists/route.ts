@@ -2,36 +2,6 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
 
-const mockArtists = [
-  {
-    "id": "artist-1",
-    "name": "Taylor Swift",
-    "spotifyFollowers": 16430126,
-    "monthlyListeners": 52438837,
-    "youtubeSubscribers": 8760905,
-    "instagramFollowers": 72106569,
-    "popularity": "99",
-    "imageUrl": "https://i.scdn.co/image/ab6761610000e5eb5a00969a4698c3132a15fbb0",
-    "country": "US",
-    "genres": ["pop", "country pop", "dance pop"],
-    "facebookFollowers": 75234567,
-    "tiktokFollowers": 55678901,
-  },
-  {
-    "id": "artist-2",
-    "name": "Beyonce",
-    "spotifyFollowers": 16430126,
-    "monthlyListeners": 52438837,
-    "youtubeSubscribers": 8760905,
-    "instagramFollowers": 72106569,
-    "popularity": "99",
-    "imageUrl": "https://i.scdn.co/image/ab6761610000e5eb12e3f20d05a8d6cfde988715",
-    "country": "US",
-    "genres": ["r&b", "pop", "dance pop"],
-    "facebookFollowers": 62345678,
-    "tiktokFollowers": 48765432,
-  },
-]
 
 const getArtists = unstable_cache(
   async () => {
@@ -99,6 +69,6 @@ export async function GET() {
     return NextResponse.json({ artists })
   } catch (error) {
     console.error('Error fetching artists:', error)
-    return NextResponse.json({ artists: mockArtists })
+    return NextResponse.json({ error: 'Failed to fetch artists' })
   }
 }
