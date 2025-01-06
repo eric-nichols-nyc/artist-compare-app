@@ -8,8 +8,8 @@ import { FanbaseDistribution } from './charts/fanbase-distribution-chart';
 // import { PopularityChart } from './charts/popularity-chart';
 // import { MonthlyListenersChart } from './charts/monthly-listeners-chart';
 // import { YouTubeDailyViewsChart } from './charts/youtube-daily-views-chart';
-// import { MostViewedVideos } from '../youtube/most-viewed-videos';
-// import { MostPlayedTracks } from '../spotify/most-played-tracks';
+import { MostViewedVideos } from '../youtube/most-viewed-videos';
+import { MostPlayedTracks } from '../spotify/most-played-tracks';
 // import { TopConnections } from '../connections/top-connections';
 // import { SocialComparison } from './charts/social-comparison-chart';
 
@@ -58,7 +58,7 @@ export function ComparisonSection() {
     <div className="flex flex-col gap-4">
     
       {/* Pie charts for each artist */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sortedFanbaseData.map((artist, index) => (
           <FanbaseDistribution 
             key={artist.name}
@@ -68,12 +68,11 @@ export function ComparisonSection() {
           />
         ))}
       </div>
-           {/* Bar chart comparing both artists */}
            <div className="w-full">
         <FanbaseChart data={sortedFanbaseData} />
-      </div>
+      </div> */}
       
-      {/* Add your third fanbase chart component here */}
+      <MostViewedVideos />
     </div>
   );
 }
