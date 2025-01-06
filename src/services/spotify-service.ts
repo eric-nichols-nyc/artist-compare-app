@@ -159,6 +159,7 @@ export class SpotifyService {
             );
 
             const data = await response.json();
+            console.log('spotify tracks by id = ', data.tracks)
             return data.tracks || [];
         },
         ['spotify-tracks'],

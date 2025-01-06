@@ -1,3 +1,5 @@
+import { ArtistList } from './features/sidebar/artist-list'
+
 export function Sidebar() {
   const menuItems = [
     { icon: '🏠', label: 'Home' },
@@ -20,6 +22,9 @@ export function Sidebar() {
             <span className="text-xl">{item.icon}</span>
           </button>
         ))}
+      </div>
+      <div className="border-t border-gray-200">
+        <ArtistList />
       </div>
     </nav>
   )
