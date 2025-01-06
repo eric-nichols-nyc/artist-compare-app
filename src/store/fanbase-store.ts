@@ -6,6 +6,7 @@ interface FanbaseStore {
   isLoading: boolean;
   error: string | null;
   fetchFanbaseData: (artist1: string, artist2: string) => Promise<void>;
+  clearStore: () => void;
 }
 
 export const useFanbaseStore = create<FanbaseStore>((set) => ({
@@ -29,4 +30,5 @@ export const useFanbaseStore = create<FanbaseStore>((set) => ({
       set({ error: (error as Error).message, isLoading: false });
     }
   },
+  clearStore: () => set({ fanbaseData: [], isLoading: false, error: null })
 })); 

@@ -32,8 +32,8 @@ export function FanbaseDistribution({ data, totalFans, artistName }: FanbaseDist
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={60}
-              outerRadius={80}
+              innerRadius={50}
+              outerRadius={100}
               paddingAngle={2}
               dataKey="value"
             >
@@ -49,6 +49,8 @@ export function FanbaseDistribution({ data, totalFans, artistName }: FanbaseDist
                 borderRadius: '8px',
                 color: 'white'
               }}
+              labelStyle={{ color: 'white' }}
+              itemStyle={{ color: 'white' }}
             />
             <Legend />
           </PieChart>

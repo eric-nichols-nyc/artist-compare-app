@@ -59,6 +59,8 @@ export async function GET(request: Request) {
 
   try {
     const fanbaseData = await getFanbaseData(artist1, artist2);
+
+    console.log('fanbaseData ', fanbaseData)
     
     if (!fanbaseData.length) {
       return NextResponse.json(
