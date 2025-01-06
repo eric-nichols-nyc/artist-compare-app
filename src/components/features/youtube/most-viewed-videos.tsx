@@ -13,6 +13,51 @@ interface VideoData {
   artistName: string;
 }
 
+function ViewComparisonBar({ videos }: { videos: VideoData[] }) {
+  if (videos.length !== 2) return null;
+
+  const maxViews = Math.max(videos[0].views, videos[1].views);
+  const leftWidth = (videos[0].views / maxViews) * 100;
+  const rightWidth = (videos[1].views / maxViews) * 100;
+
+  return (
+    <div className="relative h-16 flex items-center">
+      {/* Left Bar */}
+      <div className="flex-1 h-12 flex justify-end">
+        <div 
+          className="bg-red-600 h-full rounded-l-md transition-all duration-500"
+          style={{ width: `${leftWidth}%` }}
+        >
+          <div className="absolute left-0 top-0 h-full flex items-center px-4 text-white font-medium">
+            {formatNumber(videos[0].views)} Plays
+          </div>
+        </div>
+      </div>
+
+      {/* Center Logo */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+        <div className="w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center">
+          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="#FF0000">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </div>
+      </div>
+
+      {/* Right Bar */}
+      <div className="flex-1 h-12 flex justify-start">
+        <div 
+          className="bg-red-300 h-full rounded-r-md transition-all duration-500"
+          style={{ width: `${rightWidth}%` }}
+        >
+          <div className="absolute right-0 top-0 h-full flex items-center px-4 text-white font-medium">
+            {formatNumber(videos[1].views)} Plays
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MostViewedVideos() {
   const [videos, setVideos] = useState<VideoData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -82,6 +127,7 @@ export function MostViewedVideos() {
         <h2 className="text-xl font-semibold">Most Viewed Music Videos</h2>
       </div>
       
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {videos.map((video, index) => (
           <Card key={index} className="overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-lg transition-shadow duration-200">
@@ -116,29 +162,14 @@ export function MostViewedVideos() {
                   {video.artistName}
                 </p>
               </div>
-
-              {/* Views Counter */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{formatNumber(video.views)} views</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {((video.views / maxViews) * 100).toFixed(1)}%
-                  </span>
-                </div>
-                <div className="relative h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                  <div 
-                    className="absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out"
-                    style={{ 
-                      width: `${(video.views / maxViews) * 100}%`,
-                      backgroundColor: index === 0 ? '#FF0000' : '#FF6B6B'
-                    }}
-                  />
-                </div>
-              </div>
             </CardContent>
           </Card>
         ))}
+
+
       </div>
+      <ViewComparisonBar videos={videos} />
+
     </Card>
   );
 } 
