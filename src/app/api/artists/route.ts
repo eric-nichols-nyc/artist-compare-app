@@ -86,7 +86,7 @@ const getArtists = unstable_cache(
       tiktokFollowers: artist.artist_analytics[0]?.tiktok_followers || 0,
     }))
   },
-  ['artists-list'],
+  ['artists-list-1'],
   {
     revalidate: 300,
     tags: ['artists']

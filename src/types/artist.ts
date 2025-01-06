@@ -10,3 +10,15 @@ export interface ArtistFormState {
   isSubmitting: boolean;
   errors: Record<string, string>;
 }
+
+export interface PlatformData {
+  platform: string;
+  followers: number;
+  color: string;
+}
+
+export interface ArtistFanbaseData {
+  name: string;
+  platforms: PlatformData[];
+  totalFollowers: number;
+}

@@ -75,7 +75,9 @@ const getViberateData = (artistName: string) => unstable_cache(
         isMobile: false,
       });
       const page = await context.newPage();
-      const response = await page.goto(`https://www.viberate.com/artist/${artistName}`, { waitUntil: 'networkidle' });
+      const encodedArtistName = encodeURIComponent(artistName.toLowerCase());
+      console.log(encodedArtistName)
+      const response = await page.goto(`https://www.viberate.com/artist/${encodedArtistName}`, { waitUntil: 'networkidle' });
       
       // Check if page loaded successfully
       if (!response?.ok()) {
@@ -240,28 +242,44 @@ const getViberateData = (artistName: string) => unstable_cache(
   }
 );
 
-const getMonthlyListeners = async (page: Page): Promise<number | null> => {
-  function parseCompactNumber(value: string | null | undefined): number | undefined {
-    if (!value) return undefined;
-    const normalized = value.trim().toLowerCase();
+const getMonthlyListeners = async (page: Page): Promise<number> => {
+  try {
+    // Wait for 2 seconds before checking
+    await page.waitForTimeout(2000);
     
-    if (normalized.endsWith('k')) {
-      return parseFloat(normalized.replace('k', '')) * 1000;
+    // First check if element exists to avoid the error
+    const elementExists = await page.$('.analytics-module-content .stats strong');
+    if (!elementExists) {
+      console.log('Monthly listeners element not found on page');
+      return 0;
     }
-    if (normalized.endsWith('m')) {
-      return parseFloat(normalized.replace('m', '')) * 1000000;
+
+    function parseCompactNumber(value: string | null | undefined): number | undefined {
+      if (!value) return undefined;
+      const normalized = value.trim().toLowerCase();
+      
+      if (normalized.endsWith('k')) {
+        return parseFloat(normalized.replace('k', '')) * 1000;
+      }
+      if (normalized.endsWith('m')) {
+        return parseFloat(normalized.replace('m', '')) * 1000000;
+      }
+      if (normalized.endsWith('b')) {
+        return parseFloat(normalized.replace('b', '')) * 1000000000;
+      }
+      
+      return parseFloat(normalized);
     }
-    if (normalized.endsWith('b')) {
-      return parseFloat(normalized.replace('b', '')) * 1000000000;
-    }
-    
-    return parseFloat(normalized);
+
+    const monthlyListeners = await page.$eval(
+      '.analytics-module-content .stats strong', 
+      (element:any) => element.textContent || null
+    );
+    return parseCompactNumber(monthlyListeners) || 0;
+  } catch (error) {
+    console.error('Error getting monthly listeners:', error);
+    return 0;
   }
-  const monthlyListeners = await page.$eval(
-    '.analytics-module-content .stats strong', 
-    (element:any) => element.textContent || null
-  );
-  return parseCompactNumber(monthlyListeners) || null;
 };
 
 export const GET = async (req: Request) => {
