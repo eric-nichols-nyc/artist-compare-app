@@ -152,7 +152,7 @@ export function ArtistComparison({ reversed = false }: ArtistComparisonProps) {
         <h1 className="text-4xl font-bold text-white">Compare Artists</h1>
       </div>
 
-      <div className="grid grid-cols-2 gap-8">
+      <div className="grid grid-cols-2 gap-2">
         <ArtistComparisonSection
           id={1}
           artist={selectedArtists.artist1}

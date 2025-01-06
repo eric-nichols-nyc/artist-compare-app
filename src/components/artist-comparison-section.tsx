@@ -47,7 +47,7 @@ export function ArtistComparisonSection({
   };
 
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center gap-6 w-full px-6">
       {artist ? (
         <ArtistProfileCard
           {...artist}

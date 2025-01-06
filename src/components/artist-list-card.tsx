@@ -29,7 +29,7 @@ export function ArtistListCard({
   const artists = Array.isArray(recommendedArtists) ? recommendedArtists : [];
 
   return (
-    <Card className="flex-1">
+    <Card className="flex flex-col w-full">
       <CardHeader>
         <CardTitle>Compare the social media and streaming stats of any two Artists out there.</CardTitle>
       </CardHeader>
