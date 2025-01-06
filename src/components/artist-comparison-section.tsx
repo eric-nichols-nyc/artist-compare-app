@@ -1,8 +1,6 @@
 "use client";
-import { useState, useEffect } from 'react'
 import { ArtistProfileCard } from "./artist-profile-card";
 import { ArtistListCard } from "./artist-list-card";
-import { useSearchParams, useRouter } from 'next/navigation'
 
 interface Artist {
   name: string;
@@ -10,6 +8,7 @@ interface Artist {
   countryCode: string;
   genre: string;
   imageUrl: string;
+  rank: number;
   rankings: {
     pop: number;
     mainstreamPop: number;
@@ -31,9 +30,7 @@ interface ArtistComparisonSectionProps {
 }
 
 export function ArtistComparisonSection({
-  id,
   artist,
-  title,
   searchQuery,
   onSearchChange,
   recommendedArtists,
@@ -42,7 +39,6 @@ export function ArtistComparisonSection({
   isLoading,
   reversed,
 }: ArtistComparisonSectionProps) {
-  console.log('artist comparison section', artist)
   const handleArtistSelect = (selectedArtist: Omit<Artist, "rankings">) => {
     onArtistSelect(selectedArtist);
   };

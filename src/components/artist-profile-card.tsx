@@ -31,7 +31,6 @@ export function ArtistProfileCard({
   onChangeArtist,
   reversed
 }: ArtistProfileProps) {
-  console.log('artist profile card', name, rank)
   const [imageError, setImageError] = useState(false);
   const fallbackImage = "/images/placeholder.jpg";
 
