@@ -5,6 +5,8 @@ import { useStore } from "@/hooks/use-store";
 import { Footer } from "@/app/(admin)/admin/_components/footer";
 import { Sidebar } from "@/app/(admin)/admin/_components/sidebar";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
+import { Toaster } from "@/components/ui/sonner";
+import { ArtistProvider } from "@/context/artist-context";
 
 export default function AdminPanelLayout({
   children
@@ -16,7 +18,7 @@ export default function AdminPanelLayout({
   if (!sidebar) return null;
 
   return (
-    <>
+    <ArtistProvider>
       <Sidebar />
       <main
         className={cn(
@@ -24,7 +26,8 @@ export default function AdminPanelLayout({
           sidebar?.isOpen === false ? "lg:ml-[90px]" : "lg:ml-72"
         )}
       >
-        {children}
+          {children}
+        <Toaster />
       </main>
       <footer
         className={cn(
@@ -34,6 +37,6 @@ export default function AdminPanelLayout({
       >
         <Footer />
       </footer>
-    </>
+      </ArtistProvider>
   );
 }
